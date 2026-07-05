@@ -12,6 +12,7 @@ pub struct Vm {
     pub frames: Vec<Frame>,
     pub ip: usize,
     pub chunk_idx: usize,
+    #[allow(dead_code)]
     pub modules: HashMap<String, Value>,
     pub try_frames: Vec<(usize, usize)>,
 }
@@ -20,6 +21,7 @@ pub struct Frame {
     pub chunk_idx: usize,
     pub ip: usize,
     pub stack_start: usize,
+    #[allow(dead_code)]
     pub locals: usize,
     pub closure: Option<ObjRef>,
 }
@@ -1700,7 +1702,6 @@ fn execute_chunk(chunk_idx: usize, args: &[Value], ctx: &mut VmContext) -> Resul
             }
             OpCode::Jump => {
                 let target = u16::from_le_bytes([chunk.code[ip], chunk.code[ip+1]]) as usize;
-                ip += 2;
                 ip = target;
             }
             OpCode::JumpIfFalse => {
@@ -1836,12 +1837,12 @@ fn execute_chunk(chunk_idx: usize, args: &[Value], ctx: &mut VmContext) -> Resul
                 store_attr(&obj, &name, val, ctx.heap)?;
             }
             OpCode::LoadUpvalue => {
-                let idx = u16::from_le_bytes([chunk.code[ip], chunk.code[ip+1]]) as usize;
+                let _idx = u16::from_le_bytes([chunk.code[ip], chunk.code[ip+1]]) as usize;
                 ip += 2;
                 stack.push(Value::Nil);
             }
             OpCode::StoreUpvalue => {
-                let idx = u16::from_le_bytes([chunk.code[ip], chunk.code[ip+1]]) as usize;
+                let _idx = u16::from_le_bytes([chunk.code[ip], chunk.code[ip+1]]) as usize;
                 ip += 2;
                 stack.pop();
             }
@@ -2119,7 +2120,6 @@ fn execute_closure_chunk(chunk_idx: usize, args: &[Value], upvalues: Vec<Upvalue
             }
             OpCode::Jump => {
                 let target = u16::from_le_bytes([chunk.code[ip], chunk.code[ip+1]]) as usize;
-                ip += 2;
                 ip = target;
             }
             OpCode::JumpIfFalse => {

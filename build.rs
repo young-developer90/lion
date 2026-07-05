@@ -3,6 +3,7 @@ use std::path::PathBuf;
 use std::process::Command;
 
 fn main() {
+    println!("cargo::rustc-check-cfg=cfg(cuda_support)");
     // Try to find CUDA toolkit
     let cuda_path = find_cuda();
 

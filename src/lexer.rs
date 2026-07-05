@@ -1,6 +1,7 @@
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq)]
+#[allow(dead_code)]
 pub enum TokenKind {
     // Literals
     Identifier(String),

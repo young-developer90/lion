@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;

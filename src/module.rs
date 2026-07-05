@@ -3,7 +3,6 @@ use std::rc::Rc;
 
 use crate::compiler::Compiler;
 use crate::gc::*;
-use crate::http;
 use crate::http_module;
 use crate::parser::Parser;
 use crate::stdlib;

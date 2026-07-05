@@ -285,6 +285,7 @@ fn json_pretty(val: &Value, heap: &GcHeap, indent: &str, depth: usize) -> String
     }
 }
 
+#[allow(dead_code)]
 fn to_i64(val: &Value) -> Result<i64, String> {
     match val {
         Value::Int(n) => Ok(*n),

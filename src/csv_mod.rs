@@ -75,7 +75,7 @@ pub fn build_csv() -> Vec<(String, Value)> {
                     .first()
                     .map(|a| a.to_string(ctx.heap))
                     .unwrap_or_default();
-                let mut lines: Vec<&str> = text.lines().map(|l| l.trim()).filter(|l| !l.is_empty()).collect();
+                let lines: Vec<&str> = text.lines().map(|l| l.trim()).filter(|l| !l.is_empty()).collect();
                 if lines.is_empty() {
                     return Ok(make_list(ctx.heap, Vec::new()));
                 }

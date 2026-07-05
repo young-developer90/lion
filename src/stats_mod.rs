@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use crate::gc::*;
 
-fn to_f64(val: &Value, heap: &GcHeap) -> Result<f64, String> {
+fn to_f64(val: &Value, _heap: &GcHeap) -> Result<f64, String> {
     match val {
         Value::Int(n) => Ok(*n as f64),
         Value::UInt(n) => Ok(*n as f64),

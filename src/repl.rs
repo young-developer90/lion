@@ -309,7 +309,7 @@ impl Repl {
                     cursor = 0;
                     redraw_line(stdout, prompt, &buf, cursor)?;
                 }
-                b @ 0x08..=0x1a => {}
+                _b @ 0x08..=0x1a => {}
                 c => {
                     buf.insert(cursor, c as char);
                     cursor += 1;

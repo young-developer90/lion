@@ -9,6 +9,7 @@ pub struct Compiler {
     pub current_chunk: usize,
     pub scopes: Vec<Scope>,
     pub loop_stack: Vec<LoopInfo>,
+    #[allow(dead_code)]
     pub strings: HashMap<String, u16>,
     pub current_func_depth: usize,
 }
@@ -28,12 +29,14 @@ pub enum Variable {
 
 pub struct LocalInfo {
     pub name: String,
+    #[allow(dead_code)]
     pub depth: usize,
     pub captured: bool,
 }
 
 pub struct LoopInfo {
     pub start: usize,
+    #[allow(dead_code)]
     pub break_target: usize,
     pub end_targets: Vec<usize>,
 }
@@ -493,7 +496,7 @@ impl Compiler {
                 }
             }
             Stmt::StructDef { name, methods } => {
-                let struct_name_idx = self.intern_string(name);
+                let _struct_name_idx = self.intern_string(name);
                 // compile methods first, collect their chunks
                 let mut method_infos: Vec<(String, usize)> = Vec::new();
                 for method in methods {
