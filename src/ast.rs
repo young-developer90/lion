@@ -148,6 +148,7 @@ pub enum Stmt {
         catch_var: String,
         catch_body: Vec<Stmt>,
     },
+    Block(Vec<Stmt>),
     Break,
     Continue,
     StructDef {

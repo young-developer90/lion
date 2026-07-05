@@ -143,6 +143,7 @@ impl Parser {
             TokenKind::Struct => self.parse_struct_def(),
             TokenKind::Break => { self.advance(); Ok(Stmt::Break) }
             TokenKind::Continue => { self.advance(); Ok(Stmt::Continue) }
+            TokenKind::LBrace => Ok(Stmt::Block(self.parse_block()?)),
             _ => self.parse_expr_stmt(),
         }
     }

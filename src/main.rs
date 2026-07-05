@@ -146,9 +146,7 @@ fn fmt_file(path: &str) -> Result<(), String> {
 fn run_tests(path: &str) -> Result<Vec<(String, bool, String)>, String> {
     let mut results = Vec::new();
 
-    let skip_tests = ["test_gfx", "test_text", "test_ui", "test_run", "test_loop", "test_lsp", "test_scope",
-        "test_simple", "test_while", "test_while2", "test_while3", "test_while4",
-        "test_for2", "test_min", "test_min2", "test_autoclose", "test_close", "test_final"];
+    let skip_tests = ["test_lsp"];
 
     let test_files = if std::path::Path::new(path).is_dir() {
         let mut files = Vec::new();

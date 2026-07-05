@@ -578,6 +578,11 @@ impl Compiler {
                 self.chunk().code[td_pos..td_pos + 2]
                     .copy_from_slice(&done_pos.to_le_bytes());
             }
+            Stmt::Block(stmts) => {
+                for s in stmts {
+                    self.compile_stmt(s)?;
+                }
+            }
             Stmt::Break => {
                 let pos = self.chunk().code.len();
                 self.chunk().emit(OpCode::Jump);
