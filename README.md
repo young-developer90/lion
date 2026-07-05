@@ -22,13 +22,56 @@ Lion is designed to be:
 - **Self-contained** — batteries included: HTTP client, JSON/CSV/HTML parsers, stats module, file I/O, regex, datetime, logging, subprocess, pathlib, hashlib/crypto, collections, itertools, and unit test assertions.
 - **Extensible** — module system with import/export, optional Python interop, optional CUDA GPU acceleration.
 
-## Quick Start
+## Installation
+
+### Prerequisites
+
+- **Rust** 1.80+ (edition 2021) — install via [rustup](https://rustup.rs/)
+- **Git** — for cloning the repository
+- **Python** 3.10+ (optional) — for running Python benchmarks and Python interop
+- **CUDA Toolkit** 12.x (optional) — for GPU-accelerated matrix operations
+
+### Quick Start
 
 ```bash
 git clone https://github.com/young-developer90/lion.git
 cd lion
 cargo build --release
 ./target/release/lion run examples/hello.lion
+```
+
+### Build Options
+
+| Command | Description |
+|---------|-------------|
+| `cargo build` | Debug build (fast compile, slow execution) |
+| `cargo build --release` | Release build (slow compile, fast execution) |
+| `cargo build --bin lion` | Build only the interpreter (excludes LSP) |
+| `cargo build --bin lion-lsp` | Build only the LSP server |
+| `cargo build --features python` | Enable Python interop via PyO3 |
+| `cargo build --features cuda` | Enable CUDA GPU acceleration |
+
+### Run Your First Script
+
+```bash
+echo 'print("Hello, Lion!")' > hello.lion
+./target/release/lion run hello.lion
+```
+
+### Start the REPL
+
+```bash
+./target/release/lion repl
+```
+
+Try it out:
+```
+Lion> let x = 42;
+Lion> print(f"the answer is {x}");
+the answer is 42
+Lion> func fib(n) { if n <= 1 { return n; } return fib(n-1) + fib(n-2); }
+Lion> print(fib(20));
+6765
 ```
 
 ## Examples
@@ -72,6 +115,211 @@ let encoded = json.stringify(data);
 print(encoded);
 ```
 
+## Language Tour
+
+### Variables & Constants
+
+```lion
+let name = "Lion";           // mutable
+const pi = 3.14159;          // immutable
+let count = 42;              // Int
+let price = 19.99;           // Float
+let active = true;           // Bool
+let data = nil;              // Nil
+```
+
+### Strings
+
+```lion
+let s = "hello";
+let multi = """line one
+line two
+line three""";
+let interpolated = f"value: {s}, sum: {2 + 2}";
+let len = string.len(s);
+let upper = string.upper(s);
+let parts = string.split("a,b,c", ",");
+```
+
+### Collections
+
+```lion
+let list = [1, 2, 3];
+list.push(4);
+let first = list[0];
+
+let dict = {"name": "Lion", "version": 1.0};
+dict["author"] = "you";
+let v = dict["name"];
+
+let set = {1, 2, 3};
+set.add(4);
+
+let tuple = (1, "hello", true);
+```
+
+### Control Flow
+
+```lion
+// if/elif/else
+if x > 0 {
+    print("positive");
+} elif x < 0 {
+    print("negative");
+} else {
+    print("zero");
+}
+
+// while
+while count > 0 {
+    count -= 1;
+}
+
+// for..in ranges
+for i in 0..10 {
+    print(i);
+}
+
+// for..in with step
+for i in 0..100..5 {
+    print(i);
+}
+
+// for..in collections
+for item in list {
+    print(item);
+}
+
+// ternary
+let max = a > b ? a : b;
+```
+
+### Functions
+
+```lion
+// named function
+func greet(name) {
+    return f"Hello, {name}!";
+}
+
+// lambda
+let double = |x| x * 2;
+
+// closure
+func make_counter() {
+    let i = 0;
+    return func() { i += 1; return i; };
+}
+
+// variadic args
+func sum(...nums) {
+    let total = 0;
+    for n in nums { total += n; }
+    return total;
+}
+
+// named/default args
+func connect(host, port = 8080) {
+    print(f"{host}:{port}");
+}
+```
+
+### Pattern Matching
+
+```lion
+let value = 42;
+match value {
+    0 => print("zero"),
+    1..10 => print("small"),
+    42 => print("answer!"),
+    _ => print("something else"),
+}
+
+match status {
+    "ok" => print("success"),
+    "error" => print("failed"),
+    _ => print("unknown"),
+}
+```
+
+### Error Handling
+
+```lion
+try {
+    let result = risky_operation();
+    print(result);
+} catch e {
+    print(f"caught: {e}");
+}
+
+throw "something went wrong";
+```
+
+### Structs
+
+```lion
+struct Counter {
+    func new() {
+        return Counter{ count = 0 };
+    }
+
+    func increment(self) {
+        self.count += 1;
+    }
+
+    func value(self) {
+        return self.count;
+    }
+}
+
+let c = Counter.new();
+c.increment();
+print(c.value());  // 1
+```
+
+### Modules
+
+```lion
+// import.lion
+export func hello() { print("hi"); }
+
+// main.lion
+import "import.lion" as mymod;
+mymod.hello();
+```
+
+### Comprehensions
+
+```lion
+let squares = [x * x for x in 0..10];
+let evens = [x for x in 0..20 if x % 2 == 0];
+```
+
+## Standard Library Reference
+
+| Module | Functions | Description |
+|--------|-----------|-------------|
+| `math` | `abs`, `sqrt`, `sin`, `cos`, `tan`, `floor`, `ceil`, `round`, `min`, `max`, `pow`, `log`, `pi`, `e` | Math utilities |
+| `time` | `sleep`, `now` | Time utilities |
+| `rand` | `int`, `float`, `shuffle`, `choice` | Random number generation |
+| `fs` | `read`, `write`, `append`, `exists`, `remove`, `mkdir`, `read_dir`, `stat`, `copy`, `rename` | File system operations |
+| `os` | `args`, `env`, `set_env`, `cwd`, `chdir`, `exit`, `platform`, `type` | Operating system interface |
+| `json` | `parse`, `stringify` | JSON encoding/decoding |
+| `csv` | `parse`, `stringify` | CSV parsing/formatting |
+| `html` | `parse`, `query`, `inner_text`, `inner_html`, `attr`, `children` | HTML parsing with CSS selectors |
+| `http` | `get`, `post`, `put`, `delete`, `patch`, `head`, `options` | HTTP client |
+| `url` | `encode`, `decode`, `parse`, `build` | URL utilities |
+| `stats` | `mean`, `median`, `mode`, `std`, `variance`, `min`, `max`, `sum`, `correlation`, `regression` | Statistics |
+| `re` | `find_all`, `sub`, `split`, `match`, `search` | Regular expressions |
+| `datetime` | `now`, `from_unix`, `format`, `parse`, `unix` | Date/time handling |
+| `logging` | `info`, `warn`, `error`, `debug`, `set_level` | Logging |
+| `subprocess` | `run`, `run_shell`, `capture` | Subprocess execution |
+| `path` | `join`, `basename`, `dirname`, `ext`, `exists`, `is_file`, `is_dir`, `abs` | Path manipulation |
+| `hashlib` | `sha256`, `sha512`, `sha1`, `md5`, `base64_encode`, `base64_decode`, `hex_encode`, `hex_decode` | Hashing & encoding |
+| `collections` | `Counter`, `deque` | Specialized collections |
+| `itertools` | `sorted`, `unique`, `group_by`, `flatten`, `chunks`, `zip`, `enumerate`, `cycle`, `repeat`, `take`, `skip` | Iterator utilities |
+| `test` | `assert_eq`, `assert_ne`, `assert_true`, `assert_false`, `assert_lt`, `assert_gt`, `assert_approx` | Unit testing |
+
 ## Features
 
 | Category | Details |
@@ -83,7 +331,7 @@ print(encoded);
 | **Control Flow** | `if`/`elif`/`else`, `while`, `for..in`, ternary `? :`, `match` |
 | **Error Handling** | `try`/`catch`/`throw` |
 | **Modules** | `import`/`export` with aliases |
-| **Standard Library** | `math`, `time`, `rand`, `fs`, `os`, `json`, `csv`, `html`, `http`, `url`, `stats`, `re`, `datetime`, `logging`, `subprocess`, `path`, `hashlib`, `collections`, `itertools`, `test` |
+| **Standard Library** | 20+ built-in modules |
 | **Python Interop** | Optional — import and call any Python module (NumPy, PyTorch, pandas, etc.) |
 | **GPU** | Optional CUDA acceleration for matrix operations |
 | **Tooling** | REPL, bytecode disassembler, formatter, test runner |
@@ -106,28 +354,18 @@ print(encoded);
 | REPL | Yes | Yes | Node.js | Yes |
 | LSP support | Yes | pylance | tsserver | No |
 
-## Usage
+## CLI Usage
 
 ```bash
-lion run <file>              # Run a script
-lion repl                    # Interactive REPL
-lion run --disassemble <file> # Show bytecode disassembly
-lion fmt <file>              # Format source code
-lion test [path]             # Run tests
-lion version                 # Show version
+lion run <file>                # Run a script
+lion repl                      # Interactive REPL
+lion run --disassemble <file>  # Show bytecode disassembly
+lion fmt <file>                # Format source code
+lion test [path]               # Run tests (default: ./tests/)
+lion version                   # Show version
 ```
 
-## Building
-
-### Prerequisites
-
-- [Rust](https://rustup.rs/) 1.80+ (edition 2021)
-
-### Release build
-
-```bash
-cargo build --release
-```
+## Advanced Builds
 
 ### LSP server
 
@@ -200,31 +438,44 @@ Benchmarks comparing Lion 1.4.8 (release build) against Python 3.14 on the same 
 
 | Benchmark | Lion 1.4.8 | Python 3.14 | vs Python |
 |-----------|------------|-------------|-----------|
-| `re.find_all` — 10k lines | 2.1 ms | 1.7 ms | ~1.2× slower |
-| `re.sub_all` — 10k lines | 3.2 ms | 9.8 ms | ~3× faster |
-| `re.split` — 10k lines | 1.0 ms | 0.5 ms | ~2× slower |
-| `collections.Counter` — 50k words | 2.9 ms | 1.2 ms | ~2.4× slower |
-| `itertools.unique` — 20k items | 1.5 ms | 0.2 ms | ~7.5× slower |
-| `itertools.sorted` — 10k items | 0.10 ms | 0.04 ms | ~2.5× slower |
-| `datetime.now` — 10k calls | 16.7 ms | 1.6 ms | ~10× slower |
-| `datetime.format` — 10k calls | 25.0 ms | 16.5 ms | ~1.5× slower |
-| `hashlib.sha256` — 1k strings | 6.4 ms | 0.7 ms | ~9× slower |
-| `hashlib.base64` — 1k strings | 6.0 ms | 0.4 ms | ~15× slower |
-| `subprocess.run_shell` — 100 calls | 1.46 s | 1.50 s | ~1× (on par) |
+| `re.find_all` — 10k lines | 2.1 ms | 1.7 ms | ~1.3× slower |
+| `re.sub_all` — 10k lines | 3.8 ms | 8.6 ms | ~2.3× faster |
+| `re.split` — 10k lines | 1.6 ms | 0.5 ms | ~3× slower |
+| `collections.Counter` — 50k words | 1.7 ms | 1.1 ms | ~1.6× slower |
+| `itertools.unique` — 20k items | 1.1 ms | 0.2 ms | ~6× slower |
+| `itertools.sorted` — 10k items | 0.11 ms | 0.04 ms | ~2.7× slower |
+| `datetime.now` — 10k calls | 15.7 ms | 1.8 ms | ~9× slower |
+| `datetime.format` — 10k calls | 25.4 ms | 16.9 ms | ~1.5× slower |
+| `hashlib.sha256` — 1k strings | 5.8 ms | 0.6 ms | ~10× slower |
+| `hashlib.base64` — 1k strings | 5.6 ms | 0.4 ms | ~14× slower |
+| `subprocess.run_shell` — 100 calls | 1.45 s | 1.49 s | ~1× (on par) |
 
-Lion is an interpreted bytecode VM while Python benefits from decades of optimization and C-backed native implementations. Optimizations in 1.4.7/1.4.8 include: direct-threaded for-range loops (avoiding iterator GC allocation), combined jump/pop opcodes, increment/decrement opcodes for counters, constant folding in the compiler, single-pass datetime format (vs 7× `replace` calls), streamlined dict attribute lookup, drain-based Call opcode (eliminating arg vector clones in the main interpreter), `make_string_owned` across stdlib (removing one extra String clone per allocation), fast-path hex encoding with lookup table (bypassing per-byte `format!` and char conversion), optimized concat/add paths (avoiding `value_display` + `format!` double work), and direct GC byte access in hashlib (eliminating input string clones).
+Lion is an interpreted bytecode VM while Python benefits from decades of optimization and C-backed native implementations. Optimizations in 1.4.7/1.4.8 include: direct-threaded for-range loops (avoiding iterator GC allocation), combined jump/pop opcodes, increment/decrement opcodes for counters, constant folding in the compiler, single-pass datetime format and field extraction, streamlined dict attribute lookup, drain-based Call opcode (eliminating arg vector clones in the main interpreter), `make_string_owned` across stdlib (removing one extra String clone per allocation), fast-path hex encoding with lookup table, optimized concat/add paths, direct GC byte access in hashlib via `Cow<[u8]>` (eliminating input string clones), and O(1) civil-date algorithms for `date_to_unix` and `unix_to_date`.
 
 Benchmarks are in [`benchmarks/`](benchmarks/) and can be run with:
 ```bash
-cargo run --release --bin lion -- run benchmarks/bench_lion.lion
+cargo build --release --bin lion
+./target/release/lion run benchmarks/bench_lion.lion
 python benchmarks/bench_python.py
 ```
 
 ## Running Tests
 
 ```bash
-cargo build --release
+cargo build --release --bin lion
 ./target/release/lion test tests/
+```
+
+Run a single test file:
+
+```bash
+./target/release/lion test tests/test_datetime.lion
+```
+
+Run all tests including the LSP test:
+
+```bash
+./target/release/lion test tests/ --include-lsp
 ```
 
 ## Project Structure
@@ -255,26 +506,57 @@ vscode-lion/   # VS Code extension (syntax highlighting + LSP client)
 
 ## Documentation
 
-- [Full Tutorial](TUTORIAL.md) — comprehensive guide covering all language features
-- [Examples](examples/) — runnable example scripts
-- [Tests](tests/) — test suite demonstrating various features
+- **[Language Tour](#language-tour)** — quick overview of all language features (above)
+- [Full Tutorial](TUTORIAL.md) — comprehensive guide covering all language features in depth
+- [Examples](examples/) — runnable example scripts (hello world, HTTP, JSON, Python interop, CUDA, etc.)
+- [Tests](tests/) — test suite demonstrating various features (also great as reference)
+- [Benchmarks](benchmarks/) — performance benchmarks comparing Lion vs Python
+- [VS Code Extension](vscode-lion/) — syntax highlighting and LSP client for VS Code
+
+## Troubleshooting
+
+| Problem | Solution |
+|---------|----------|
+| `cargo build` fails with "CUDA toolkit not found" | This is a warning, not an error. The build succeeds without CUDA. |
+| `lion-lsp.exe` locked during build | Run `cargo build --bin lion` to build only the interpreter, or kill any running LSP process. |
+| Python interop not working | Ensure you build with `--features python` and have Python installed with `pyo3`-compatible headers. |
+| Slow performance | Always use `cargo build --release` for benchmarks and production use. Debug builds are ~50× slower. |
+| Tests fail with "cannot run test" | Build the release binary first: `cargo build --release --bin lion` |
+| REPL not working on Windows | Use the default terminal (cmd, PowerShell, or Windows Terminal). Some third-party terminals may have issues. |
 
 ## Contributing
 
 Contributions are welcome! Here's how to get started:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. **Fork** the repository on GitHub
+2. **Clone** your fork: `git clone https://github.com/your-username/lion.git`
+3. **Create a feature branch**: `git checkout -b feature/amazing-feature`
+4. **Make your changes** — follow the existing code style (no trailing whitespace, 4-space indentation)
+5. **Run tests** to verify nothing is broken (see below)
+6. **Commit** your changes with a descriptive message: `git commit -m 'Add amazing feature'`
+7. **Push** to your branch: `git push origin feature/amazing-feature`
+8. **Open a Pull Request** on the original repository
 
-Please make sure tests pass before submitting:
+### Before submitting
 
 ```bash
-cargo build --release
+# Build and run all tests
+cargo build --release --bin lion
 ./target/release/lion test tests/
+
+# Run benchmarks to check for regressions
+./target/release/lion run benchmarks/bench_lion.lion
 ```
+
+### Code style
+
+- 4-space indentation, no tabs
+- Opening braces on the same line (`func foo() {`)
+- Semicolons after statements
+- Comments with `//` (not `#`)
+- Match the naming conventions in the surrounding code
+- No trailing whitespace at end of lines
+- Newline at end of file
 
 ## License
 
