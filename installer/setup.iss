@@ -2,7 +2,7 @@
 ; Inno Setup script — https://jrsoftware.org/isinfo.php
 
 #define MyAppName "Lion"
-#define MyAppVersion "1.5.3"
+#define MyAppVersion "1.5.4"
 #define MyAppPublisher "Lion Language"
 #define MyAppURL "https://github.com/young-developer90/lion"
 #define MyAppExeName "lion.exe"
@@ -89,6 +89,9 @@ Source: "..\tests\*.lion"; DestDir: "{app}\tests"; Flags: ignoreversion recurses
 Source: "..\assets\lion-logo.ico"; DestDir: "{app}\assets"; Flags: ignoreversion
 Source: "..\assets\lion-logo.png"; DestDir: "{app}\assets"; Flags: ignoreversion
 Source: "..\assets\lion-logo.svg"; DestDir: "{app}\assets"; Flags: ignoreversion
+Source: "..\assets\lion-file-icon.ico"; DestDir: "{app}\assets"; Flags: ignoreversion
+Source: "..\assets\lion-file-icon.png"; DestDir: "{app}\assets"; Flags: ignoreversion
+Source: "..\assets\lion-file-icon.svg"; DestDir: "{app}\assets"; Flags: ignoreversion
 
 ; VS Code extension
 Source: "..\vscode-lion\*"; DestDir: "{app}\vscode-lion"; Flags: ignoreversion recursesubdirs; Excludes: "node_modules"
@@ -105,7 +108,7 @@ Name: "{commondesktop}\{#MyAppName} REPL"; Filename: "{app}\bin\{#MyAppExeName}"
 ; File association for .lion files
 Root: HKA; Subkey: "Software\Classes\.lion"; ValueType: string; ValueName: ""; ValueData: "LionScript"; Flags: uninsdeletevalue; Tasks: assoclion
 Root: HKA; Subkey: "Software\Classes\LionScript"; ValueType: string; ValueName: ""; ValueData: "Lion Script"; Flags: uninsdeletekey; Tasks: assoclion
-Root: HKA; Subkey: "Software\Classes\LionScript\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\bin\{#MyAppExeName},0"; Tasks: assoclion
+Root: HKA; Subkey: "Software\Classes\LionScript\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\assets\lion-file-icon.ico"; Tasks: assoclion
 Root: HKA; Subkey: "Software\Classes\LionScript\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\bin\{#MyAppExeName}"" run ""%1"""; Tasks: assoclion
 Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: ".lion"; ValueData: ""; Tasks: assoclion
 
