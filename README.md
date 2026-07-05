@@ -150,18 +150,27 @@ cargo build --release --features python
 ```
 
 ```lion
-import py;
+import py
 
-// Import any Python module
-let np = py.import("numpy");
-let arr = np.array([[1, 2], [3, 4]]);
-print(arr);
+// Get Python version
+let sys = py.import("sys")
+print("Python version:", sys.version)
 
-// Pandas, matplotlib, etc.
-let pd = py.import("pandas");
-let df = pd.DataFrame({"name": ["Alice", "Bob"], "age": [30, 25]});
-print(df);
+// Use Python's math module
+let math = py.import("math")
+print("sqrt(144) =", math.sqrt(144))
+print("pi =", math.pi)
+
+// OS info
+let os = py.import("os")
+print("cwd:", os.getcwd())
+
+// Random numbers
+let random = py.import("random")
+print("random int:", random.randint(1, 100))
 ```
+
+See [`examples/python_interop.lion`](examples/python_interop.lion) for a runnable example.
 
 Types are converted automatically: Int, Float, String, Bool, List, Dict, Nil map to their Python equivalents. Python objects are wrapped so their attributes and methods are callable from Lion.
 
