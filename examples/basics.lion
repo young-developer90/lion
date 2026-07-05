@@ -1,0 +1,29 @@
+// basic math
+print("Math:");
+print(1 + 2 * 3);
+print((1 + 2) * 3);
+print(10 / 3);
+print(10 % 3);
+print(-5 + 3);
+print(5.5 + 2.2);
+
+// booleans
+print("");
+print("Booleans:");
+print(true and false);
+print(true or false);
+print(not true);
+print(1 < 2);
+print(1 == 1);
+print(1 != 2);
+
+// strings
+print("");
+print("Strings:");
+print("hello" + " world");
+
+// nil
+print("");
+print("Nil:");
+print(nil);
+print(nil == nil);

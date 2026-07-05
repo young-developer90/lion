@@ -1,0 +1,25 @@
+func main() {
+    let m = matrix.from_rows([[1, 2], [3, 4]]);
+    print(m);
+
+    print(matrix.zeros(2, 3));
+
+    print(matrix.identity(3));
+
+    print(m.T);
+
+    print(m.add(m));
+
+    print(m.mul(m));
+
+    print(m.get(0, 1));
+
+    print(m.shape);
+
+    let r = m.mul(2.0);
+    print(r);
+
+    let a = matrix.from_rows([[1, 2], [3, 4]]);
+    let b = matrix.from_rows([[5, 6], [7, 8]]);
+    print(a.mul(b));
+}

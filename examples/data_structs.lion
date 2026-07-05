@@ -1,0 +1,42 @@
+func main() {
+    // lists
+    print("Lists:");
+    let list = [1, 2, 3, 4, 5];
+    print(list);
+    print(list[0]);
+    print(list[-1]);
+    print(list.len());
+    list.push(6);
+    print(list);
+    list.pop();
+    print(list);
+
+    // dicts
+    print("");
+    print("Dicts:");
+    let dict = {"a": 1, "b": 2, "c": 3};
+    print(dict);
+    print(dict["a"]);
+    dict["d"] = 4;
+    print(dict);
+    print(dict.contains("a"));
+    print(dict.keys());
+
+    // sets
+    print("");
+    print("Sets:");
+    let s = {1, 2, 3};
+    print(s);
+    s.insert(4);
+    print(s);
+    print(s.contains(2));
+    s.remove(2);
+    print(s);
+
+    // tuples
+    print("");
+    print("Tuples:");
+    let t = (1, "hello", 3.0);
+    print(t);
+    print(t[0]);
+}

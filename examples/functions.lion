@@ -1,0 +1,36 @@
+func add(a, b) {
+    return a + b;
+}
+
+func factorial(n) {
+    if (n <= 1) {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}
+
+func make_counter(start) {
+    let count = start;
+    func inc() {
+        count = count + 1;
+        return count;
+    }
+    return inc;
+}
+
+func main() {
+    print("Functions:");
+    print(add(3, 4));
+    print("factorial(5) =");
+    print(factorial(5));
+
+    let double = |x| x * 2;
+    print("double(10) =");
+    print(double(10));
+
+    let c = make_counter(10);
+    print("counter:");
+    print(c());
+    print(c());
+    print(c());
+}

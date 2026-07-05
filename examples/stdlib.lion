@@ -1,0 +1,32 @@
+func main() {
+    // io module
+    print("io module:");
+    print("testing print");
+
+    // math module
+    print("");
+    print("math module:");
+    print(math.sqrt(16));
+    print(math.pow(2, 10));
+    print(math.abs(-5));
+    print(math.pi);
+    print(math.e);
+
+    // time module
+    print("");
+    print("time module:");
+    print(time.now());
+    print(time.unix());
+
+    // rand module
+    print("");
+    print("rand module:");
+    print(rand.int(1, 100));
+    print(rand.float());
+
+    // os module
+    print("");
+    print("os module:");
+    print(os.name());
+    print(os.cwd());
+}

@@ -1,0 +1,28 @@
+func main() {
+    // XOR truth table
+    let x = linum.from_rows([[0, 0], [0, 1], [1, 0], [1, 1]]);
+    let y = linum.from_rows([[0], [1], [1], [0]]);
+
+    // Build a 2-layer network
+    let model = linum.Sequential([
+        linum.Linear(2, 8),
+        linum.ReLU(),
+        linum.Linear(8, 1)
+    ]);
+
+    // Train with more epochs and a higher learning rate
+    let opts = {"epochs": 200, "lr": 0.5};
+    linum.train(model, x, y, opts);
+
+    // Print results
+    print("XOR results (should be ~0, ~1, ~1, ~0):");
+    let out = linum.forward(model, x);
+    print(out);
+
+    // Manual check
+    let t1 = linum.forward(model, matrix.from_rows([[0, 0]]));
+    let t2 = linum.forward(model, matrix.from_rows([[0, 1]]));
+    let t3 = linum.forward(model, matrix.from_rows([[1, 0]]));
+    let t4 = linum.forward(model, matrix.from_rows([[1, 1]]));
+    print("0^0=", t1, " 0^1=", t2, " 1^0=", t3, " 1^1=", t4);
+}
