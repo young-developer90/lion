@@ -3,6 +3,7 @@ use std::sync::Mutex;
 use std::sync::OnceLock;
 
 use pyo3::conversion::IntoPyObject;
+use pyo3::ffi;
 use pyo3::prelude::*;
 use pyo3::types::PyModule;
 use pyo3::types::PyTuple;
@@ -71,7 +72,7 @@ fn value_to_py(val: &Value, py: Python<'_>, heap: &GcHeap) -> PyObj {
     result
 }
 
-fn py_value_to_lion(obj: &Bound<'_, PyAny>, heap: &mut GcHeap) -> Result<Value, String> {
+fn py_value_to_lion(obj: &Bound<'_, PyAny>, heap: &mut GcHeap, py: Python<'_>) -> Result<Value, String> {
     if let Ok(s) = obj.extract::<String>() {
         return Ok(make_string(heap, &s));
     }
@@ -87,65 +88,45 @@ fn py_value_to_lion(obj: &Bound<'_, PyAny>, heap: &mut GcHeap) -> Result<Value, 
     if obj.is_none() {
         return Ok(Value::Nil);
     }
-    if let Ok(items) = obj.extract::<Vec<PyObj>>() {
+    if let Ok(items) = obj.cast::<PyList>() {
         let mut lion_items = Vec::new();
-        for item in &items {
-            lion_items.push(py_value_to_lion(item.bind(obj.py()), heap)?);
+        for item in items.iter() {
+            lion_items.push(py_value_to_lion(&item, heap, py)?);
         }
         return Ok(make_list(heap, lion_items));
     }
-    Ok(wrap_py_callable(obj, heap))
+    Ok(wrap_py_callable(obj, heap, py))
 }
 
-fn wrap_py_callable(obj: &Bound<'_, PyAny>, heap: &mut GcHeap) -> Value {
+fn wrap_py_callable(obj: &Bound<'_, PyAny>, heap: &mut GcHeap, _py: Python<'_>) -> Value {
     let obj_id = store_py_obj(obj.clone());
 
     let mut entries: Vec<(Value, Value)> = Vec::new();
     entries.push((make_string(heap, "__pyobj__"), Value::Int(obj_id as i64)));
+    entries.push((make_string(heap, "__call__"), Value::NativeFunc(NativeFunc {
+        name: "<py.call>".to_string(),
+        func: Rc::new(move |args, ctx| call_py_function(obj_id, args, ctx)),
+    })));
 
-    if let Ok(dir) = obj.dir() {
-        for attr in dir {
-            if let Ok(name) = attr.extract::<String>() {
-                if name.starts_with('_') { continue; }
-                if let Ok(a) = obj.getattr(name.as_str()) {
-                    if let Ok(s) = a.extract::<String>() {
-                        entries.push((make_string(heap, &name), make_string(heap, &s)));
-                    } else if let Ok(i) = a.extract::<i64>() {
-                        entries.push((make_string(heap, &name), Value::Int(i)));
-                    } else if let Ok(f) = a.extract::<f64>() {
-                        entries.push((make_string(heap, &name), Value::Float(f)));
-                    } else if let Ok(b) = a.extract::<bool>() {
-                        entries.push((make_string(heap, &name), Value::Bool(b)));
-                    } else if a.is_none() {
-                        entries.push((make_string(heap, &name), Value::Nil));
-                    } else {
-                        let a_id = store_py_obj(a);
-                        entries.push((make_string(heap, &name), Value::NativeFunc(NativeFunc {
-                            name: format!("<py.{}>", name),
-                            func: Rc::new(move |args, ctx| call_py_function(a_id, args, ctx)),
-                        })));
-                    }
-                }
-            }
-        }
-    }
     Value::Dict(heap.alloc(GcObj::Dict(entries)))
 }
 
 fn call_py_function(obj_id: usize, args: &[Value], ctx: &mut VmContext) -> Result<Value, String> {
-    let handles = get_handles().lock().map_err(|e| format!("py lock: {}", e))?;
-    let py_obj = handles.iter()
-        .find(|o| o.as_ptr() as usize == obj_id)
-        .ok_or("Python object not found")?;
+    let raw_ptr: *mut ffi::PyObject = {
+        let handles = get_handles().lock().map_err(|e| format!("py lock: {}", e))?;
+        let idx = handles.iter().position(|o| o.as_ptr() as usize == obj_id)
+            .ok_or("Python object not found")?;
+        handles.get(idx).unwrap().as_ptr()
+    };
 
     Python::attach(|py| {
-        let bound = py_obj.bind(py);
+        let bound: Borrowed<'_, '_, PyAny> = unsafe { Borrowed::from_ptr(py, raw_ptr) };
         let py_args: Vec<PyObj> = args.iter().map(|a| value_to_py(a, py, ctx.heap)).collect();
         let py_tuple = PyTuple::new(py, py_args)
             .map_err(|e| format!("Python tuple error: {}", e))?;
         let result = bound.call(py_tuple, None)
             .map_err(|e| format!("Python error: {}", e))?;
-        py_value_to_lion(&result, ctx.heap)
+        py_value_to_lion(&result, ctx.heap, py)
     })
 }
 
@@ -153,7 +134,23 @@ fn py_import(module_name: &str, heap: &mut GcHeap) -> Result<Value, String> {
     Python::attach(|py| {
         let module = PyModule::import(py, module_name)
             .map_err(|e| format!("Python import error: {}", e))?;
-        Ok(wrap_py_callable(&module, heap))
+        Ok(wrap_py_callable(&module, heap, py))
+    })
+}
+
+pub fn py_get_attr(obj_id: i64, name: &str, heap: &mut GcHeap) -> Result<Value, String> {
+    let raw_ptr: *mut ffi::PyObject = {
+        let handles = get_handles().lock().map_err(|e| format!("py lock: {}", e))?;
+        let idx = handles.iter().position(|o| o.as_ptr() as usize == obj_id as usize)
+            .ok_or("Python object not found")?;
+        handles.get(idx).unwrap().as_ptr()
+    };
+
+    Python::attach(|py| {
+        let bound: Borrowed<'_, '_, PyAny> = unsafe { Borrowed::from_ptr(py, raw_ptr) };
+        let attr = bound.getattr(name)
+            .map_err(|e| format!("Python error accessing '{}': {}", name, e))?;
+        py_value_to_lion(&attr, heap, py)
     })
 }
 

@@ -388,6 +388,45 @@ impl Vm {
                                 }
                             }
                         }
+                        Value::Dict(r) => {
+                            let entries = match self.heap.get(r) {
+                                GcObj::Dict(ref e) => e.clone(),
+                                _ => return Err("not a dict".to_string()),
+                            };
+                            let call_key_str = "__call__".to_string();
+                            let call_fn = entries.iter().find(|(k, _)| {
+                                if let Value::String(sr) = k {
+                                    match self.heap.get(*sr) {
+                                        GcObj::String(s) => s == &call_key_str,
+                                        _ => false,
+                                    }
+                                } else { false }
+                            }).map(|(_, v)| v.clone());
+                            match call_fn {
+                                Some(Value::NativeFunc(f)) => {
+                                    let mut ctx = VmContext {
+                                        heap: &mut self.heap,
+                                        globals: &mut self.globals,
+                                        modules: &mut Vec::new(),
+                                        chunks: &self.chunks,
+                                        try_frames: &mut self.try_frames,
+                                    };
+                                    let result = (f.func)(&args, &mut ctx)
+                                        .map_err(|e| format!("{}", e));
+                                    match result {
+                                        Ok(val) => self.stack.push(val),
+                                        Err(e) => {
+                                            if let Some((depth, catch_ip)) = self.try_frames.pop() {
+                                                self.stack.truncate(depth);
+                                                self.stack.push(make_error(&mut self.heap, &e));
+                                                self.ip = catch_ip;
+                                            } else { return Err(e); }
+                                        }
+                                    }
+                                }
+                                _ => return Err("cannot call dict without __call__".to_string()),
+                            }
+                        }
                         Value::Struct(r) => {
                             // Struct constructor call: args are (key, value) pairs
                             let struct_ref = r;
@@ -1271,12 +1310,28 @@ fn load_attr(obj: &Value, name: &str, heap: &mut GcHeap) -> Result<Value, String
                     }),
                 })),
                 _ => {
+                    let entries = match heap.get(r) {
+                        GcObj::Dict(ref e) => e.clone(),
+                        _ => return Err("not a dict".to_string()),
+                    };
                     let key = make_string(heap, name);
-                    if let GcObj::Dict(ref entries) = heap.get(r) {
-                        for (k, v) in entries {
-                            if k.eq(&key, heap) {
-                                return Ok(v.clone());
+                    for (k, v) in &entries {
+                        if k.eq(&key, heap) {
+                            return Ok(v.clone());
+                        }
+                    }
+                    #[cfg(feature = "python")]
+                    {
+                        let pyobj_id = entries.iter().find_map(|(k, v)| {
+                            if let (Value::String(sr), Value::Int(oid)) = (k, v) {
+                                if let GcObj::String(ref s) = heap.get(*sr) {
+                                    if s == "__pyobj__" { return Some(*oid); }
+                                }
                             }
+                            None
+                        });
+                        if let Some(oid) = pyobj_id {
+                            return crate::py::py_get_attr(oid, name, heap);
                         }
                     }
                     Err(format!("dict has no attribute '{}'", name))
@@ -1629,6 +1684,25 @@ pub fn call_func_closure(func: &Value, args: &[Value], ctx: &mut VmContext) -> R
                 }
             } else {
                 Err("not a closure".to_string())
+            }
+        }
+        Value::Dict(r) => {
+            let entries = match ctx.heap.get(*r) {
+                GcObj::Dict(ref e) => e.clone(),
+                _ => return Err("not a dict".to_string()),
+            };
+            let call_key_str = "__call__".to_string();
+            let call_fn = entries.iter().find(|(k, _)| {
+                if let Value::String(sr) = k {
+                    match ctx.heap.get(*sr) {
+                        GcObj::String(s) => s == &call_key_str,
+                        _ => false,
+                    }
+                } else { false }
+            }).map(|(_, v)| v.clone());
+            match call_fn {
+                Some(Value::NativeFunc(f)) => (f.func)(args, ctx),
+                _ => Err("cannot call dict without __call__".to_string()),
             }
         }
         _ => Ok(args.first().cloned().unwrap_or(Value::Nil)),

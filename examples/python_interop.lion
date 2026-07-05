@@ -13,11 +13,18 @@ print("pi =", math.pi)
 print("sqrt(144) =", math.sqrt(144))
 print("sin(pi/2) =", math.sin(math.pi / 2))
 
-// OS info
+// OS info - with chained attribute access
 let os = py.import("os")
 print("cwd:", os.getcwd())
+print("abspath('.') =", os.path.abspath("."))
 
 // Random
 let random = py.import("random")
 print("random int 1-100:", random.randint(1, 100))
 print("random float:", random.random())
+
+// Numpy (if installed)
+let np = py.import("numpy")
+print("np.pi =", np.pi)
+let arr = np.array([1, 2, 3])
+print("np.array([1,2,3]) =", arr)
