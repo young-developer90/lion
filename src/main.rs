@@ -1,6 +1,7 @@
 mod ast;
 mod bytecode;
 mod cext;
+mod cheetah_mod;
 mod cli;
 mod collections_mod;
 mod compiler;
@@ -12,6 +13,7 @@ mod html_mod;
 mod http;
 mod http_module;
 mod itertools_mod;
+mod jaguar_mod;
 mod json_mod;
 mod leopard_mod;
 mod lexer;

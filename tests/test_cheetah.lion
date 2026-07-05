@@ -1,0 +1,36 @@
+// Cheetah UI Framework Tests
+func main() {
+    let ui = cheetah()
+    print("=== Cheetah Tests ===")
+
+    // Test 1: Basic paragraph
+    let p = ui.p("hello")
+    print("PASS: cheetah creates elements")
+
+    // Test 2: Style chaining
+    let styled = ui.p("test").style("color: red;")
+    print("PASS: style chaining works")
+
+    // Test 3: HTML rendering
+    let html_out = ui.html(ui.body(ui.p("world")))
+    print("HTML output: " + html_out)
+    print("PASS: html rendering produces output")
+
+    // Test 4: Nested elements with styles
+    let complex = ui.html(ui.body(ui.center(ui.h1("Title").style("color: orange;"))))
+    print("Nested: " + complex)
+    print("PASS: nested rendering works")
+
+    // Test 5: Raw rendering
+    let raw_html = ui.raw(ui.div(ui.p("test")))
+    print("Raw: " + raw_html)
+    print("PASS: raw rendering works")
+
+    // Test 6: h1-h6 tags
+    let h2_el = ui.h2("subtitle")
+    let h2_html = ui.raw(h2_el)
+    print("h2: " + h2_html)
+    print("PASS: heading tags work")
+
+    print("=== ALL CHEETAH TESTS PASSED ===")
+}

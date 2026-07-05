@@ -2,9 +2,11 @@ use std::collections::HashMap;
 use std::rc::Rc;
 
 use crate::cext;
+use crate::cheetah_mod;
 use crate::compiler::Compiler;
 use crate::gc::*;
 use crate::http_module;
+use crate::jaguar_mod;
 use crate::leopard_mod;
 use crate::parser::Parser;
 use crate::stdlib;
@@ -45,6 +47,8 @@ impl ModuleLoader {
             }
             modules.insert("leopard".to_string(), Value::Dict(heap.alloc(GcObj::Dict(leopard_items))));
         }
+
+        // jaguar and cheetah are registered as top-level globals in add_globals
 
         #[cfg(cuda_support)]
         {
@@ -103,7 +107,7 @@ impl ModuleLoader {
         modules
     }
 
-    fn add_print(globals: &mut Vec<(String, Value)>) {
+    fn add_globals(globals: &mut Vec<(String, Value)>) {
         globals.push(("main".to_string(), Value::Nil));
         globals.push(("print".to_string(), Value::NativeFunc(NativeFunc {
             name: "<print>".to_string(),
@@ -115,6 +119,16 @@ impl ModuleLoader {
                 Ok(Value::Nil)
             }),
         })));
+
+        // Add jaguar() as a top-level function
+        for (name, val) in jaguar_mod::build_jaguar() {
+            globals.push((name, val));
+        }
+
+        // Add cheetah() as a top-level function
+        for (name, val) in cheetah_mod::build_cheetah() {
+            globals.push((name, val));
+        }
     }
 
     pub fn execute_file(&mut self, path: &str) -> Result<(), String> {
@@ -135,7 +149,7 @@ impl ModuleLoader {
             vm.globals.push((mod_name, val));
         }
 
-        Self::add_print(&mut vm.globals);
+        Self::add_globals(&mut vm.globals);
         vm.run()?;
         Ok(())
     }
@@ -155,7 +169,7 @@ impl ModuleLoader {
             vm.globals.push((mod_name, val));
         }
 
-        Self::add_print(&mut vm.globals);
+        Self::add_globals(&mut vm.globals);
 
         match vm.run() {
             Ok(result) => Ok(result.to_string(&vm.heap)),

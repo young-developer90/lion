@@ -1,0 +1,29 @@
+// Basic Cheetah UI test
+func main() {
+    let ui = cheetah()
+
+    // Simple element rendering
+    let el = ui.p("Hello Lion!").style("color: orange; font-size: 20px;")
+    let html = ui.html(ui.body(el))
+    print("HTML output:")
+    print(html)
+
+    // Test nested elements
+    let nested = ui.html(
+        ui.body(
+            ui.center(
+                ui.h1("Title").style("color: #F59E0B;")
+            )
+        )
+    )
+    print("Nested HTML:")
+    print(nested)
+
+    // Test multiple elements
+    let div_content = ui.div(
+        ui.p("First paragraph").style("color: blue;")
+    ).style("padding: 20px; border: 1px solid gray;")
+
+    print("Div with content:")
+    print(ui.raw(div_content))
+}

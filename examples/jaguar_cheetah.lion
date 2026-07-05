@@ -1,0 +1,27 @@
+// Jaguar + Cheetah example
+func main() {
+    let app = jaguar()
+    let ui = cheetah()
+
+    app.serve("/", func(req) {
+        return ui.html(
+            ui.center(
+                ui.body(
+                    ui.h1("Welcome to Jaguar & Cheetah").style("color: #F59E0B; text-align: center; font-family: Arial;")
+                )
+            )
+        )
+    })
+
+    app.get("/hello", func(req) {
+        return ui.html(
+            ui.body(
+                ui.p("Hello from Lion!").style("font-size: 24px; color: #1E1B4B; font-family: Arial; text-align: center; padding: 40px;")
+            )
+        )
+    })
+
+    print("Jaguar app started!")
+    print("Try: http://localhost:8080/")
+    app.run(8080)
+}
