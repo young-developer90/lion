@@ -121,32 +121,56 @@ impl GcHeap {
     }
 
     pub fn mark_gray(&mut self, r: ObjRef) {
-        let obj = self.get(r).clone();
-        match obj {
-            GcObj::List(items) => {
-                for v in items { self.mark_value(&v); }
-            }
-            GcObj::Dict(entries) => {
-                for (k, v) in entries { self.mark_value(&k); self.mark_value(&v); }
-            }
-            GcObj::Set(items) => {
-                for v in items { self.mark_value(&v); }
-            }
-            GcObj::Tuple(items) => {
-                for v in items { self.mark_value(&v); }
-            }
-            GcObj::Closure { function, upvalues } => {
-                self.mark(function);
-                for uv in &upvalues {
-                    if let Some(ref val) = uv.value { self.mark_value(val); }
+        let children = {
+            let obj = self.objects[r.0].as_ref().unwrap();
+            match obj {
+                GcObj::List(items) => {
+                    let mut refs = Vec::with_capacity(items.len());
+                    for v in items { if let Some(r) = v.ref_or_nil() { refs.push(r); } }
+                    refs
                 }
+                GcObj::Dict(entries) => {
+                    let mut refs = Vec::with_capacity(entries.len() * 2);
+                    for (k, v) in entries {
+                        if let Some(r) = k.ref_or_nil() { refs.push(r); }
+                        if let Some(r) = v.ref_or_nil() { refs.push(r); }
+                    }
+                    refs
+                }
+                GcObj::Set(items) => {
+                    let mut refs = Vec::with_capacity(items.len());
+                    for v in items { if let Some(r) = v.ref_or_nil() { refs.push(r); } }
+                    refs
+                }
+                GcObj::Tuple(items) => {
+                    let mut refs = Vec::with_capacity(items.len());
+                    for v in items { if let Some(r) = v.ref_or_nil() { refs.push(r); } }
+                    refs
+                }
+                GcObj::Closure { function, upvalues } => {
+                    let mut refs = Vec::with_capacity(1 + upvalues.len());
+                    refs.push(*function);
+                    for uv in upvalues {
+                        if let Some(ref val) = uv.value {
+                            if let Some(r) = val.ref_or_nil() { refs.push(r); }
+                        }
+                    }
+                    refs
+                }
+                GcObj::StructInstance { struct_ref, fields } => {
+                    let mut refs = Vec::with_capacity(1 + fields.len() * 2);
+                    refs.push(*struct_ref);
+                    for (k, v) in fields {
+                        if let Some(r) = k.ref_or_nil() { refs.push(r); }
+                        if let Some(r) = v.ref_or_nil() { refs.push(r); }
+                    }
+                    refs
+                }
+                _ => Vec::new(),
             }
-            GcObj::StructInstance { struct_ref, ref fields } => {
-                self.mark(struct_ref);
-                for (k, v) in fields { self.mark_value(&k); self.mark_value(&v); }
-            }
-            GcObj::StructDef { .. } => {}
-            GcObj::Function { .. } | GcObj::String(_) | GcObj::Error { .. } | GcObj::Range { .. } | GcObj::Matrix { .. } => {}
+        };
+        for child in children {
+            self.mark(child);
         }
     }
 
@@ -241,6 +265,24 @@ impl fmt::Display for Value {
 }
 
 impl Value {
+    pub fn ref_or_nil(&self) -> Option<ObjRef> {
+        match self {
+            Value::String(r)
+            | Value::List(r)
+            | Value::Dict(r)
+            | Value::Set(r)
+            | Value::Tuple(r)
+            | Value::Function(r)
+            | Value::Closure(r)
+            | Value::Error(r)
+            | Value::Range(r)
+            | Value::Matrix(r)
+            | Value::Struct(r)
+            | Value::StructInstance(r) => Some(*r),
+            _ => None,
+        }
+    }
+
     pub fn to_string(&self, heap: &GcHeap) -> String {
         match self {
             Value::Int(n) => n.to_string(),

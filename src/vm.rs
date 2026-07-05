@@ -393,43 +393,45 @@ impl Vm {
                             }
                         }
                         Value::Function(func_ref) => {
-                            let func_obj = self.heap.get(func_ref).clone();
-                            if let GcObj::Function { body_chunk, .. } = func_obj {
-                                let frame = Frame {
-                                    chunk_idx: self.chunk_idx,
-                                    ip: self.ip,
-                                    stack_start: self.stack.len(),
-                                    locals: args.len(),
-                                    closure: None,
-                                };
-                                self.frames.push(frame);
-                                for arg in args { self.stack.push(arg); }
-                                self.chunk_idx = body_chunk;
-                                self.ip = 0;
-                            }
+                            let body_chunk = match self.heap.get(func_ref) {
+                                GcObj::Function { body_chunk, .. } => *body_chunk,
+                                _ => return Err("not a function".to_string()),
+                            };
+                            let frame = Frame {
+                                chunk_idx: self.chunk_idx,
+                                ip: self.ip,
+                                stack_start: self.stack.len(),
+                                locals: args.len(),
+                                closure: None,
+                            };
+                            self.frames.push(frame);
+                            for arg in args { self.stack.push(arg); }
+                            self.chunk_idx = body_chunk;
+                            self.ip = 0;
                         }
                         Value::Closure(cl_ref) => {
-                            let closure = self.heap.get(cl_ref).clone();
-                            if let GcObj::Closure { function, .. } = closure {
-                                let func = self.heap.get(function).clone();
-                                if let GcObj::Function { body_chunk, .. } = func {
-                                    let frame = Frame {
-                                        chunk_idx: self.chunk_idx,
-                                        ip: self.ip,
-                                        stack_start: self.stack.len(),
-                                        locals: args.len(),
-                                        closure: Some(cl_ref),
-                                    };
-                                    self.frames.push(frame);
-                                    for arg in args { self.stack.push(arg); }
-                                    self.chunk_idx = body_chunk;
-                                    self.ip = 0;
-                                }
-                            }
+                            let body_chunk = match self.heap.get(cl_ref) {
+                                GcObj::Closure { function, .. } => match self.heap.get(*function) {
+                                    GcObj::Function { body_chunk, .. } => *body_chunk,
+                                    _ => return Err("not a function in closure".to_string()),
+                                },
+                                _ => return Err("not a closure".to_string()),
+                            };
+                            let frame = Frame {
+                                chunk_idx: self.chunk_idx,
+                                ip: self.ip,
+                                stack_start: self.stack.len(),
+                                locals: args.len(),
+                                closure: Some(cl_ref),
+                            };
+                            self.frames.push(frame);
+                            for arg in args { self.stack.push(arg); }
+                            self.chunk_idx = body_chunk;
+                            self.ip = 0;
                         }
                         Value::Dict(r) => {
                             let entries = match self.heap.get(r) {
-                                GcObj::Dict(ref e) => e.clone(),
+                                GcObj::Dict(ref e) => e,
                                 _ => return Err("not a dict".to_string()),
                             };
                             let call_fn = entries.iter().find(|(k, _)| {
@@ -475,9 +477,11 @@ impl Vm {
                                 i += 2;
                             }
                             let instance = make_struct_instance(&mut self.heap, struct_ref, fields);
-                            let struct_def = self.heap.get(struct_ref).clone();
-                            if let GcObj::StructDef { ref methods, .. } = struct_def {
-                                if let Some((_, init_chunk)) = methods.iter().find(|(n, _)| n == "init") {
+                            let init_chunk = match self.heap.get(struct_ref) {
+                                GcObj::StructDef { ref methods, .. } => methods.iter().find(|(n, _)| n == "init").map(|(_, c)| *c),
+                                _ => None,
+                            };
+                            if let Some(init_chunk) = init_chunk {
                                     let mut init_args_with_this = vec![instance.clone()];
                                     init_args_with_this.extend(init_args);
                                     let save_ip = self.ip;
@@ -489,10 +493,9 @@ impl Vm {
                                         chunks: &self.chunks,
                                         try_frames: &mut self.try_frames,
                                     };
-                                    execute_chunk(*init_chunk, &init_args_with_this, &mut ctx)?;
+                                    execute_chunk(init_chunk, &init_args_with_this, &mut ctx)?;
                                     self.ip = save_ip;
                                     self.chunk_idx = save_chunk;
-                                }
                             }
                             self.stack.push(instance);
                         }
@@ -820,9 +823,10 @@ fn add_values(a: &Value, b: &Value, heap: &mut GcHeap) -> Result<Value, String> 
         (Value::Float(x), Value::Float(y)) => Ok(Value::Float(x + y)),
         (Value::UInt(x), Value::UInt(y)) => Ok(Value::UInt(x + y)),
         (Value::String(x), Value::String(y)) => {
-            let sx = match heap.get(*x) { GcObj::String(s) => s.clone(), _ => return Err("not a string".to_string()) };
-            let sy = match heap.get(*y) { GcObj::String(s) => s.clone(), _ => return Err("not a string".to_string()) };
-            Ok(make_string_owned(heap, sx + &sy))
+            let mut sx = match heap.get(*x) { GcObj::String(s) => s.clone(), _ => return Err("not a string".to_string()) };
+            let sy = match heap.get(*y) { GcObj::String(s) => s.as_str(), _ => return Err("not a string".to_string()) };
+            sx.push_str(sy);
+            Ok(make_string_owned(heap, sx))
         }
         _ => Err(format!("cannot add {} and {}", a.type_name(), b.type_name())),
     }
@@ -913,16 +917,28 @@ fn value_display(val: &Value, heap: &GcHeap) -> String {
 }
 
 fn concat_values(a: &Value, b: &Value, heap: &mut GcHeap) -> Result<Value, String> {
-    // Fast path: first operand is a string — append second's display directly
     if let Value::String(r1) = a {
         if let GcObj::String(s1) = heap.get(*r1) {
             let mut result = s1.clone();
+            if let Value::String(r2) = b {
+                if let GcObj::String(s2) = heap.get(*r2) {
+                    result.push_str(s2);
+                    return Ok(make_string_owned(heap, result));
+                }
+            }
             let s2 = value_display(b, heap);
             result.push_str(&s2);
             return Ok(make_string_owned(heap, result));
         }
     }
-    // Fallback
+    if let Value::String(r2) = b {
+        if let GcObj::String(s2) = heap.get(*r2) {
+            let sa = value_display(a, heap);
+            let mut result = sa;
+            result.push_str(s2);
+            return Ok(make_string_owned(heap, result));
+        }
+    }
     let sa = value_display(a, heap);
     let sb = value_display(b, heap);
     Ok(make_string_owned(heap, sa + &sb))
@@ -1055,24 +1071,26 @@ fn load_attr(obj: &Value, name: &str, heap: &mut GcHeap) -> Result<Value, String
     match obj {
         Value::StructInstance(r) => {
             let r = *r;
-            // check fields first
-            let fields = match heap.get(r) {
-                GcObj::StructInstance { ref fields, .. } => fields.clone(),
-                _ => return Err("not a struct instance".to_string()),
-            };
-            let key = make_string(heap, name);
-            for (k, v) in &fields {
-                if k.eq(&key, heap) {
-                    return Ok(v.clone());
-                }
-            }
-            // check methods from struct definition
             let struct_ref = match heap.get(r) {
                 GcObj::StructInstance { struct_ref, .. } => *struct_ref,
                 _ => return Err("not a struct instance".to_string()),
             };
+            // check fields first — borrow fields without cloning
+            let key = make_string(heap, name);
+            {
+                let fields = match heap.get(r) {
+                    GcObj::StructInstance { ref fields, .. } => fields,
+                    _ => return Err("not a struct instance".to_string()),
+                };
+                for (k, v) in fields {
+                    if k.eq(&key, heap) {
+                        return Ok(v.clone());
+                    }
+                }
+            }
+            // check methods from struct definition
             let methods = match heap.get(struct_ref) {
-                GcObj::StructDef { ref methods, .. } => methods.clone(),
+                GcObj::StructDef { ref methods, .. } => methods,
                 _ => return Err("not a struct def".to_string()),
             };
             if let Some((_, chunk_idx)) = methods.iter().find(|(n, _)| n == name) {
@@ -1720,36 +1738,31 @@ pub fn call_func_closure(func: &Value, args: &[Value], ctx: &mut VmContext) -> R
     match func {
         Value::NativeFunc(f) => (f.func)(args, ctx),
         Value::Function(func_ref) => {
-            let func_obj = ctx.heap.get(*func_ref).clone();
-            if let GcObj::Function { body_chunk, .. } = func_obj {
-                execute_chunk(body_chunk, args, ctx)
-            } else {
-                Err("not a function".to_string())
-            }
+            let body_chunk = match ctx.heap.get(*func_ref) {
+                GcObj::Function { body_chunk, .. } => *body_chunk,
+                _ => return Err("not a function".to_string()),
+            };
+            execute_chunk(body_chunk, args, ctx)
         }
         Value::Closure(cl_ref) => {
-            let closure = ctx.heap.get(*cl_ref).clone();
-            if let GcObj::Closure { function, ref upvalues } = closure {
-                let func_obj = ctx.heap.get(function).clone();
-                if let GcObj::Function { body_chunk, .. } = func_obj {
-                    execute_closure_chunk(body_chunk, args, upvalues.clone(), ctx)
-                } else {
-                    Err("not a function in closure".to_string())
-                }
-            } else {
-                Err("not a closure".to_string())
-            }
+            let (body_chunk, upvalues) = match ctx.heap.get(*cl_ref) {
+                GcObj::Closure { function, upvalues } => match ctx.heap.get(*function) {
+                    GcObj::Function { body_chunk, .. } => (*body_chunk, upvalues.clone()),
+                    _ => return Err("not a function in closure".to_string()),
+                },
+                _ => return Err("not a closure".to_string()),
+            };
+            execute_closure_chunk(body_chunk, args, upvalues, ctx)
         }
         Value::Dict(r) => {
             let entries = match ctx.heap.get(*r) {
-                GcObj::Dict(ref e) => e.clone(),
+                GcObj::Dict(ref e) => e,
                 _ => return Err("not a dict".to_string()),
             };
-            let call_key_str = "__call__".to_string();
             let call_fn = entries.iter().find(|(k, _)| {
                 if let Value::String(sr) = k {
                     match ctx.heap.get(*sr) {
-                        GcObj::String(s) => s == &call_key_str,
+                        GcObj::String(s) => s == "__call__",
                         _ => false,
                     }
                 } else { false }

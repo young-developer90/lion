@@ -2,7 +2,7 @@
 
 [![Rust](https://img.shields.io/badge/Rust-1.80%2B-dea584?logo=rust)](https://rustup.rs/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.5.0-green)](https://github.com/young-developer90/lion/releases)
+[![Version](https://img.shields.io/badge/version-1.5.01-green)](https://github.com/young-developer90/lion/releases)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/young-developer90/lion/actions)
 [![PRs](https://img.shields.io/badge/PRs-welcome-orange)](https://github.com/young-developer90/lion/pulls)
 
@@ -434,23 +434,23 @@ cargo build --release
 
 ## Performance Benchmarks
 
-Benchmarks comparing Lion 1.5.0 (release build) against Python 3.14 on the same workloads. Lower is better.
+Benchmarks comparing Lion 1.5.01 (release build) against Python 3.14 on the same workloads. Lower is better.
 
-| Benchmark | Lion 1.5.0 | Python 3.14 | vs Python |
-|-----------|------------|-------------|-----------|
-| `re.find_all` — 10k lines | 2.1 ms | 1.7 ms | ~1.3× slower |
-| `re.sub_all` — 10k lines | 3.8 ms | 8.6 ms | ~2.3× faster |
-| `re.split` — 10k lines | 1.6 ms | 0.5 ms | ~3× slower |
-| `collections.Counter` — 50k words | 1.7 ms | 1.1 ms | ~1.6× slower |
-| `itertools.unique` — 20k items | 1.1 ms | 0.2 ms | ~6× slower |
-| `itertools.sorted` — 10k items | 0.11 ms | 0.04 ms | ~2.7× slower |
-| `datetime.now` — 10k calls | 15.7 ms | 1.8 ms | ~9× slower |
-| `datetime.format` — 10k calls | 25.4 ms | 16.9 ms | ~1.5× slower |
-| `hashlib.sha256` — 1k strings | 5.8 ms | 0.6 ms | ~10× slower |
-| `hashlib.base64` — 1k strings | 5.6 ms | 0.4 ms | ~14× slower |
-| `subprocess.run_shell` — 100 calls | 1.45 s | 1.49 s | ~1× (on par) |
+| Benchmark | Lion 1.5.01 | Python 3.14 | vs Python |
+|-----------|-------------|-------------|-----------|
+| `re.find_all` — 10k lines | 2.8 ms | 1.8 ms | ~1.6× slower |
+| `re.sub_all` — 10k lines | 3.8 ms | 10.0 ms | ~2.6× faster |
+| `re.split` — 10k lines | 1.2 ms | 0.6 ms | ~2× slower |
+| `collections.Counter` — 50k words | 2.0 ms | 1.1 ms | ~1.8× slower |
+| `itertools.unique` — 20k items | 1.0 ms | 0.2 ms | ~5× slower |
+| `itertools.sorted` — 10k items | 0.08 ms | 0.04 ms | ~2× slower |
+| `datetime.now` — 10k calls | 17.1 ms | 1.7 ms | ~10× slower |
+| `datetime.format` — 10k calls | 26.0 ms | 16.5 ms | ~1.6× slower |
+| `hashlib.sha256` — 1k strings | 6.7 ms | 0.6 ms | ~11× slower |
+| `hashlib.base64` — 1k strings | 5.4 ms | 0.4 ms | ~14× slower |
+| `subprocess.run_shell` — 100 calls | 1.51 s | 1.47 s | ~1× (on par) |
 
-Lion is an interpreted bytecode VM while Python benefits from decades of optimization and C-backed native implementations. Optimizations in 1.5.0 include: direct-threaded for-range loops (avoiding iterator GC allocation), combined jump/pop opcodes, increment/decrement opcodes for counters, constant folding in the compiler, single-pass datetime format and field extraction, streamlined dict attribute lookup, drain-based Call opcode (eliminating arg vector clones in the main interpreter), `make_string_owned` across stdlib (removing one extra String clone per allocation), fast-path hex encoding with lookup table, optimized concat/add paths, direct GC byte access in hashlib via `Cow<[u8]>` (eliminating input string clones), and O(1) civil-date algorithms for `date_to_unix` and `unix_to_date`.
+Lion is an interpreted bytecode VM while Python benefits from decades of optimization and C-backed native implementations. Optimizations in 1.5.01 include: reference-based GC marking (eliminating GcObj clone per marked object), borrow-based function/closure dispatch (eliminating cloned GcObj per call), borrowed dict entries in Call handler, borrowed struct fields in load_attr (no Vec clones), string concat fast path (push_str avoids second string allocation), inline struct init chunk extraction (no StructDef clone), and all prior 1.4.x/1.5.0 optimizations.
 
 Benchmarks are in [`benchmarks/`](benchmarks/) and can be run with:
 ```bash
