@@ -949,9 +949,91 @@ The LSP starts automatically when you open a `.lion` file in VS Code. It uses th
 
 ---
 
+## Python Interop
+
+Lion can import and call Python modules directly, giving you access to the entire Python ecosystem (NumPy, PyTorch, pandas, scikit-learn, etc.).
+
+### Building with Python support
+
+```bash
+cargo build --release --features python
+```
+
+### Basic usage
+
+```lion
+import py
+
+// Import any Python module
+let np = py.import("numpy")
+let arr = np.array([[1, 2, 3], [4, 5, 6]])
+print(arr)
+
+// Use Python's math module
+let math = py.import("math")
+print(math.sqrt(144))   // 12.0
+```
+
+### Chained attribute access
+
+Python objects support chained attribute access just like in Python:
+
+```lion
+let os = py.import("os")
+print(os.path.abspath("."))  // /home/user/project
+```
+
+### Calling Python functions and classes
+
+Any Python callable — functions, classes, methods — can be called with Lion syntax:
+
+```lion
+let random = py.import("random")
+print(random.randint(1, 100))
+
+let dt = py.import("datetime")
+let now = dt.datetime.now()
+print(now)
+```
+
+### Type conversion
+
+| Lion type | Python type |
+|-----------|-------------|
+| `Int` | `int` |
+| `Float` | `float` |
+| `String` | `str` |
+| `Bool` | `bool` |
+| `Nil` | `None` |
+| `List` | `list` |
+| `Dict` | `dict` |
+
+Return values are converted back to Lion types automatically. Non-primitive Python objects (modules, classes, functions, custom objects) are lazily wrapped so their attributes and methods are accessible from Lion.
+
+### Full example
+
+```lion
+import py
+
+let np = py.import("numpy")
+let arr = np.array([1, 2, 3, 4, 5])
+print("mean:", arr.mean())
+print("sum:", arr.sum())
+
+let plt = py.import("matplotlib.pyplot")
+// plt.plot(arr)
+// plt.show()
+
+let pd = py.import("pandas")
+let df = pd.DataFrame({"name": ["Alice", "Bob"], "age": [30, 25]})
+print(df)
+```
+
+---
+
 ## Next Steps
 
 - Explore the [examples](examples/) directory for more patterns
 - Run the [test suite](tests/) to see language features in action
-- Check the [README](README.md) for build options including CUDA GPU acceleration
+- Check the [README](README.md) for build options including CUDA GPU acceleration and Python interop
 - Report issues or contribute at [github.com/young-developer90/lion](https://github.com/young-developer90/lion)

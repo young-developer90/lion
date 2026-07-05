@@ -84,6 +84,7 @@ print(encoded);
 | **Error Handling** | `try`/`catch`/`throw` |
 | **Modules** | `import`/`export` with aliases |
 | **Standard Library** | `math`, `time`, `rand`, `fs`, `os`, `json`, `csv`, `html`, `http`, `url`, `stats` |
+| **Python Interop** | Optional — import and call any Python module (NumPy, PyTorch, pandas, etc.) |
 | **GPU** | Optional CUDA acceleration for matrix operations |
 | **Tooling** | REPL, bytecode disassembler, formatter, test runner |
 | **Editor Support** | VS Code extension with LSP (diagnostics, completions, hover) |
@@ -161,18 +162,28 @@ let math = py.import("math")
 print("sqrt(144) =", math.sqrt(144))
 print("pi =", math.pi)
 
-// OS info
+// OS info with chained attribute access
 let os = py.import("os")
 print("cwd:", os.getcwd())
+print("abspath('.') =", os.path.abspath("."))
 
 // Random numbers
 let random = py.import("random")
 print("random int:", random.randint(1, 100))
+
+// NumPy (if installed)
+let np = py.import("numpy")
+let arr = np.array([1, 2, 3])
+print(arr)
 ```
 
 See [`examples/python_interop.lion`](examples/python_interop.lion) for a runnable example.
 
-Types are converted automatically: Int, Float, String, Bool, List, Dict, Nil map to their Python equivalents. Python objects are wrapped so their attributes and methods are callable from Lion.
+**Type conversion:** Int, Float, String, Bool, List, Dict, Nil map to their Python equivalents automatically.
+
+**Attribute access:** Chained attribute access works (`os.path.abspath(".")`). Python objects are lazily wrapped — attributes are resolved dynamically when accessed, not eagerly, so large modules (NumPy, PyTorch) load instantly.
+
+**Calling Python objects:** Any Python callable (functions, classes, methods) can be called with Lion syntax. Arguments are converted automatically, and the return value is converted back to a Lion value.
 
 ### CUDA support (optional)
 
