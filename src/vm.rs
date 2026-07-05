@@ -264,9 +264,7 @@ impl Vm {
                 OpCode::Concat => {
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
-                    let sa = value_display(&a, &self.heap);
-                    let sb = value_display(&b, &self.heap);
-                    self.stack.push(make_string(&mut self.heap, &format!("{}{}", sa, sb)));
+                    self.stack.push(concat_values(&a, &b, &mut self.heap)?);
                 }
                 OpCode::In => {
                     let right = self.stack.pop().ok_or("stack empty")?;
@@ -317,6 +315,52 @@ impl Vm {
                         if matches!(val, Value::Nil) { self.ip = target; }
                     }
                 }
+                OpCode::JumpIfFalsePop => {
+                    let target = self.read_u16(self.ip) as usize;
+                    self.ip += 2;
+                    let val = self.stack.pop().ok_or("stack empty on jump_if_false_pop")?;
+                    if !val.is_truthy() { self.ip = target; }
+                }
+                OpCode::JumpIfTruePop => {
+                    let target = self.read_u16(self.ip) as usize;
+                    self.ip += 2;
+                    let val = self.stack.pop().ok_or("stack empty on jump_if_true_pop")?;
+                    if val.is_truthy() { self.ip = target; }
+                }
+                OpCode::Inc => {
+                    let idx = self.read_u16(self.ip) as usize;
+                    self.ip += 2;
+                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
+                    if stack_idx < self.stack.len() {
+                        let val = self.stack[stack_idx].clone();
+                        if let Value::Int(n) = val {
+                            self.stack[stack_idx] = Value::Int(n + 1);
+                        } else if let Value::UInt(n) = val {
+                            self.stack[stack_idx] = Value::UInt(n + 1);
+                        } else {
+                            return Err("cannot increment non-integer".to_string());
+                        }
+                    } else {
+                        return Err("inc: local not found".to_string());
+                    }
+                }
+                OpCode::Dec => {
+                    let idx = self.read_u16(self.ip) as usize;
+                    self.ip += 2;
+                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
+                    if stack_idx < self.stack.len() {
+                        let val = self.stack[stack_idx].clone();
+                        if let Value::Int(n) = val {
+                            self.stack[stack_idx] = Value::Int(n - 1);
+                        } else if let Value::UInt(n) = val {
+                            self.stack[stack_idx] = Value::UInt(n - 1);
+                        } else {
+                            return Err("cannot decrement non-integer".to_string());
+                        }
+                    } else {
+                        return Err("dec: local not found".to_string());
+                    }
+                }
                 OpCode::Call => {
                     let argc = self.read_u16(self.ip) as usize;
                     self.ip += 2;
@@ -326,7 +370,6 @@ impl Vm {
                         self.stack[start..].to_vec()
                     } else { Vec::new() };
                     for _ in 0..argc { self.stack.pop(); }
-
                     let callee = self.stack.pop().ok_or("stack empty on call")?;
 
                     match callee {
@@ -338,8 +381,7 @@ impl Vm {
                                 chunks: &self.chunks,
                                 try_frames: &mut self.try_frames,
                             };
-                            let result = (f.func)(&args, &mut ctx)
-                                .map_err(|e| format!("{}", e));
+                            let result = (f.func)(&args, &mut ctx).map_err(|e| format!("{}", e));
                             match result {
                                 Ok(val) => self.stack.push(val),
                                 Err(e) => {
@@ -347,9 +389,7 @@ impl Vm {
                                         self.stack.truncate(depth);
                                         self.stack.push(make_error(&mut self.heap, &e));
                                         self.ip = catch_ip;
-                                    } else {
-                                        return Err(e);
-                                    }
+                                    } else { return Err(e); }
                                 }
                             }
                         }
@@ -393,11 +433,10 @@ impl Vm {
                                 GcObj::Dict(ref e) => e.clone(),
                                 _ => return Err("not a dict".to_string()),
                             };
-                            let call_key_str = "__call__".to_string();
                             let call_fn = entries.iter().find(|(k, _)| {
                                 if let Value::String(sr) = k {
                                     match self.heap.get(*sr) {
-                                        GcObj::String(s) => s == &call_key_str,
+                                        GcObj::String(s) => s == "__call__",
                                         _ => false,
                                     }
                                 } else { false }
@@ -411,8 +450,7 @@ impl Vm {
                                         chunks: &self.chunks,
                                         try_frames: &mut self.try_frames,
                                     };
-                                    let result = (f.func)(&args, &mut ctx)
-                                        .map_err(|e| format!("{}", e));
+                                    let result = (f.func)(&args, &mut ctx).map_err(|e| format!("{}", e));
                                     match result {
                                         Ok(val) => self.stack.push(val),
                                         Err(e) => {
@@ -428,7 +466,6 @@ impl Vm {
                             }
                         }
                         Value::Struct(r) => {
-                            // Struct constructor call: args are (key, value) pairs
                             let struct_ref = r;
                             let mut fields = Vec::new();
                             let mut init_args = Vec::new();
@@ -439,29 +476,28 @@ impl Vm {
                                 i += 2;
                             }
                             let instance = make_struct_instance(&mut self.heap, struct_ref, fields);
-                            // Call init if it exists: pass (this, field_values...)
                             let struct_def = self.heap.get(struct_ref).clone();
                             if let GcObj::StructDef { ref methods, .. } = struct_def {
                                 if let Some((_, init_chunk)) = methods.iter().find(|(n, _)| n == "init") {
-                            let mut init_args_with_this = vec![instance.clone()];
-                            init_args_with_this.extend(init_args);
-                            let save_ip = self.ip;
-                            let save_chunk = self.chunk_idx;
-                            let mut ctx = VmContext {
-                                heap: &mut self.heap,
-                                globals: &mut self.globals,
-                                modules: &mut Vec::new(),
-                                chunks: &self.chunks,
-                                try_frames: &mut self.try_frames,
-                            };
-                            execute_chunk(*init_chunk, &init_args_with_this, &mut ctx)?;
-                            self.ip = save_ip;
-                            self.chunk_idx = save_chunk;
+                                    let mut init_args_with_this = vec![instance.clone()];
+                                    init_args_with_this.extend(init_args);
+                                    let save_ip = self.ip;
+                                    let save_chunk = self.chunk_idx;
+                                    let mut ctx = VmContext {
+                                        heap: &mut self.heap,
+                                        globals: &mut self.globals,
+                                        modules: &mut Vec::new(),
+                                        chunks: &self.chunks,
+                                        try_frames: &mut self.try_frames,
+                                    };
+                                    execute_chunk(*init_chunk, &init_args_with_this, &mut ctx)?;
+                                    self.ip = save_ip;
+                                    self.chunk_idx = save_chunk;
+                                }
+                            }
+                            self.stack.push(instance);
                         }
-                    }
-                    self.stack.push(instance);
-                }
-                other => return Err(format!("cannot call {}", other.type_name())),
+                        other => return Err(format!("cannot call {}", other.type_name())),
                     }
                 }
                 OpCode::MakeFunc => {
@@ -875,6 +911,22 @@ fn cmp_lt(a: &Value, b: &Value) -> Result<bool, String> {
 
 fn value_display(val: &Value, heap: &GcHeap) -> String {
     match val { Value::String(r) => match heap.get(*r) { GcObj::String(s) => s.clone(), _ => "<string>".to_string() }, other => other.to_string(heap) }
+}
+
+fn concat_values(a: &Value, b: &Value, heap: &mut GcHeap) -> Result<Value, String> {
+    // Fast path: first operand is a string — append second's display directly
+    if let Value::String(r1) = a {
+        if let GcObj::String(s1) = heap.get(*r1) {
+            let mut result = s1.clone();
+            let s2 = value_display(b, heap);
+            result.push_str(&s2);
+            return Ok(make_string_owned(heap, result));
+        }
+    }
+    // Fallback
+    let sa = value_display(a, heap);
+    let sb = value_display(b, heap);
+    Ok(make_string(heap, &format!("{}{}", sa, sb)))
 }
 
 fn contains_check(left: &Value, right: &Value, heap: &GcHeap) -> Result<bool, String> {
@@ -1314,10 +1366,13 @@ fn load_attr(obj: &Value, name: &str, heap: &mut GcHeap) -> Result<Value, String
                         GcObj::Dict(ref e) => e.clone(),
                         _ => return Err("not a dict".to_string()),
                     };
-                    let key = make_string(heap, name);
                     for (k, v) in &entries {
-                        if k.eq(&key, heap) {
-                            return Ok(v.clone());
+                        if let Value::String(sr) = k {
+                            if let GcObj::String(s) = heap.get(*sr) {
+                                if s == name {
+                                    return Ok(v.clone());
+                                }
+                            }
                         }
                     }
                     #[cfg(feature = "python")]

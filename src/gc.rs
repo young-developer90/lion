@@ -399,6 +399,10 @@ pub fn make_string(heap: &mut GcHeap, s: &str) -> Value {
     Value::String(heap.alloc(GcObj::String(s.to_string())))
 }
 
+pub fn make_string_owned(heap: &mut GcHeap, s: String) -> Value {
+    Value::String(heap.alloc(GcObj::String(s)))
+}
+
 pub fn make_list(heap: &mut GcHeap, items: Vec<Value>) -> Value {
     Value::List(heap.alloc(GcObj::List(items)))
 }

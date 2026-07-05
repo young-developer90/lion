@@ -1,3 +1,4 @@
+use std::fmt::Write;
 use std::rc::Rc;
 use std::time::{SystemTime, UNIX_EPOCH};
 use crate::gc::*;
@@ -33,15 +34,27 @@ pub fn build_datetime() -> Vec<(String, Value)> {
             let hour = get_dict_int(dt, ctx.heap, "hour")?;
             let minute = get_dict_int(dt, ctx.heap, "minute")?;
             let second = get_dict_int(dt, ctx.heap, "second")?;
-            let mut result = fmt;
-            result = result.replace("%Y", &format!("{:04}", year));
-            result = result.replace("%y", &format!("{:02}", year % 100));
-            result = result.replace("%m", &format!("{:02}", month));
-            result = result.replace("%d", &format!("{:02}", day));
-            result = result.replace("%H", &format!("{:02}", hour));
-            result = result.replace("%M", &format!("{:02}", minute));
-            result = result.replace("%S", &format!("{:02}", second));
-            Ok(make_string(ctx.heap, &result))
+            // Single-pass format: scan format string and build result
+            let mut result = String::with_capacity(fmt.len());
+            let mut chars = fmt.chars();
+            while let Some(c) = chars.next() {
+                if c == '%' {
+                    match chars.next() {
+                        Some('Y') => { write!(&mut result, "{:04}", year).unwrap(); }
+                        Some('y') => { write!(&mut result, "{:02}", year % 100).unwrap(); }
+                        Some('m') => { write!(&mut result, "{:02}", month).unwrap(); }
+                        Some('d') => { write!(&mut result, "{:02}", day).unwrap(); }
+                        Some('H') => { write!(&mut result, "{:02}", hour).unwrap(); }
+                        Some('M') => { write!(&mut result, "{:02}", minute).unwrap(); }
+                        Some('S') => { write!(&mut result, "{:02}", second).unwrap(); }
+                        Some(other) => { result.push('%'); result.push(other); }
+                        None => { result.push('%'); }
+                    }
+                } else {
+                    result.push(c);
+                }
+            }
+            Ok(make_string_owned(ctx.heap, result))
         }),
     })));
 
@@ -113,7 +126,7 @@ pub fn build_datetime() -> Vec<(String, Value)> {
 
 fn make_datetime_dict(heap: &mut GcHeap, unix_ts: i64) -> Value {
     let (year, month, day, hour, minute, second) = unix_to_date(unix_ts);
-    let mut entries = Vec::new();
+    let mut entries = Vec::with_capacity(7);
     entries.push((make_string(heap, "year"), Value::Int(year)));
     entries.push((make_string(heap, "month"), Value::Int(month)));
     entries.push((make_string(heap, "day"), Value::Int(day)));

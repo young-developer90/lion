@@ -219,6 +219,9 @@ impl Compiler {
                 }
             }
             Stmt::OpAssign { op, target, value } => {
+                if self.try_emit_inc_dec(*op, target, value) {
+                    return Ok(());
+                }
                 self.compile_expr(target)?;
                 self.compile_expr(value)?;
                 self.emit_binary_op(*op)?;
@@ -251,9 +254,8 @@ impl Compiler {
             } => {
                 self.compile_expr(condition)?;
                 let mut jump_false = self.chunk().code.len();
-                self.chunk().emit(OpCode::JumpIfFalse);
+                self.chunk().emit(OpCode::JumpIfFalsePop);
                 self.chunk().emit_u16(0);
-                self.chunk().emit(OpCode::Pop);
 
                 for stmt in then_branch {
                     self.compile_stmt(stmt)?;
@@ -273,12 +275,10 @@ impl Compiler {
                 self.chunk().code[jf_pos..jf_pos + 2].copy_from_slice(&endif.to_le_bytes());
 
                 for (cond, body) in elif_branches {
-                    self.chunk().emit(OpCode::Pop);
                     self.compile_expr(cond)?;
                     jump_false = self.chunk().code.len();
-                    self.chunk().emit(OpCode::JumpIfFalse);
+                    self.chunk().emit(OpCode::JumpIfFalsePop);
                     self.chunk().emit_u16(0);
-                    self.chunk().emit(OpCode::Pop);
 
                     for stmt in body {
                         self.compile_stmt(stmt)?;
@@ -325,9 +325,8 @@ impl Compiler {
 
                 self.compile_expr(condition)?;
                 let jump_false = self.chunk().code.len();
-                self.chunk().emit(OpCode::JumpIfFalse);
+                self.chunk().emit(OpCode::JumpIfFalsePop);
                 self.chunk().emit_u16(0);
-                self.chunk().emit(OpCode::Pop);
 
                 self.enter_scope();
                 for stmt in body {
@@ -339,8 +338,6 @@ impl Compiler {
                 self.chunk().emit(OpCode::Jump);
                 self.chunk().emit_u16(start);
 
-                // Pop the condition value when the loop exits (condition was false)
-                self.chunk().emit(OpCode::Pop);
                 let loop_end = self.chunk().code.len() as u16;
 
                 let loop_info = self.loop_stack.pop().unwrap();
@@ -359,46 +356,123 @@ impl Compiler {
                 iterable,
                 body,
             } => {
-                self.compile_expr(iterable)?;
-                let iter_idx = self.add_local("__iter__");
-                self.chunk().emit(OpCode::MakeIter);
-                self.chunk().emit_u16(0);
-                self.chunk().emit(OpCode::StoreLocal);
-                self.chunk().emit_u16(iter_idx);
+                // Specialize for-range loops: for i in start..end
+                if let Expr::Range { start, end, step } = iterable {
+                    let step_val = *step;
+                    let var_idx = self.add_local(variable);
+                    let end_idx = self.add_local("__end__");
 
-                let loop_start = self.chunk().code.len();
-                let loop_info = LoopInfo {
-                    start: loop_start,
-                    break_target: 0,
-                    end_targets: Vec::new(),
-                };
-                self.loop_stack.push(loop_info);
+                    // Emit start value
+                    self.compile_expr(start)?;
+                    self.chunk().emit(OpCode::StoreLocal);
+                    self.chunk().emit_u16(var_idx);
 
-                self.chunk().emit(OpCode::LoadLocal);
-                self.chunk().emit_u16(iter_idx);
-                let for_iter_done = self.chunk().code.len();
-                self.chunk().emit(OpCode::ForIter);
-                self.chunk().emit_u16(0);
+                    // Emit end value (evaluated once)
+                    self.compile_expr(end)?;
+                    self.chunk().emit(OpCode::StoreLocal);
+                    self.chunk().emit_u16(end_idx);
 
-                let var_idx = self.add_local(variable);
-                self.chunk().emit(OpCode::StoreLocal);
-                self.chunk().emit_u16(var_idx);
+                    let loop_start = self.chunk().code.len();
+                    let loop_info = LoopInfo {
+                        start: loop_start,
+                        break_target: 0,
+                        end_targets: Vec::new(),
+                    };
+                    self.loop_stack.push(loop_info);
 
-                self.enter_scope();
-                for stmt in body {
-                    self.compile_stmt(stmt)?;
+                    // Compare: i < end (or i > end for negative step)
+                    self.chunk().emit(OpCode::LoadLocal);
+                    self.chunk().emit_u16(var_idx);
+                    self.chunk().emit(OpCode::LoadLocal);
+                    self.chunk().emit_u16(end_idx);
+                    if step_val > 0 {
+                        self.chunk().emit(OpCode::Lt);
+                    } else {
+                        self.chunk().emit(OpCode::Gt);
+                    }
+                    let jump_exit = self.chunk().code.len();
+                    self.chunk().emit(OpCode::JumpIfFalsePop);
+                    self.chunk().emit_u16(0);
+
+                    self.enter_scope();
+                    for stmt in body {
+                        self.compile_stmt(stmt)?;
+                    }
+                    self.leave_scope();
+
+                    // Increment/decrement
+                    match step_val {
+                        1 => { self.chunk().emit(OpCode::Inc); self.chunk().emit_u16(var_idx); },
+                        -1 => { self.chunk().emit(OpCode::Dec); self.chunk().emit_u16(var_idx); },
+                        n if n > 0 => {
+                            self.chunk().emit(OpCode::LoadLocal);
+                            self.chunk().emit_u16(var_idx);
+                            self.chunk().emit_const(Value::Int(n));
+                            self.chunk().emit(OpCode::Add);
+                            self.chunk().emit(OpCode::StoreLocal);
+                            self.chunk().emit_u16(var_idx);
+                        },
+                        n => {
+                            self.chunk().emit(OpCode::LoadLocal);
+                            self.chunk().emit_u16(var_idx);
+                            self.chunk().emit_const(Value::Int(n));
+                            self.chunk().emit(OpCode::Add);
+                            self.chunk().emit(OpCode::StoreLocal);
+                            self.chunk().emit_u16(var_idx);
+                        },
+                    }
+
+                    let loop_start_u16 = loop_start as u16;
+                    self.chunk().emit(OpCode::Jump);
+                    self.chunk().emit_u16(loop_start_u16);
+
+                    self.loop_stack.pop().unwrap();
+                    let done_pos = self.chunk().code.len() as u16;
+                    let je_pos = jump_exit + 1;
+                    self.chunk().code[je_pos..je_pos + 2]
+                        .copy_from_slice(&done_pos.to_le_bytes());
+                } else {
+                    self.compile_expr(iterable)?;
+                    let iter_idx = self.add_local("__iter__");
+                    self.chunk().emit(OpCode::MakeIter);
+                    self.chunk().emit_u16(0);
+                    self.chunk().emit(OpCode::StoreLocal);
+                    self.chunk().emit_u16(iter_idx);
+
+                    let loop_start = self.chunk().code.len();
+                    let loop_info = LoopInfo {
+                        start: loop_start,
+                        break_target: 0,
+                        end_targets: Vec::new(),
+                    };
+                    self.loop_stack.push(loop_info);
+
+                    self.chunk().emit(OpCode::LoadLocal);
+                    self.chunk().emit_u16(iter_idx);
+                    let for_iter_done = self.chunk().code.len();
+                    self.chunk().emit(OpCode::ForIter);
+                    self.chunk().emit_u16(0);
+
+                    let var_idx = self.add_local(variable);
+                    self.chunk().emit(OpCode::StoreLocal);
+                    self.chunk().emit_u16(var_idx);
+
+                    self.enter_scope();
+                    for stmt in body {
+                        self.compile_stmt(stmt)?;
+                    }
+                    self.leave_scope();
+
+                    let start = self.loop_stack.last().unwrap().start as u16;
+                    self.chunk().emit(OpCode::Jump);
+                    self.chunk().emit_u16(start);
+
+                    self.loop_stack.pop().unwrap();
+                    let done_pos = self.chunk().code.len() as u16;
+                    let fi_pos = for_iter_done + 1;
+                    self.chunk().code[fi_pos..fi_pos + 2]
+                        .copy_from_slice(&done_pos.to_le_bytes());
                 }
-                self.leave_scope();
-
-                let start = self.loop_stack.last().unwrap().start as u16;
-                self.chunk().emit(OpCode::Jump);
-                self.chunk().emit_u16(start);
-
-                self.loop_stack.pop().unwrap();
-                let done_pos = self.chunk().code.len() as u16;
-                let fi_pos = for_iter_done + 1;
-                self.chunk().code[fi_pos..fi_pos + 2]
-                    .copy_from_slice(&done_pos.to_le_bytes());
             }
             Stmt::Match { value, arms } => {
                 self.compile_expr(value)?;
@@ -671,6 +745,9 @@ impl Compiler {
                 self.chunk().emit_u16(items.len() as u16);
             }
             Expr::BinaryOp { op, left, right } => {
+                if self.try_constant_fold(*op, left, right) {
+                    return Ok(());
+                }
                 self.compile_expr(left)?;
                 self.compile_expr(right)?;
                 self.emit_binary_op(*op)?;
@@ -837,10 +914,9 @@ impl Compiler {
             }
             Expr::Ternary { condition, then_expr, else_expr } => {
                 self.compile_expr(condition)?;
-                self.chunk().emit(OpCode::JumpIfFalse);
+                self.chunk().emit(OpCode::JumpIfFalsePop);
                 let else_jump = self.chunk().code.len();
                 self.chunk().emit_u16(0);
-                self.chunk().emit(OpCode::Pop);
                 self.compile_expr(then_expr)?;
                 self.chunk().emit(OpCode::Jump);
                 let end_jump = self.chunk().code.len();
@@ -900,6 +976,76 @@ impl Compiler {
             BinaryOpKind::In => self.chunk().emit(OpCode::In),
         }
         Ok(())
+    }
+
+    fn try_constant_fold(&mut self, op: BinaryOpKind, left: &Expr, right: &Expr) -> bool {
+        use BinaryOpKind::*;
+        let l = match left {
+            Expr::Int(n) => Some(Value::Int(*n)),
+            Expr::UInt(n) => Some(Value::UInt(*n)),
+            Expr::Float(n) => Some(Value::Float(*n)),
+            Expr::Bool(b) => Some(Value::Bool(*b)),
+            Expr::Nil => Some(Value::Nil),
+            _ => None,
+        };
+        let r = match right {
+            Expr::Int(n) => Some(Value::Int(*n)),
+            Expr::UInt(n) => Some(Value::UInt(*n)),
+            Expr::Float(n) => Some(Value::Float(*n)),
+            Expr::Bool(b) => Some(Value::Bool(*b)),
+            Expr::Nil => Some(Value::Nil),
+            _ => None,
+        };
+        let (Some(lv), Some(rv)) = (l, r) else { return false; };
+        let result = match (op, &lv, &rv) {
+            (Add, Value::Int(a), Value::Int(b)) => Some(Value::Int(a + b)),
+            (Add, Value::Float(a), Value::Float(b)) => Some(Value::Float(a + b)),
+            (Add, Value::Int(a), Value::Float(b)) => Some(Value::Float(*a as f64 + b)),
+            (Add, Value::Float(a), Value::Int(b)) => Some(Value::Float(a + *b as f64)),
+            (Sub, Value::Int(a), Value::Int(b)) => Some(Value::Int(a - b)),
+            (Sub, Value::Float(a), Value::Float(b)) => Some(Value::Float(a - b)),
+            (Mul, Value::Int(a), Value::Int(b)) => Some(Value::Int(a * b)),
+            (Mul, Value::Float(a), Value::Float(b)) => Some(Value::Float(a * b)),
+            (Div, Value::Int(a), Value::Int(b)) if *b != 0 => Some(Value::Float(*a as f64 / *b as f64)),
+            (Div, Value::Float(a), Value::Float(b)) if *b != 0.0 => Some(Value::Float(a / b)),
+            (Mod, Value::Int(a), Value::Int(b)) if *b != 0 => Some(Value::Int(a % b)),
+            (IntDiv, Value::Int(a), Value::Int(b)) if *b != 0 => Some(Value::Int(a / b)),
+            (Eq, _, _) => Some(Value::Bool(lv.eq(&rv, &crate::gc::GcHeap::new()))),
+            (Ne, _, _) => Some(Value::Bool(!lv.eq(&rv, &crate::gc::GcHeap::new()))),
+            _ => None,
+        };
+        match result {
+            Some(val) => { self.chunk().emit_const(val); true }
+            None => false,
+        }
+    }
+
+    fn try_emit_inc_dec(&mut self, op: BinaryOpKind, target: &Expr, value: &Expr) -> bool {
+        if !matches!(op, BinaryOpKind::Add | BinaryOpKind::Sub) { return false; }
+        let is_sub = matches!(op, BinaryOpKind::Sub);
+        let one = match value {
+            Expr::Int(1) => true,
+            Expr::UInt(1) => true,
+            _ => false,
+        };
+        if !one { return false; }
+        match target {
+            Expr::Identifier(name) => {
+                match self.resolve_variable(name) {
+                    Variable::Local(idx) => {
+                        if is_sub {
+                            self.chunk().emit(OpCode::Dec);
+                        } else {
+                            self.chunk().emit(OpCode::Inc);
+                        }
+                        self.chunk().emit_u16(idx);
+                        true
+                    }
+                    _ => false,
+                }
+            }
+            _ => false,
+        }
     }
 
     fn add_global(&mut self, name: &str) -> u16 {

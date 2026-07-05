@@ -76,6 +76,10 @@ pub enum OpCode {
     StructSetField,
     StructGetField,
     In,
+    JumpIfFalsePop,
+    JumpIfTruePop,
+    Inc,
+    Dec,
 }
 
 impl OpCode {
@@ -156,6 +160,10 @@ impl OpCode {
             71 => StructSetField,
             72 => StructGetField,
             73 => In,
+            74 => JumpIfFalsePop,
+            75 => JumpIfTruePop,
+            76 => Inc,
+            77 => Dec,
             _ => return None,
         })
     }
@@ -168,7 +176,8 @@ impl OpCode {
             | JumpIfNil | Call | MakeFunc | MakeClosure | BuildList
             | BuildDict | BuildSet | BuildTuple | Try | ForPrep | ForIter
             |             CheckMatch | MakeIter | NextIter | LoadAttr | StoreAttr | Len
-            | MakeStruct | NewStructInstance | StructSetField | StructGetField => 1,
+            | MakeStruct | NewStructInstance | StructSetField | StructGetField
+            | JumpIfFalsePop | JumpIfTruePop | Inc | Dec => 1,
             _ => 0,
         }
     }
@@ -261,7 +270,8 @@ impl Chunk {
                 OpCode::LoadConst | OpCode::LoadLocal | OpCode::StoreLocal
                 | OpCode::LoadGlobal | OpCode::StoreGlobal | OpCode::LoadUpvalue
                 | OpCode::StoreUpvalue | OpCode::Jump | OpCode::JumpIfTrue
-                | OpCode::JumpIfFalse | OpCode::JumpIfNil => {
+                | OpCode::JumpIfFalse | OpCode::JumpIfNil
+                | OpCode::JumpIfFalsePop | OpCode::JumpIfTruePop => {
                     let val = u16::from_le_bytes([self.code[i+1], self.code[i+2]]);
                     if matches!(op, OpCode::LoadConst) {
                         if let Some(c) = self.constants.get(val as usize) {
@@ -283,7 +293,8 @@ impl Chunk {
                 | OpCode::NextIter
                 | OpCode::Len | OpCode::LoadAttr | OpCode::StoreAttr
                 | OpCode::MakeStruct | OpCode::NewStructInstance
-                | OpCode::StructSetField | OpCode::StructGetField => {
+                | OpCode::StructSetField | OpCode::StructGetField
+                | OpCode::Inc | OpCode::Dec => {
                     let val = u16::from_le_bytes([self.code[i+1], self.code[i+2]]);
                     output.push_str(&format!(" {}", val));
                     i += 3;

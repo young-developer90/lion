@@ -198,21 +198,21 @@ cargo build --release
 
 Benchmarks comparing Lion 1.4.6 against Python 3.14 on the same workloads. Lower is better.
 
-| Benchmark | Lion | Python | vs Python |
-|-----------|------|--------|-----------|
-| `re.find_all` — 10k lines | 22.2 ms | 1.8 ms | ~12× slower |
-| `re.sub_all` — 10k lines | 57.5 ms | 9.4 ms | ~6× slower |
-| `re.split` — 10k lines | 5.7 ms | 0.5 ms | ~11× slower |
-| `collections.Counter` — 50k words | 14.6 ms | 1.2 ms | ~12× slower |
-| `itertools.unique` — 20k items | 6.0 ms | 0.2 ms | ~30× slower |
-| `itertools.sorted` — 10k items | 0.4 ms | 0.06 ms | ~7× slower |
-| `datetime.now` — 10k calls | 54.8 ms | 1.7 ms | ~32× slower |
-| `datetime.format` — 10k calls | 98.8 ms | 17.2 ms | ~6× slower |
-| `hashlib.sha256` — 1k strings | 46.2 ms | 1.6 ms | ~29× slower |
-| `hashlib.base64` — 1k strings | 38.5 ms | 0.4 ms | ~96× slower |
-| `subprocess.run_shell` — 100 calls | 1.57 s | 1.41 s | ~1.1× slower |
+| Benchmark | Lion 1.4.6 | Python 3.14 | vs Python |
+|-----------|------------|-------------|-----------|
+| `re.find_all` — 10k lines | 21.8 ms | 2.2 ms | ~10× slower |
+| `re.sub_all` — 10k lines | 58.0 ms | 9.9 ms | ~6× slower |
+| `re.split` — 10k lines | 5.6 ms | 0.5 ms | ~11× slower |
+| `collections.Counter` — 50k words | 13.8 ms | 1.3 ms | ~11× slower |
+| `itertools.unique` — 20k items | 5.8 ms | 0.2 ms | ~29× slower |
+| `itertools.sorted` — 10k items | 0.5 ms | 0.04 ms | ~12× slower |
+| `datetime.now` — 10k calls | 51.5 ms | 1.7 ms | ~30× slower |
+| `datetime.format` — 10k calls | 72.7 ms | 16.3 ms | ~4.5× slower |
+| `hashlib.sha256` — 1k strings | 46.4 ms | 0.9 ms | ~52× slower |
+| `hashlib.base64` — 1k strings | 37.3 ms | 0.4 ms | ~93× slower |
+| `subprocess.run_shell` — 100 calls | 1.49 s | 1.56 s | ~0.95× (Lion is faster) |
 
-Lion is an interpreted, unoptimized bytecode VM while Python benefits from decades of optimization and C-backed native implementations. The subprocess benchmark shows comparable performance (OS process spawning is the bottleneck, not the language).
+Lion is an interpreted bytecode VM while Python benefits from decades of optimization and C-backed native implementations. Recent optimizations include: direct-threaded for-range loops (avoiding iterator GC allocation), combined jump/pop opcodes, increment/decrement opcodes for counters, constant folding in the compiler, single-pass datetime format (vs 7× `replace` calls), and streamlined dict attribute lookup.
 
 Benchmarks are in [`benchmarks/`](benchmarks/) and can be run with:
 ```bash
