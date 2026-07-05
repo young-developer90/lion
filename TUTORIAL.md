@@ -1030,6 +1030,69 @@ let konst = itertools.constantly(99);  // function that always returns 99
 print(konst());                        // 99
 ```
 
+### leopard (GUI Toolkit)
+
+The `leopard` module provides a native GUI toolkit for Windows using the Win32 API. It follows a tkinter-like API pattern — create widgets, arrange them with `pack`, and start the event loop with `mainloop`.
+
+**Note:** leopard is Windows-only. On other platforms, the module will still load but window creation will fail.
+
+```lion
+// Create the main window
+let root = leopard.Leo("My App", 500, 400);
+
+// Create widgets
+let label = leopard.Label(root, "Hello from Leopard!");
+leopard.pack(label, "top", 0, 10);
+
+let entry = leopard.Entry(root);
+leopard.pack(entry, "top", 0, 10);
+leopard.insert(entry, 0, "Type here");
+
+// Button with a callback
+let btn = leopard.Button(root, "Submit", func() {
+    let text = leopard.get(entry);
+    leopard.config(label, "text", "You typed: " .. text);
+});
+leopard.pack(btn, "top", 0, 5);
+
+// Quit button
+leopard.Button(root, "Quit", func() { leopard.destroy(root); })
+    |> leopard.pack(?, "top", 0, 5);
+
+// Start the event loop
+leopard.mainloop(root);
+```
+
+**Widget reference:**
+
+| Function | Description |
+|----------|-------------|
+| `leopard.Leo(title, width, height)` | Create main window |
+| `leopard.Label(parent, text)` | Static text label |
+| `leopard.Button(parent, text, callback)` | Clickable button |
+| `leopard.Entry(parent)` | Single-line text input |
+| `leopard.Frame(parent)` | Container frame |
+
+**Layout and configuration:**
+
+| Function | Description |
+|----------|-------------|
+| `leopard.pack(widget, side, padx, pady)` | Pack widget into parent (`side`: `"top"`, `"bottom"`, `"left"`, `"right"`) |
+| `leopard.place(widget, x, y, width, height)` | Absolute positioning |
+| `leopard.config(widget, key, value)` | Set properties (`"text"`, `"command"`) |
+| `leopard.title(window, text)` | Set window title |
+| `leopard.geometry(window, width, height)` | Resize window |
+| `leopard.destroy(widget)` | Close/destroy widget |
+| `leopard.messagebox(text, title)` | Show a message box |
+
+**Entry widget methods:**
+
+| Function | Description |
+|----------|-------------|
+| `leopard.get(entry)` → string | Get text content |
+| `leopard.insert(entry, pos, text)` | Insert text at position |
+| `leopard.delete(entry, start, end)` | Delete range of text |
+
 ### test (Unit Testing Assertions)
 
 The `test` module provides assertion functions for unit testing. When an assertion fails, it raises an error that the test runner captures.

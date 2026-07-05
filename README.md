@@ -2,7 +2,7 @@
 
 [![Rust](https://img.shields.io/badge/Rust-1.80%2B-dea584?logo=rust)](https://rustup.rs/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.5.2-green)](https://github.com/young-developer90/lion/releases)
+[![Version](https://img.shields.io/badge/version-1.5.3-green)](https://github.com/young-developer90/lion/releases)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/young-developer90/lion/actions)
 [![PRs](https://img.shields.io/badge/PRs-welcome-orange)](https://github.com/young-developer90/lion/pulls)
 
@@ -19,7 +19,7 @@ Lion is designed to be:
 - **Readable** — syntax inspired by Swift, Kotlin, and Lua. No sigils, no ceremony.
 - **Expressive** — first-class functions, closures, pattern matching, ternaries, list comprehensions.
 - **Approachable** — you can learn the whole language in an afternoon.
-- **Self-contained** — batteries included: HTTP client, JSON/CSV/HTML parsers, stats module, file I/O, regex, datetime, logging, subprocess, pathlib, hashlib/crypto, collections, itertools, and unit test assertions.
+- **Self-contained** — batteries included: HTTP client, JSON/CSV/HTML parsers, stats module, file I/O, regex, datetime, logging, subprocess, pathlib, hashlib/crypto, collections, itertools, unit test assertions, and a **native GUI toolkit** (leopard, Win32).
 - **Extensible** — module system with import/export, optional Python interop, optional CUDA GPU acceleration, and C extension API for native modules.
 
 ## Installation
@@ -103,6 +103,19 @@ print(resp.json()["description"]);
 fs.write("hello.txt", "Hello, Lion!");
 print(fs.read("hello.txt"));
 fs.exists("hello.txt");  // true
+```
+
+### GUI (Windows)
+
+```lion
+let root = leopard.Leo("App", 400, 300);
+let label = leopard.Label(root, "Hello from Leopard!");
+leopard.pack(label, "top", 0, 10);
+let btn = leopard.Button(root, "Click", func() {
+    leopard.config(label, "text", "Clicked!");
+});
+leopard.pack(btn, "top", 0, 5);
+leopard.mainloop(root);
 ```
 
 ### JSON
@@ -354,6 +367,7 @@ Supported types: `LION_NIL`, `LION_INT`, `LION_FLOAT`, `LION_BOOL`, `LION_STRING
 | `collections` | `Counter`, `deque` | Specialized collections |
 | `itertools` | `sorted`, `unique`, `group_by`, `flatten`, `chunks`, `zip`, `enumerate`, `cycle`, `repeat`, `take`, `skip` | Iterator utilities |
 | `test` | `assert_eq`, `assert_ne`, `assert_true`, `assert_false`, `assert_lt`, `assert_gt`, `assert_approx` | Unit testing |
+| `leopard` | `Leo`, `Button`, `Label`, `Entry`, `Frame`, `pack`, `place`, `config`, `get`, `insert`, `delete`, `title`, `geometry`, `mainloop`, `destroy`, `messagebox` | Native GUI toolkit (Win32, tkinter-like) |
 
 ## Features
 
@@ -366,7 +380,7 @@ Supported types: `LION_NIL`, `LION_INT`, `LION_FLOAT`, `LION_BOOL`, `LION_STRING
 | **Control Flow** | `if`/`elif`/`else`, `while`, `for..in`, ternary `? :`, `match` |
 | **Error Handling** | `try`/`catch`/`throw` |
 | **Modules** | `import`/`export` with aliases |
-| **Standard Library** | 20+ built-in modules |
+| **Standard Library** | 20+ built-in modules, including native GUI (leopard) |
 | **Python Interop** | Optional — import and call any Python module (NumPy, PyTorch, pandas, etc.) |
 | **GPU** | Optional CUDA acceleration for matrix operations |
 | **Tooling** | REPL, bytecode disassembler, formatter, test runner |
@@ -533,7 +547,7 @@ src/           # Rust source
   ├── main.rs       # Entry point
   ├── cuda.rs       # CUDA acceleration
   ├── linum.rs      # Linear algebra module
-  └── *_mod.rs      # Utility modules (csv, html, json, stats, string, url, re, datetime, logging, subprocess, path, hashlib, collections, itertools, test)
+  └── *_mod.rs      # Utility modules (csv, html, json, stats, string, url, re, datetime, logging, subprocess, path, hashlib, collections, itertools, test, leopard)
 examples/      # Example .lion scripts
 tests/         # Test .lion scripts
 vscode-lion/   # VS Code extension (syntax highlighting + LSP client)
