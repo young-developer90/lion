@@ -10,12 +10,7 @@ pub fn build_subprocess() -> Vec<(String, Value)> {
         func: Rc::new(|args, ctx| {
             if args.is_empty() { return Err("subprocess.run requires a command".to_string()); }
             let cmd_str = args[0].to_string(ctx.heap);
-            let mut parts: Vec<&str> = cmd_str.split_whitespace().collect();
-            if parts.is_empty() { return Err("subprocess.run: empty command".to_string()); }
-            let program = parts.remove(0);
-            let output = Command::new(program)
-                .args(&parts)
-                .output()
+            let output = run_or_fallback(&cmd_str)
                 .map_err(|e| format!("subprocess.run: {}", e))?;
             Ok(make_result_dict(ctx.heap, &output))
         }),
@@ -26,12 +21,7 @@ pub fn build_subprocess() -> Vec<(String, Value)> {
         func: Rc::new(|args, ctx| {
             if args.is_empty() { return Err("subprocess.run_shell requires a command".to_string()); }
             let cmd_str = args[0].to_string(ctx.heap);
-            let shell = if cfg!(windows) { "cmd" } else { "sh" };
-            let shell_arg = if cfg!(windows) { "/C" } else { "-c" };
-            let output = Command::new(shell)
-                .arg(shell_arg)
-                .arg(&cmd_str)
-                .output()
+            let output = run_shell(&cmd_str)
                 .map_err(|e| format!("subprocess.run_shell: {}", e))?;
             Ok(make_result_dict(ctx.heap, &output))
         }),
@@ -42,12 +32,7 @@ pub fn build_subprocess() -> Vec<(String, Value)> {
         func: Rc::new(|args, ctx| {
             if args.is_empty() { return Err("subprocess.run_output requires a command".to_string()); }
             let cmd_str = args[0].to_string(ctx.heap);
-            let mut parts: Vec<&str> = cmd_str.split_whitespace().collect();
-            if parts.is_empty() { return Err("subprocess.run_output: empty command".to_string()); }
-            let program = parts.remove(0);
-            let output = Command::new(program)
-                .args(&parts)
-                .output()
+            let output = run_or_fallback(&cmd_str)
                 .map_err(|e| format!("subprocess.run_output: {}", e))?;
             Ok(make_string(ctx.heap, &String::from_utf8_lossy(&output.stdout)))
         }),
@@ -58,18 +43,34 @@ pub fn build_subprocess() -> Vec<(String, Value)> {
         func: Rc::new(|args, ctx| {
             if args.is_empty() { return Err("subprocess.run_shell_output requires a command".to_string()); }
             let cmd_str = args[0].to_string(ctx.heap);
-            let shell = if cfg!(windows) { "cmd" } else { "sh" };
-            let shell_arg = if cfg!(windows) { "/C" } else { "-c" };
-            let output = Command::new(shell)
-                .arg(shell_arg)
-                .arg(&cmd_str)
-                .output()
+            let output = run_shell(&cmd_str)
                 .map_err(|e| format!("subprocess.run_shell_output: {}", e))?;
             Ok(make_string(ctx.heap, &String::from_utf8_lossy(&output.stdout)))
         }),
     })));
 
     funcs
+}
+
+fn run_or_fallback(cmd_str: &str) -> Result<std::process::Output, String> {
+    let mut parts: Vec<&str> = cmd_str.split_whitespace().collect();
+    if parts.is_empty() { return Err("empty command".to_string()); }
+    let program = parts.remove(0);
+
+    match Command::new(program).args(&parts).output() {
+        Ok(output) => Ok(output),
+        Err(_) => run_shell(cmd_str), // fallback for shell built-ins (echo, dir on Windows)
+    }
+}
+
+fn run_shell(cmd_str: &str) -> Result<std::process::Output, String> {
+    let shell = if cfg!(windows) { "cmd" } else { "sh" };
+    let shell_arg = if cfg!(windows) { "/C" } else { "-c" };
+    Command::new(shell)
+        .arg(shell_arg)
+        .arg(cmd_str)
+        .output()
+        .map_err(|e| e.to_string())
 }
 
 fn make_result_dict(heap: &mut GcHeap, output: &std::process::Output) -> Value {
