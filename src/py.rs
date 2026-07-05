@@ -1,0 +1,179 @@
+use std::rc::Rc;
+use std::sync::Mutex;
+use std::sync::OnceLock;
+
+use pyo3::prelude::*;
+use pyo3::types::PyModule;
+use pyo3::types::PyTuple;
+use pyo3::types::PyDict;
+
+use crate::gc::*;
+
+static PY_HANDLES: OnceLock<Mutex<Vec<PyObject>>> = OnceLock::new();
+
+fn get_handles() -> &'static Mutex<Vec<PyObject>> {
+    PY_HANDLES.get_or_init(|| Mutex::new(Vec::new()))
+}
+
+fn store_py_obj(obj: &Bound<'_, PyAny>) -> usize {
+    let raw = obj.as_ptr() as usize;
+    get_handles().lock().unwrap().push(obj.clone().unbind());
+    raw
+}
+
+fn value_to_py(val: &Value, py: Python<'_>, heap: &GcHeap) -> PyObject {
+    match val {
+        Value::Int(n) => n.into_py(py),
+        Value::UInt(n) => n.into_py(py),
+        Value::Float(n) => n.into_py(py),
+        Value::Bool(b) => b.into_py(py),
+        Value::Nil => py.None(),
+        Value::String(r) => {
+            if let GcObj::String(s) = heap.get(*r) {
+                s.into_py(py)
+            } else {
+                py.None()
+            }
+        }
+        Value::List(r) => {
+            if let GcObj::List(items) = heap.get(*r) {
+                let py_list: Vec<PyObject> = items.iter().map(|v| value_to_py(v, py, heap)).collect();
+                py_list.into_py(py)
+            } else {
+                py.None()
+            }
+        }
+        Value::Tuple(r) => {
+            if let GcObj::Tuple(items) = heap.get(*r) {
+                let py_vec: Vec<PyObject> = items.iter().map(|v| value_to_py(v, py, heap)).collect();
+                if let Ok(t) = PyTuple::new(py, py_vec.as_slice()) {
+                    t.into_any().unbind()
+                } else {
+                    py.None()
+                }
+            } else {
+                py.None()
+            }
+        }
+        Value::Dict(r) => {
+            if let GcObj::Dict(entries) = heap.get(*r) {
+                let d = PyDict::new(py);
+                for (k, v) in entries {
+                    d.set_item(value_to_py(k, py, heap), value_to_py(v, py, heap)).ok();
+                }
+                d.into_any().unbind()
+            } else {
+                py.None()
+            }
+        }
+        _ => py.None(),
+    }
+}
+
+fn py_value_to_lion(obj: &Bound<'_, PyAny>, heap: &mut GcHeap) -> Result<Value, String> {
+    if let Ok(s) = obj.extract::<String>() {
+        return Ok(make_string(heap, &s));
+    }
+    if let Ok(i) = obj.extract::<i64>() {
+        return Ok(Value::Int(i));
+    }
+    if let Ok(f) = obj.extract::<f64>() {
+        return Ok(Value::Float(f));
+    }
+    if let Ok(b) = obj.extract::<bool>() {
+        return Ok(Value::Bool(b));
+    }
+    if obj.is_none() {
+        return Ok(Value::Nil);
+    }
+    if let Ok(items) = obj.extract::<Vec<PyObject>>() {
+        let mut lion_items = Vec::new();
+        for item in items {
+            lion_items.push(py_value_to_lion(item.bind(obj.py()), heap)?);
+        }
+        return Ok(make_list(heap, lion_items));
+    }
+    Ok(wrap_py_callable(obj, heap))
+}
+
+fn wrap_py_callable(obj: &Bound<'_, PyAny>, heap: &mut GcHeap) -> Value {
+    let obj_id = store_py_obj(obj);
+
+    let mut entries: Vec<(Value, Value)> = Vec::new();
+    entries.push((make_string(heap, "__pyobj__"), Value::Int(obj_id as i64)));
+
+    if let Ok(dir) = obj.dir() {
+        for attr in dir {
+            if let Ok(name) = attr.extract::<String>() {
+                if name.starts_with('_') { continue; }
+                if let Ok(a) = obj.getattr(name.as_str()) {
+                    if let Ok(s) = a.extract::<String>() {
+                        entries.push((make_string(heap, &name), make_string(heap, &s)));
+                    } else if let Ok(i) = a.extract::<i64>() {
+                        entries.push((make_string(heap, &name), Value::Int(i)));
+                    } else if let Ok(f) = a.extract::<f64>() {
+                        entries.push((make_string(heap, &name), Value::Float(f)));
+                    } else if let Ok(b) = a.extract::<bool>() {
+                        entries.push((make_string(heap, &name), Value::Bool(b)));
+                    } else if a.is_none() {
+                        entries.push((make_string(heap, &name), Value::Nil));
+                    } else {
+                        let a_id = store_py_obj(&a);
+                        entries.push((make_string(heap, &name), Value::NativeFunc(NativeFunc {
+                            name: format!("<py.{}>", name),
+                            func: Rc::new(move |args, ctx| call_py_function(a_id, args, ctx)),
+                        })));
+                    }
+                }
+            }
+        }
+    }
+    Value::Dict(heap.alloc(GcObj::Dict(entries)))
+}
+
+fn call_py_function(obj_id: usize, args: &[Value], ctx: &mut VmContext) -> Result<Value, String> {
+    let handles = get_handles().lock().map_err(|e| format!("py lock: {}", e))?;
+    let py_obj = handles.iter()
+        .find(|o| o.as_ptr() as usize == obj_id)
+        .ok_or("Python object not found")?;
+
+    Python::with_gil(|py| {
+        let bound = py_obj.bind(py);
+        let py_args: Vec<PyObject> = args.iter().map(|a| value_to_py(a, py, ctx.heap)).collect();
+        let py_tuple = PyTuple::new(py, py_args.as_slice())
+            .map_err(|e| format!("Python tuple error: {}", e))?;
+        let result = bound.call(py_tuple, None)
+            .map_err(|e| format!("Python error: {}", e))?;
+        py_value_to_lion(&result, ctx.heap)
+    })
+}
+
+fn py_import(module_name: &str, heap: &mut GcHeap) -> Result<Value, String> {
+    Python::with_gil(|py| {
+        let module = PyModule::import(py, module_name)
+            .map_err(|e| format!("Python import error: {}", e))?;
+        Ok(wrap_py_callable(&module, heap))
+    })
+}
+
+pub fn build_py() -> Vec<(String, Value)> {
+    let mut items = Vec::new();
+    items.push(("import".to_string(), Value::NativeFunc(NativeFunc {
+        name: "<py.import>".to_string(),
+        func: Rc::new(move |args, ctx| {
+            let name = args.first().ok_or("py.import requires a module name")?.to_string(ctx.heap);
+            py_import(&name, ctx.heap)
+        }),
+    })));
+    items.push(("version".to_string(), Value::NativeFunc(NativeFunc {
+        name: "<py.version>".to_string(),
+        func: Rc::new(|_, _| {
+            Python::with_gil(|py| {
+                let v = py.version();
+                let mut h = GcHeap::new();
+                Ok(make_string(&mut h, v))
+            })
+        }),
+    })));
+    items
+}
