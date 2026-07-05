@@ -43,7 +43,7 @@ fn parse_json_value(s: &[u8], pos: &mut usize, heap: &mut GcHeap) -> Result<Valu
             }
             if *pos >= s.len() { return Err("json.parse: unterminated string".to_string()); }
             *pos += 1;
-            Ok(make_string(heap, &string))
+            Ok(make_string_owned(heap, string))
         }
         b't' => {
             if *pos + 4 <= s.len() && &s[*pos..*pos+4] == b"true" {
@@ -315,7 +315,7 @@ pub fn build_json() -> Vec<(String, Value)> {
 
     let json_stringify_fn = Rc::new(|args: &[Value], ctx: &mut VmContext| -> Result<Value, String> {
         let val = args.first().ok_or("json.stringify requires a value")?;
-        Ok(make_string(ctx.heap, &json_stringify(val, ctx.heap)))
+        Ok(make_string_owned(ctx.heap, json_stringify(val, ctx.heap)))
     });
 
     funcs.push(("parse".to_string(), Value::NativeFunc(NativeFunc { name: "<json.parse>".to_string(), func: json_parse_fn.clone() })));
@@ -364,7 +364,7 @@ pub fn build_json() -> Vec<(String, Value)> {
             func: Rc::new(|args, ctx| {
                 let val = args.first().ok_or("json.pretty requires a value")?;
                 let indent = if args.len() > 1 { args[1].to_string(ctx.heap) } else { "  ".to_string() };
-                Ok(make_string(ctx.heap, &json_pretty(val, ctx.heap, &indent, 0)))
+                Ok(make_string_owned(ctx.heap, json_pretty(val, ctx.heap, &indent, 0)))
             }),
         }),
     ));

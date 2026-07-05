@@ -10,7 +10,7 @@ pub fn build_path() -> Vec<(String, Value)> {
             if args.is_empty() { return Err("path.join requires at least one path component".to_string()); }
             let parts: Vec<String> = args.iter().map(|a| a.to_string(ctx.heap)).collect();
             let joined = parts.join("/").replace("\\", "/");
-            Ok(make_string(ctx.heap, &joined))
+            Ok(make_string_owned(ctx.heap, joined))
         }),
     })));
 
@@ -132,7 +132,7 @@ pub fn build_path() -> Vec<(String, Value)> {
                 Ok(dir) => {
                     for entry in dir {
                         match entry {
-                            Ok(e) => entries.push(make_string(ctx.heap, &e.file_name().to_string_lossy())),
+                            Ok(e) => entries.push(make_string_owned(ctx.heap, e.file_name().to_string_lossy().into_owned())),
                             Err(e) => return Err(format!("path.list_dir: {}", e)),
                         }
                     }
@@ -158,11 +158,11 @@ pub fn build_path() -> Vec<(String, Value)> {
         func: Rc::new(|args, ctx| {
             let path = args.first().ok_or("path.abs requires a path")?.to_string(ctx.heap);
             match std::path::Path::new(&path).canonicalize() {
-                Ok(p) => Ok(make_string(ctx.heap, &p.to_string_lossy())),
+                Ok(p) => Ok(make_string_owned(ctx.heap, p.to_string_lossy().into_owned())),
                 Err(_) => {
                     let cwd = std::env::current_dir().unwrap_or_default();
                     let joined = format!("{}/{}", cwd.to_string_lossy(), path);
-                    Ok(make_string(ctx.heap, &joined))
+                    Ok(make_string_owned(ctx.heap, joined))
                 }
             }
         }),
@@ -178,13 +178,13 @@ pub fn build_path() -> Vec<(String, Value)> {
                 Some(i) => {
                     let dir_s = if i > 0 { p[..i].to_string() } else { "/".to_string() };
                     let base_s = p[i+1..].to_string();
-                    let dir = make_string(ctx.heap, &dir_s);
-                    let base = make_string(ctx.heap, &base_s);
+                    let dir = make_string_owned(ctx.heap, dir_s);
+                    let base = make_string_owned(ctx.heap, base_s);
                     Ok(make_list(ctx.heap, vec![dir, base]))
                 }
                 None => {
                     let dot = make_string(ctx.heap, ".");
-                    let p2 = make_string(ctx.heap, &p);
+                    let p2 = make_string_owned(ctx.heap, p);
                     Ok(make_list(ctx.heap, vec![dot, p2]))
                 }
             }
@@ -202,10 +202,10 @@ fn walk_dir(root: &str, dir: &str, results: &mut Vec<Value>, heap: &mut GcHeap) 
                     Ok(e) => {
                         let path = e.path();
                         let path_str = path.to_string_lossy().to_string();
-                        results.push(make_string(heap, &path_str));
                         if path.is_dir() {
                             walk_dir(root, &path_str, results, heap)?;
                         }
+                        results.push(make_string_owned(heap, path_str));
                     }
                     Err(e) => return Err(format!("path.walk: {}", e)),
                 }

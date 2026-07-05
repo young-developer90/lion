@@ -367,9 +367,8 @@ impl Vm {
 
                     let args: Vec<Value> = if argc > 0 {
                         let start = self.stack.len() - argc;
-                        self.stack[start..].to_vec()
+                        self.stack.drain(start..).collect()
                     } else { Vec::new() };
-                    for _ in 0..argc { self.stack.pop(); }
                     let callee = self.stack.pop().ok_or("stack empty on call")?;
 
                     match callee {
@@ -823,7 +822,7 @@ fn add_values(a: &Value, b: &Value, heap: &mut GcHeap) -> Result<Value, String> 
         (Value::String(x), Value::String(y)) => {
             let sx = match heap.get(*x) { GcObj::String(s) => s.clone(), _ => return Err("not a string".to_string()) };
             let sy = match heap.get(*y) { GcObj::String(s) => s.clone(), _ => return Err("not a string".to_string()) };
-            Ok(make_string(heap, &format!("{}{}", sx, sy)))
+            Ok(make_string_owned(heap, sx + &sy))
         }
         _ => Err(format!("cannot add {} and {}", a.type_name(), b.type_name())),
     }
@@ -926,7 +925,7 @@ fn concat_values(a: &Value, b: &Value, heap: &mut GcHeap) -> Result<Value, Strin
     // Fallback
     let sa = value_display(a, heap);
     let sb = value_display(b, heap);
-    Ok(make_string(heap, &format!("{}{}", sa, sb)))
+    Ok(make_string_owned(heap, sa + &sb))
 }
 
 fn contains_check(left: &Value, right: &Value, heap: &GcHeap) -> Result<bool, String> {
@@ -1313,7 +1312,7 @@ fn load_attr(obj: &Value, name: &str, heap: &mut GcHeap) -> Result<Value, String
                         let sep = if !args.is_empty() { value_display(&args[0], ctx.heap) } else { String::new() };
                         if let GcObj::List(ref items) = ctx.heap.get(r) {
                             let parts: Vec<String> = items.iter().map(|v| value_display(v, ctx.heap)).collect();
-                            Ok(make_string(ctx.heap, &parts.join(&sep)))
+                            Ok(make_string_owned(ctx.heap, parts.join(&sep)))
                         } else { Err("not a list".to_string()) }
                     }),
                 })),
@@ -1940,9 +1939,7 @@ fn execute_chunk(chunk_idx: usize, args: &[Value], ctx: &mut VmContext) -> Resul
             OpCode::Concat => {
                 let b = stack.pop().ok_or("stack empty")?;
                 let a = stack.pop().ok_or("stack empty")?;
-                let sa = value_display(&a, ctx.heap);
-                let sb = value_display(&b, ctx.heap);
-                stack.push(make_string(ctx.heap, &format!("{}{}", sa, sb)));
+                stack.push(concat_values(&a, &b, ctx.heap)?);
             }
             OpCode::In => {
                 ip += 2;
@@ -2370,9 +2367,7 @@ fn execute_closure_chunk(chunk_idx: usize, args: &[Value], upvalues: Vec<Upvalue
             OpCode::Concat => {
                 let b = stack.pop().ok_or("stack empty")?;
                 let a = stack.pop().ok_or("stack empty")?;
-                let sa = value_display(&a, ctx.heap);
-                let sb = value_display(&b, ctx.heap);
-                stack.push(make_string(ctx.heap, &format!("{}{}", sa, sb)));
+                stack.push(concat_values(&a, &b, ctx.heap)?);
             }
             OpCode::In => {
                 ip += 2;

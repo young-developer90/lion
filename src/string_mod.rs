@@ -26,7 +26,7 @@ pub fn build_string() -> Vec<(String, Value)> {
         name: "<string.upper>".to_string(),
         func: Rc::new(|args, ctx| {
             let s = args.first().ok_or("string.upper requires a string")?.to_string(ctx.heap);
-            Ok(make_string(ctx.heap, &s.to_uppercase()))
+            Ok(make_string_owned(ctx.heap, s.to_uppercase()))
         }),
     })));
 
@@ -34,7 +34,7 @@ pub fn build_string() -> Vec<(String, Value)> {
         name: "<string.lower>".to_string(),
         func: Rc::new(|args, ctx| {
             let s = args.first().ok_or("string.lower requires a string")?.to_string(ctx.heap);
-            Ok(make_string(ctx.heap, &s.to_lowercase()))
+            Ok(make_string_owned(ctx.heap, s.to_lowercase()))
         }),
     })));
 
@@ -82,7 +82,7 @@ pub fn build_string() -> Vec<(String, Value)> {
                 _ => return Err("string.join requires a list".to_string()),
             };
             let parts: Vec<String> = items.iter().map(|v| v.to_string(ctx.heap)).collect();
-            Ok(make_string(ctx.heap, &parts.join(&sep)))
+            Ok(make_string_owned(ctx.heap, parts.join(&sep)))
         }),
     })));
 
@@ -120,7 +120,7 @@ pub fn build_string() -> Vec<(String, Value)> {
             if args.len() < 3 { return Err("string.replace requires from and to".to_string()); }
             let from = args[1].to_string(ctx.heap);
             let to = args[2].to_string(ctx.heap);
-            Ok(make_string(ctx.heap, &s.replace(&from, &to)))
+            Ok(make_string_owned(ctx.heap, s.replace(&from, &to)))
         }),
     })));
 
@@ -128,7 +128,7 @@ pub fn build_string() -> Vec<(String, Value)> {
         name: "<string.reverse>".to_string(),
         func: Rc::new(|args, ctx| {
             let s = args.first().ok_or("string.reverse requires a string")?.to_string(ctx.heap);
-            Ok(make_string(ctx.heap, &s.chars().rev().collect::<String>()))
+            Ok(make_string_owned(ctx.heap, s.chars().rev().collect::<String>()))
         }),
     })));
 
@@ -138,7 +138,7 @@ pub fn build_string() -> Vec<(String, Value)> {
             let s = args.first().ok_or("string.repeat requires a string")?.to_string(ctx.heap);
             if args.len() < 2 { return Err("string.repeat requires a count".to_string()); }
             let n = to_i64(&args[1])?;
-            Ok(make_string(ctx.heap, &s.repeat(n as usize)))
+            Ok(make_string_owned(ctx.heap, s.repeat(n as usize)))
         }),
     })));
 
@@ -179,7 +179,7 @@ pub fn build_string() -> Vec<(String, Value)> {
                     _ => return Err("string.from_bytes: all elements must be integers".to_string()),
                 }
             }
-            Ok(make_string(ctx.heap, &String::from_utf8_lossy(&bytes)))
+            Ok(make_string_owned(ctx.heap, String::from_utf8_lossy(&bytes).into_owned()))
         }),
     })));
 

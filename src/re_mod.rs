@@ -66,7 +66,7 @@ pub fn build_re() -> Vec<(String, Value)> {
             let text = args[2].to_string(ctx.heap);
             let re = get_regex(&pattern)?;
             let result = re.replace(&text, replacement.as_str());
-            Ok(make_string(ctx.heap, &result))
+            Ok(make_string_owned(ctx.heap, result.into_owned()))
         }),
     })));
 
@@ -79,7 +79,7 @@ pub fn build_re() -> Vec<(String, Value)> {
             let text = args[2].to_string(ctx.heap);
             let re = get_regex(&pattern)?;
             let result = re.replace_all(&text, replacement.as_str());
-            Ok(make_string(ctx.heap, &result))
+            Ok(make_string_owned(ctx.heap, result.into_owned()))
         }),
     })));
 

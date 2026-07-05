@@ -34,7 +34,7 @@ pub fn build_subprocess() -> Vec<(String, Value)> {
             let cmd_str = args[0].to_string(ctx.heap);
             let output = run_or_fallback(&cmd_str)
                 .map_err(|e| format!("subprocess.run_output: {}", e))?;
-            Ok(make_string(ctx.heap, &String::from_utf8_lossy(&output.stdout)))
+            Ok(make_string_owned(ctx.heap, String::from_utf8_lossy(&output.stdout).into_owned()))
         }),
     })));
 
@@ -45,7 +45,7 @@ pub fn build_subprocess() -> Vec<(String, Value)> {
             let cmd_str = args[0].to_string(ctx.heap);
             let output = run_shell(&cmd_str)
                 .map_err(|e| format!("subprocess.run_shell_output: {}", e))?;
-            Ok(make_string(ctx.heap, &String::from_utf8_lossy(&output.stdout)))
+            Ok(make_string_owned(ctx.heap, String::from_utf8_lossy(&output.stdout).into_owned()))
         }),
     })));
 
@@ -76,7 +76,7 @@ fn run_shell(cmd_str: &str) -> Result<std::process::Output, String> {
 fn make_result_dict(heap: &mut GcHeap, output: &std::process::Output) -> Value {
     let mut entries = Vec::new();
     entries.push((make_string(heap, "returncode"), Value::Int(output.status.code().unwrap_or(-1) as i64)));
-    entries.push((make_string(heap, "stdout"), make_string(heap, &String::from_utf8_lossy(&output.stdout))));
-    entries.push((make_string(heap, "stderr"), make_string(heap, &String::from_utf8_lossy(&output.stderr))));
+    entries.push((make_string(heap, "stdout"), make_string_owned(heap, String::from_utf8_lossy(&output.stdout).into_owned())));
+    entries.push((make_string(heap, "stderr"), make_string_owned(heap, String::from_utf8_lossy(&output.stderr).into_owned())));
     make_dict(heap, entries)
 }
