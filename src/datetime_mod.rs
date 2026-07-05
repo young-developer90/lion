@@ -53,26 +53,30 @@ pub fn build_datetime() -> Vec<(String, Value)> {
             let fmt = args[1].to_string(ctx.heap);
             let mut year = 0i64; let mut month = 1i64; let mut day = 1i64;
             let mut hour = 0i64; let mut minute = 0i64; let mut second = 0i64;
-            let mut chars = s.chars();
-            let mut fmt_chars = fmt.chars();
+            let mut peek_chars = s.chars().peekable();
+            let mut fmt_iter = fmt.chars();
             loop {
-                match (fmt_chars.next(), chars.next()) {
-                    (Some('%'), Some(_)) => {
-                        match fmt_chars.next() {
-                            Some('Y') => { year = parse_num(&mut chars, 4); }
-                            Some('y') => { year = 2000 + parse_num(&mut chars, 2); }
-                            Some('m') => { month = parse_num(&mut chars, 2); }
-                            Some('d') => { day = parse_num(&mut chars, 2); }
-                            Some('H') => { hour = parse_num(&mut chars, 2); }
-                            Some('M') => { minute = parse_num(&mut chars, 2); }
-                            Some('S') => { second = parse_num(&mut chars, 2); }
-                            _ => {}
+                let fmt_next = fmt_iter.next();
+                match fmt_next {
+                    Some('%') => {
+                        match fmt_iter.next() {
+                            Some('Y') => { year = parse_num_peek(&mut peek_chars, 4); }
+                            Some('y') => { year = 2000 + parse_num_peek(&mut peek_chars, 2); }
+                            Some('m') => { month = parse_num_peek(&mut peek_chars, 2); }
+                            Some('d') => { day = parse_num_peek(&mut peek_chars, 2); }
+                            Some('H') => { hour = parse_num_peek(&mut peek_chars, 2); }
+                            Some('M') => { minute = parse_num_peek(&mut peek_chars, 2); }
+                            Some('S') => { second = parse_num_peek(&mut peek_chars, 2); }
+                            _ => { peek_chars.next(); }
                         }
                     }
-                    (Some(fc), Some(sc)) => {
-                        if fc != sc { break; }
+                    Some(fc) => {
+                        match peek_chars.next() {
+                            Some(sc) if fc == sc => continue,
+                            _ => break,
+                        }
                     }
-                    (None, _) | (_, None) => break,
+                    None => break,
                 }
             }
             let unix = date_to_unix(year, month, day, hour, minute, second);
@@ -170,11 +174,14 @@ fn date_to_unix(year: i64, month: i64, day: i64, hour: i64, minute: i64, second:
     total_days * 86400 + hour * 3600 + minute * 60 + second
 }
 
-fn parse_num(chars: &mut std::str::Chars, count: usize) -> i64 {
+fn parse_num_peek(chars: &mut std::iter::Peekable<std::str::Chars>, count: usize) -> i64 {
     let mut n = 0i64;
     for _ in 0..count {
-        match chars.next() {
-            Some(c) if c.is_ascii_digit() => n = n * 10 + (c as i64 - '0' as i64),
+        match chars.peek() {
+            Some(c) if c.is_ascii_digit() => {
+                n = n * 10 + (*c as i64 - '0' as i64);
+                chars.next();
+            }
             _ => break,
         }
     }

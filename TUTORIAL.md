@@ -840,6 +840,165 @@ string.reverse("abc")        // "cba"
 string.substring("hello", 1, 4) // "ell"
 ```
 
+### re (Regular Expressions)
+
+The `re` module provides regex pattern matching using the Rust `regex` crate.
+
+```lion
+re.find("\\d+", "hello 42 world 99");     // "42" — first match
+re.is_match("\\d+", "hello 42");           // true — pattern exists anywhere
+re.split("\\s+", "a b   c");               // ["a", "b", "c"] — split on whitespace
+re.sub("world", "there", "hello world");   // "hello there" — replace first match
+re.sub_all("\\d", "X", "a1b2c3");          // "aXbXcX" — replace all matches
+re.find_all("\\w+", "hello world");        // ["hello", "world"] — all matches
+re.captures("(\\w+)@(\\w+)", "a@b");       // ["a@b", "a", "b"] — capture groups
+```
+
+### datetime
+
+The `datetime` module provides date and time functions.
+
+```lion
+let dt = datetime.now();                 // current datetime dict
+print(dt.year, dt.month, dt.day);        // access fields
+print(dt.hour, dt.minute, dt.second);    // time fields
+
+let epoch = datetime.from_unix(0);       // from Unix timestamp
+print(datetime.format(epoch, "%Y-%m-%d %H:%M:%S"));  // "1970-01-01 00:00:00"
+
+let parsed = datetime.parse("2024-01-15", "%Y-%m-%d");  // parse from string
+print(parsed);
+```
+
+Format specifiers: `%Y` (year), `%y` (2-digit year), `%m` (month), `%d` (day), `%H` (hour), `%M` (minute), `%S` (second).
+
+### logging
+
+The `logging` module provides structured log output to stderr with level filtering.
+
+```lion
+logging.set_level("DEBUG");              // one of: DEBUG, INFO, WARN, ERROR
+logging.debug("detailed info");
+logging.info("general info");
+logging.warn("warning message");
+logging.error("error message");
+
+logging.basic_config("WARN");            // shorthand to set level
+```
+
+### subprocess
+
+The `subprocess` module runs external commands.
+
+```lion
+let r = subprocess.run_shell("echo hello");              // run via shell
+print(r.returncode, r.stdout, r.stderr);                  // result dict
+
+let out = subprocess.run_shell_output("echo hello");      // capture stdout only
+print(string.trim(out));
+
+let r2 = subprocess.run("git status");                    // run directly (no shell)
+```
+
+### path
+
+The `path` module provides filesystem path manipulation beyond basic `fs` operations.
+
+```lion
+path.join("a", "b", "c.txt");          // "a/b/c.txt" — join path components
+path.basename("/foo/bar/file.txt");    // "file.txt"
+path.dirname("/foo/bar/file.txt");     // "/foo/bar"
+path.ext("image.png");                 // "png"
+path.is_file("test.txt");              // true if file exists
+path.is_dir(".");                      // true if directory
+path.size("file.txt");                 // file size in bytes
+path.rename("old.txt", "new.txt");     // rename file
+path.copy("src.txt", "dst.txt");       // copy file
+path.remove("temp.txt");               // delete file
+path.list_dir(".");                    // list directory contents
+path.walk(".");                        // recursively walk directory
+path.abs(".");                         // absolute path
+path.split("a/b/c.txt");              // ["a/b", "c.txt"] — dirname + basename
+```
+
+### hashlib (Cryptography)
+
+The `hashlib` module provides cryptographic hash functions and encoding.
+
+```lion
+hashlib.sha256("hello");               // SHA-256 hex digest (64 chars)
+hashlib.sha512("hello");               // SHA-512 hex digest (128 chars)
+hashlib.sha1("hello");                 // SHA-1 hex digest (40 chars)
+hashlib.md5("hello");                  // MD5 hex digest (32 chars)
+
+hashlib.base64_encode("hello world");  // base64 encode
+hashlib.base64_decode("aGVsbG8=");     // base64 decode
+hashlib.hex_encode("abc");             // "616263" — hex encode
+hashlib.hex_decode("616263");          // "abc" — hex decode
+```
+
+### collections
+
+The `collections` module provides specialized data structures and operations.
+
+```lion
+// Counter — count element frequencies
+let ct = collections.Counter(["a", "b", "a", "c", "b", "a"]);
+print(ct["a"]);                        // 3
+
+// Deque — double-ended queue operations on lists
+let dq = collections.deque([1, 2, 3]);
+collections.push_left(dq, 0);          // prepend
+let first = collections.pop_left(dq);  // remove and return first
+collections.push_right(dq, 4);         // append (same as list.push)
+let last = collections.pop_right(dq);  // remove and return last
+
+// Flatten — flatten nested lists
+let flat = collections.flatten([[1, 2], [3, [4, 5]]]);  // [1, 2, 3, 4, 5]
+
+// Group by — group list items by a key function
+let grouped = collections.group_by(["apple", "ant", "banana"], |s| s[0]);
+print(grouped.a);                      // ["apple", "ant"]
+```
+
+### itertools
+
+The `itertools` module provides iterator-like operations for functional programming.
+
+```lion
+itertools.chain([1, 2], [3, 4]);       // [1, 2, 3, 4] — concatenate lists
+itertools.zip([1, 2], ["a", "b"]);     // [[1, "a"], [2, "b"]] — pair elements
+itertools.enumerate(["x", "y", "z"]);  // [[0, "x"], [1, "y"], [2, "z"]]
+itertools.take(3, [1, 2, 3, 4, 5]);   // [1, 2, 3] — first n elements
+itertools.drop(2, [1, 2, 3, 4, 5]);   // [3, 4, 5] — skip first n elements
+itertools.slice(list, 1, 4, 2);        // elements from index 1 to 4 step 2
+itertools.reverse([1, 2, 3]);          // [3, 2, 1]
+itertools.unique([1, 2, 1, 3, 2]);    // [1, 2, 3] — unique preserving order
+itertools.sorted([3, 1, 4, 1, 5]);    // [1, 1, 3, 4, 5] — sort ascending
+itertools.any([false, nil, 0]);        // false — any truthy?
+itertools.all([1, 2, 3]);              // true — all truthy?
+itertools.count(0, 5);                 // [0, 5, 10, ...] — arithmetic progression
+itertools.repeat("x", 3);              // ["x", "x", "x"]
+itertools.product([1, 2], ["a"]);      // [[1, "a"], [2, "a"]] — Cartesian product
+itertools.identity(42);                // 42 — identity function
+
+let konst = itertools.constantly(99);  // function that always returns 99
+print(konst());                        // 99
+```
+
+### test (Unit Testing Assertions)
+
+The `test` module provides assertion functions for unit testing. When an assertion fails, it raises an error that the test runner captures.
+
+```lion
+test.assert_eq(2 + 2, 4, "basic math");         // assert equality
+test.assert_ne(1, 2, "different");              // assert inequality
+test.assert_true(true, "should be true");       // assert truthy
+test.assert_false(false, "should be false");    // assert falsy
+test.assert_contains([1, 2, 3], 2, "list");     // assert containment
+test.assert_raises(func() { throw "err"; }, "err");  // assert error thrown
+```
+
 ---
 
 ## Full Example

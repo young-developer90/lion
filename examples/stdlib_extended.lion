@@ -1,0 +1,111 @@
+// Lion Extended Standard Library Examples
+// Run with: lion run examples/stdlib_extended.lion
+
+// ============ re (regex) ============
+print("=== re module ===");
+let text = "hello 42 world 99";
+print("text:", text);
+print("find first digit sequence:", re.find("\\d+", text));
+print("is there a digit?:", re.is_match("\\d+", text));
+print("split on whitespace:", re.split("\\s+", text));
+print("replace digits with #:", re.sub("\\d+", "#", text));
+print("replace all digits:", re.sub_all("\\d+", "X", text));
+print("find all digit sequences:", re.find_all("\\d+", text));
+let caps = re.captures("(\\w+)@(\\w+)", "user@host");
+print("captures (user@host):", caps);
+
+// ============ datetime ============
+print("\n=== datetime module ===");
+let dt = datetime.now();
+print("now:", dt);
+print("year:", dt.year, "month:", dt.month, "day:", dt.day);
+print("hour:", dt.hour, "minute:", dt.minute, "second:", dt.second);
+
+let epoch = datetime.from_unix(0);
+print("epoch:", epoch);
+print("epoch formatted:", datetime.format(epoch, "%Y-%m-%d %H:%M:%S"));
+
+let parsed = datetime.parse("2024-01-15", "%Y-%m-%d");
+print("parsed date:", parsed);
+
+// ============ logging ============
+print("\n=== logging module ===");
+logging.set_level("WARN");
+logging.debug("you won't see this");
+logging.error("you WILL see this (on stderr)");
+logging.basic_config("DEBUG");
+logging.debug("now you see this too");
+
+// ============ subprocess ============
+print("\n=== subprocess module ===");
+let r = subprocess.run_shell("echo Hello from Lion");
+print("exit code:", r.returncode);
+let out = subprocess.run_shell_output("echo subprocess works");
+print("captured output:", string.trim(out));
+
+// ============ path ============
+print("\n=== path module ===");
+print("join:", path.join("a", "b", "c.txt"));
+print("basename:", path.basename("/foo/bar/file.txt"));
+print("dirname:", path.dirname("/foo/bar/file.txt"));
+print("extension:", path.ext("image.png"));
+print("is_dir('.'):", path.is_dir("."));
+print("split:", path.split("a/b/c.txt"));
+print("abs('.'):", path.abs("."));
+print("list_dir examples:", path.list_dir("examples"));
+
+// ============ hashlib ============
+print("\n=== hashlib module ===");
+print("sha256('hello'):", hashlib.sha256("hello"));
+print("md5('hello'):", hashlib.md5("hello"));
+print("sha512('hello'):", hashlib.sha512("hello"));
+let enc = hashlib.base64_encode("hello world");
+print("base64_encode:", enc);
+print("base64_decode:", hashlib.base64_decode(enc));
+print("hex_encode('abc'):", hashlib.hex_encode("abc"));
+print("hex_decode('616263'):", hashlib.hex_decode("616263"));
+
+// ============ collections ============
+print("\n=== collections module ===");
+let ct = collections.Counter(["a", "b", "a", "c", "b", "a"]);
+print("Counter:", ct);
+print("count of 'a':", ct.a);
+
+let dq = collections.deque([1, 2, 3]);
+collections.push_left(dq, 0);
+print("after push_left:", dq);
+let first = collections.pop_left(dq);
+print("pop_left:", first, "deque now:", dq);
+collections.push_right(dq, 4);
+print("after push_right:", dq);
+let last = collections.pop_right(dq);
+print("pop_right:", last);
+
+let flat = collections.flatten([[1, 2], [3, [4, 5]]]);
+print("flatten:", flat);
+
+// ============ itertools ============
+print("\n=== itertools module ===");
+print("chain:", itertools.chain([1, 2], [3, 4]));
+print("zip:", itertools.zip([1, 2, 3], ["a", "b", "c"]));
+print("enumerate:", itertools.enumerate(["x", "y", "z"]));
+print("take(3, [1..10]):", itertools.take(3, [1, 2, 3, 4, 5]));
+print("drop(2, [1..5]):", itertools.drop(2, [1, 2, 3, 4, 5]));
+print("reverse:", itertools.reverse([1, 2, 3]));
+print("unique:", itertools.unique([1, 2, 1, 3, 2, 1]));
+print("sorted:", itertools.sorted([3, 1, 4, 1, 5]));
+print("any truthy:", itertools.any([false, nil, 0]));
+print("all truthy:", itertools.all([1, 2, 3]));
+print("identity(42):", itertools.identity(42));
+let konst = itertools.constantly("always this");
+print("constantly():", konst(), konst());
+
+// ============ test assertions ============
+print("\n=== test module ===");
+test.assert_eq(2 + 2, 4, "basic math");
+test.assert_ne(1, 2, "different values");
+test.assert_true(true, "truth check");
+test.assert_false(false, "false check");
+test.assert_contains([1, 2, 3], 2, "list membership");
+
+print("\n=== All new stdlib modules demonstrated ===");

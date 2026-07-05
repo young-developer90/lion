@@ -19,7 +19,7 @@ Lion is designed to be:
 - **Readable** — syntax inspired by Swift, Kotlin, and Lua. No sigils, no ceremony.
 - **Expressive** — first-class functions, closures, pattern matching, ternaries, list comprehensions.
 - **Approachable** — you can learn the whole language in an afternoon.
-- **Self-contained** — batteries included: HTTP client, JSON/CSV/HTML parsers, stats module, file I/O.
+- **Self-contained** — batteries included: HTTP client, JSON/CSV/HTML parsers, stats module, file I/O, regex, datetime, logging, subprocess, pathlib, hashlib/crypto, collections, itertools, and unit test assertions.
 - **Extensible** — module system with import/export, optional Python interop, optional CUDA GPU acceleration.
 
 ## Quick Start
@@ -83,7 +83,7 @@ print(encoded);
 | **Control Flow** | `if`/`elif`/`else`, `while`, `for..in`, ternary `? :`, `match` |
 | **Error Handling** | `try`/`catch`/`throw` |
 | **Modules** | `import`/`export` with aliases |
-| **Standard Library** | `math`, `time`, `rand`, `fs`, `os`, `json`, `csv`, `html`, `http`, `url`, `stats` |
+| **Standard Library** | `math`, `time`, `rand`, `fs`, `os`, `json`, `csv`, `html`, `http`, `url`, `stats`, `re`, `datetime`, `logging`, `subprocess`, `path`, `hashlib`, `collections`, `itertools`, `test` |
 | **Python Interop** | Optional — import and call any Python module (NumPy, PyTorch, pandas, etc.) |
 | **GPU** | Optional CUDA acceleration for matrix operations |
 | **Tooling** | REPL, bytecode disassembler, formatter, test runner |
@@ -221,7 +221,7 @@ src/           # Rust source
   ├── main.rs       # Entry point
   ├── cuda.rs       # CUDA acceleration
   ├── linum.rs      # Linear algebra module
-  └── *_mod.rs      # Utility modules (csv, html, json, stats, string, url)
+  └── *_mod.rs      # Utility modules (csv, html, json, stats, string, url, re, datetime, logging, subprocess, path, hashlib, collections, itertools, test)
 examples/      # Example .lion scripts
 tests/         # Test .lion scripts
 vscode-lion/   # VS Code extension (syntax highlighting + LSP client)
