@@ -1,0 +1,13 @@
+/target/
+*.exe
+*.ptx
+*.pyc
+__pycache__/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+vscode-lion/node_modules/
+vscode-lion/out/
+*.vsix
