@@ -2,7 +2,7 @@
 
 [![Rust](https://img.shields.io/badge/Rust-1.80%2B-dea584?logo=rust)](https://rustup.rs/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.4.6-green)](https://github.com/young-developer90/lion/releases)
+[![Version](https://img.shields.io/badge/version-1.4.7-green)](https://github.com/young-developer90/lion/releases)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/young-developer90/lion/actions)
 [![PRs](https://img.shields.io/badge/PRs-welcome-orange)](https://github.com/young-developer90/lion/pulls)
 
@@ -198,7 +198,7 @@ cargo build --release
 
 Benchmarks comparing Lion 1.4.6 against Python 3.14 on the same workloads. Lower is better.
 
-| Benchmark | Lion 1.4.6 | Python 3.14 | vs Python |
+| Benchmark | Lion 1.4.7 | Python 3.14 | vs Python |
 |-----------|------------|-------------|-----------|
 | `re.find_all` — 10k lines | 21.8 ms | 2.2 ms | ~10× slower |
 | `re.sub_all` — 10k lines | 58.0 ms | 9.9 ms | ~6× slower |
