@@ -9,7 +9,8 @@ pub fn build_path() -> Vec<(String, Value)> {
         func: Rc::new(|args, ctx| {
             if args.is_empty() { return Err("path.join requires at least one path component".to_string()); }
             let parts: Vec<String> = args.iter().map(|a| a.to_string(ctx.heap)).collect();
-            let joined = parts.join("/").replace("\\", "/");
+            let joined = parts.join("/");
+            let joined = if joined.contains('\\') { joined.replace("\\", "/") } else { joined };
             Ok(make_string_owned(ctx.heap, joined))
         }),
     })));
@@ -18,7 +19,7 @@ pub fn build_path() -> Vec<(String, Value)> {
         name: "<path.basename>".to_string(),
         func: Rc::new(|args, ctx| {
             let path = args.first().ok_or("path.basename requires a path")?.to_string(ctx.heap);
-            let p = path.replace("\\", "/");
+            let p = if path.contains('\\') { path.replace("\\", "/") } else { path };
             let base = p.rsplit('/').next().unwrap_or("");
             Ok(make_string(ctx.heap, base))
         }),
@@ -28,7 +29,7 @@ pub fn build_path() -> Vec<(String, Value)> {
         name: "<path.dirname>".to_string(),
         func: Rc::new(|args, ctx| {
             let path = args.first().ok_or("path.dirname requires a path")?.to_string(ctx.heap);
-            let p = path.replace("\\", "/");
+            let p = if path.contains('\\') { path.replace("\\", "/") } else { path };
             let idx = p.rfind('/').map(|i| i).unwrap_or(0);
             let dir = if idx > 0 { &p[..idx] } else { "." };
             Ok(make_string(ctx.heap, dir))
@@ -39,7 +40,7 @@ pub fn build_path() -> Vec<(String, Value)> {
         name: "<path.ext>".to_string(),
         func: Rc::new(|args, ctx| {
             let path = args.first().ok_or("path.ext requires a path")?.to_string(ctx.heap);
-            let p = path.replace("\\", "/");
+            let p = if path.contains('\\') { path.replace("\\", "/") } else { path };
             let base = p.rsplit('/').next().unwrap_or("");
             let ext = base.rsplit('.').next().filter(|s| *s != base).unwrap_or("");
             Ok(make_string(ctx.heap, ext))

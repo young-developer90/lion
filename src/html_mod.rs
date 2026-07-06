@@ -162,13 +162,19 @@ pub fn build_html() -> Vec<(String, Value)> {
             name: "<html.encode>".to_string(),
             func: Rc::new(|args, ctx| {
                 let text = args.first().map(|a| a.to_string(ctx.heap)).unwrap_or_default();
-                let encoded = text
-                    .replace('&', "&amp;")
-                    .replace('<', "&lt;")
-                    .replace('>', "&gt;")
-                    .replace('"', "&quot;")
-                    .replace('\'', "&#39;");
-                Ok(make_string(ctx.heap, &encoded))
+                let cap = text.len();
+                let mut out = String::with_capacity(cap);
+                for c in text.chars() {
+                    match c {
+                        '&' => out.push_str("&amp;"),
+                        '<' => out.push_str("&lt;"),
+                        '>' => out.push_str("&gt;"),
+                        '"' => out.push_str("&quot;"),
+                        '\'' => out.push_str("&#39;"),
+                        c => out.push(c),
+                    }
+                }
+                Ok(make_string_owned(ctx.heap, out))
             }),
         }),
     ));
@@ -179,15 +185,40 @@ pub fn build_html() -> Vec<(String, Value)> {
             name: "<html.decode>".to_string(),
             func: Rc::new(|args, ctx| {
                 let text = args.first().map(|a| a.to_string(ctx.heap)).unwrap_or_default();
-                let decoded = text
-                    .replace("&amp;", "&")
-                    .replace("&lt;", "<")
-                    .replace("&gt;", ">")
-                    .replace("&quot;", "\"")
-                    .replace("&#39;", "'")
-                    .replace("&#x27;", "'")
-                    .replace("&#x2F;", "/");
-                Ok(make_string(ctx.heap, &decoded))
+                let cap = text.len();
+                let mut out = String::with_capacity(cap);
+                let bytes = text.as_bytes();
+                let mut i = 0;
+                while i < bytes.len() {
+                    if bytes[i] == b'&' && i + 3 < bytes.len() {
+                        if bytes[i+1] == b'a' && bytes[i+2] == b'm' && bytes[i+3] == b'p' && i + 4 < bytes.len() && bytes[i+4] == b';' {
+                            out.push('&'); i += 5; continue;
+                        }
+                        if bytes[i+1] == b'l' && bytes[i+2] == b't' && bytes[i+3] == b';' {
+                            out.push('<'); i += 4; continue;
+                        }
+                        if bytes[i+1] == b'g' && bytes[i+2] == b't' && bytes[i+3] == b';' {
+                            out.push('>'); i += 4; continue;
+                        }
+                        if i + 5 < bytes.len() && bytes[i+1] == b'q' && bytes[i+2] == b'u' && bytes[i+3] == b'o' && bytes[i+4] == b't' && bytes[i+5] == b';' {
+                            out.push('"'); i += 6; continue;
+                        }
+                        if i + 4 < bytes.len() && bytes[i+1] == b'#' {
+                            if bytes[i+2] == b'3' && bytes[i+3] == b'9' && bytes[i+4] == b';' {
+                                out.push('\''); i += 5; continue;
+                            }
+                            if i + 6 < bytes.len() && bytes[i+2] == b'x' && bytes[i+3] == b'2' && bytes[i+4] == b'7' && bytes[i+5] == b';' {
+                                out.push('\''); i += 6; continue;
+                            }
+                            if i + 6 < bytes.len() && bytes[i+2] == b'x' && bytes[i+3] == b'2' && bytes[i+4] == b'F' && bytes[i+5] == b';' {
+                                out.push('/'); i += 6; continue;
+                            }
+                        }
+                    }
+                    out.push(bytes[i] as char);
+                    i += 1;
+                }
+                Ok(make_string_owned(ctx.heap, out))
             }),
         }),
     ));

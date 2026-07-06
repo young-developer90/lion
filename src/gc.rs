@@ -389,6 +389,23 @@ impl Value {
         }
     }
 
+    pub fn string_len(&self, heap: &GcHeap) -> usize {
+        match self {
+            Value::String(r) => match heap.get(*r) {
+                GcObj::String(s) => s.len(),
+                _ => 8,
+            },
+            Value::Int(n) => n.to_string().len(),
+            Value::UInt(n) => n.to_string().len(),
+            Value::Float(_) => 16,
+            Value::Bool(b) => if *b { 4 } else { 5 },
+            Value::Nil => 3,
+            Value::List(r) => match heap.get(*r) { GcObj::List(items) => items.len() * 8, _ => 4 },
+            Value::Dict(r) => match heap.get(*r) { GcObj::Dict(e) => e.len() * 16, _ => 4 },
+            _ => 8,
+        }
+    }
+
     pub fn eq(&self, other: &Value, heap: &GcHeap) -> bool {
         match (self, other) {
             (Value::Int(a), Value::Int(b)) => a == b,

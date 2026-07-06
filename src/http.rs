@@ -1,7 +1,27 @@
+use std::io::Read;
+use std::sync::OnceLock;
+
+fn global_agent() -> &'static ureq::Agent {
+    static AGENT: OnceLock<ureq::Agent> = OnceLock::new();
+    AGENT.get_or_init(|| ureq::Agent::new())
+}
+
 pub struct Response {
     pub status_code: i64,
     pub headers: Vec<(String, String)>,
     pub body: Vec<u8>,
+}
+
+fn method_from_str(method: &str) -> Result<&'static str, String> {
+    match method {
+        "GET" | "get" | "Get" => Ok("GET"),
+        "POST" | "post" | "Post" => Ok("POST"),
+        "PUT" | "put" | "Put" => Ok("PUT"),
+        "DELETE" | "delete" | "Delete" => Ok("DELETE"),
+        "PATCH" | "patch" | "Patch" => Ok("PATCH"),
+        "HEAD" | "head" | "Head" => Ok("HEAD"),
+        _ => Err(format!("unsupported HTTP method: {}", method)),
+    }
 }
 
 pub fn request(
@@ -10,10 +30,10 @@ pub fn request(
     headers: &[(String, String)],
     body: Option<&[u8]>,
 ) -> Result<Response, String> {
-    let agent = ureq::Agent::new();
-    let method_upper = method.to_uppercase();
+    let agent = global_agent();
+    let method_upper = method_from_str(method)?;
 
-    let mut req = match method_upper.as_str() {
+    let mut req = match method_upper {
         "GET" => agent.get(url),
         "POST" => agent.post(url),
         "PUT" => agent.put(url),
@@ -45,11 +65,13 @@ pub fn request(
                     resp_headers.push((name.to_string(), val.to_string()));
                 }
             }
-            let body_str = r.into_string().map_err(|e| format!("read body: {}", e))?;
+            let mut reader = r.into_reader();
+            let mut body = Vec::new();
+            reader.read_to_end(&mut body).map_err(|e| format!("read body: {}", e))?;
             Ok(Response {
                 status_code: status,
                 headers: resp_headers,
-                body: body_str.into_bytes(),
+                body,
             })
         }
         Err(ureq::Error::Status(code, _)) => {

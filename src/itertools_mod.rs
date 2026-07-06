@@ -14,7 +14,7 @@ pub fn build_itertools() -> Vec<(String, Value)> {
                     Value::List(r) => {
                         if let GcObj::List(items) = ctx.heap.get(*r) {
                             result.reserve(items.len());
-                            result.extend(items.clone());
+                            result.extend(items.iter().cloned());
                         }
                     }
                     other => result.push(other.clone()),
@@ -122,12 +122,17 @@ pub fn build_itertools() -> Vec<(String, Value)> {
         func: Rc::new(|args, ctx| {
             if args.len() < 2 { return Err("take requires n and a list".to_string()); }
             let n = to_i64(&args[0])? as usize;
-            let items = match &args[1] {
-                Value::List(r) => match ctx.heap.get(*r) { GcObj::List(items) => items.clone(), _ => return Err("expected list".to_string()) },
-                _ => return Err("expected list".to_string()),
-            };
-            let end = n.min(items.len());
-            Ok(make_list(ctx.heap, items[..end].to_vec()))
+            match &args[1] {
+                Value::List(r) => match ctx.heap.get(*r) {
+                    GcObj::List(items) => {
+                        let end = n.min(items.len());
+                        let result: Vec<Value> = items[..end].iter().cloned().collect();
+                        Ok(make_list(ctx.heap, result))
+                    }
+                    _ => Err("expected list".to_string()),
+                },
+                _ => Err("expected list".to_string()),
+            }
         }),
     })));
 
@@ -136,12 +141,19 @@ pub fn build_itertools() -> Vec<(String, Value)> {
         func: Rc::new(|args, ctx| {
             if args.len() < 2 { return Err("drop requires n and a list".to_string()); }
             let n = to_i64(&args[0])? as usize;
-            let items = match &args[1] {
-                Value::List(r) => match ctx.heap.get(*r) { GcObj::List(items) => items.clone(), _ => return Err("expected list".to_string()) },
-                _ => return Err("expected list".to_string()),
-            };
-            if n >= items.len() { Ok(make_list(ctx.heap, vec![])) }
-            else { Ok(make_list(ctx.heap, items[n..].to_vec())) }
+            match &args[1] {
+                Value::List(r) => match ctx.heap.get(*r) {
+                    GcObj::List(items) => {
+                        if n >= items.len() { Ok(make_list(ctx.heap, vec![])) }
+                        else {
+                            let result: Vec<Value> = items[n..].iter().cloned().collect();
+                            Ok(make_list(ctx.heap, result))
+                        }
+                    }
+                    _ => Err("expected list".to_string()),
+                },
+                _ => Err("expected list".to_string()),
+            }
         }),
     })));
 
@@ -149,21 +161,25 @@ pub fn build_itertools() -> Vec<(String, Value)> {
         name: "<itertools.slice>".to_string(),
         func: Rc::new(|args, ctx| {
             if args.len() < 3 { return Err("slice requires a list, start, and end".to_string()); }
-            let items = match &args[0] {
-                Value::List(r) => match ctx.heap.get(*r) { GcObj::List(items) => items.clone(), _ => return Err("expected list".to_string()) },
-                _ => return Err("expected list".to_string()),
-            };
-            let start = to_i64(&args[1])? as usize;
-            let end = to_i64(&args[2])? as usize;
-            let step = if args.len() >= 4 { to_i64(&args[3])? as usize } else { 1 };
-            let cap = (end.min(items.len()).saturating_sub(start) + step - 1) / step;
-            let mut result = Vec::with_capacity(cap);
-            let mut i = start;
-            while i < end.min(items.len()) {
-                result.push(items[i].clone());
-                i += step;
+            match &args[0] {
+                Value::List(r) => match ctx.heap.get(*r) {
+                    GcObj::List(items) => {
+                        let start = to_i64(&args[1])? as usize;
+                        let end = to_i64(&args[2])? as usize;
+                        let step = if args.len() >= 4 { to_i64(&args[3])? as usize } else { 1 };
+                        let cap = (end.min(items.len()).saturating_sub(start) + step - 1) / step;
+                        let mut result = Vec::with_capacity(cap);
+                        let mut i = start;
+                        while i < end.min(items.len()) {
+                            result.push(items[i].clone());
+                            i += step;
+                        }
+                        Ok(make_list(ctx.heap, result))
+                    }
+                    _ => Err("expected list".to_string()),
+                },
+                _ => Err("expected list".to_string()),
             }
-            Ok(make_list(ctx.heap, result))
         }),
     })));
 
@@ -171,26 +187,30 @@ pub fn build_itertools() -> Vec<(String, Value)> {
         name: "<itertools.unique>".to_string(),
         func: Rc::new(|args, ctx| {
             let list_val = args.first().ok_or("unique requires a list")?;
-            let items = match list_val {
-                Value::List(r) => match ctx.heap.get(*r) { GcObj::List(items) => items.clone(), _ => return Err("expected list".to_string()) },
-                _ => return Err("expected list".to_string()),
-            };
-            let mut buckets: HashMap<u64, Vec<Value>> = HashMap::new();
-            let mut result = Vec::with_capacity(items.len());
-            for item in &items {
-                let h = item.hash(ctx.heap);
-                let bucket = buckets.entry(h).or_default();
-                let mut found = false;
-                for existing in bucket.iter() {
-                    if existing.eq(item, ctx.heap) { found = true; break; }
-                }
-                if !found {
-                    bucket.push(item.clone());
-                    result.push(item.clone());
-                }
+            match list_val {
+                Value::List(r) => match ctx.heap.get(*r) {
+                    GcObj::List(items) => {
+                        let mut buckets: HashMap<u64, Vec<Value>> = HashMap::new();
+                        let mut result = Vec::with_capacity(items.len());
+                        for item in items.iter() {
+                            let h = item.hash(ctx.heap);
+                            let bucket = buckets.entry(h).or_default();
+                            let mut found = false;
+                            for existing in bucket.iter() {
+                                if existing.eq(item, ctx.heap) { found = true; break; }
+                            }
+                            if !found {
+                                bucket.push(item.clone());
+                                result.push(item.clone());
+                            }
+                        }
+                        result.shrink_to_fit();
+                        Ok(make_list(ctx.heap, result))
+                    }
+                    _ => Err("expected list".to_string()),
+                },
+                _ => Err("expected list".to_string()),
             }
-            result.shrink_to_fit();
-            Ok(make_list(ctx.heap, result))
         }),
     })));
 
@@ -198,13 +218,16 @@ pub fn build_itertools() -> Vec<(String, Value)> {
         name: "<itertools.reverse>".to_string(),
         func: Rc::new(|args, ctx| {
             let list_val = args.first().ok_or("reverse requires a list")?;
-            let items = match list_val {
-                Value::List(r) => match ctx.heap.get(*r) { GcObj::List(items) => items.clone(), _ => return Err("expected list".to_string()) },
-                _ => return Err("expected list".to_string()),
-            };
-            let mut result = items;
-            result.reverse();
-            Ok(make_list(ctx.heap, result))
+            match list_val {
+                Value::List(r) => match ctx.heap.get(*r) {
+                    GcObj::List(items) => {
+                        let result: Vec<Value> = items.iter().cloned().rev().collect();
+                        Ok(make_list(ctx.heap, result))
+                    }
+                    _ => Err("expected list".to_string()),
+                },
+                _ => Err("expected list".to_string()),
+            }
         }),
     })));
 

@@ -11,10 +11,42 @@ fn to_f64(val: &Value, _heap: &GcHeap) -> Result<f64, String> {
     }
 }
 
+fn fold_f64s<'a>(val: &'a Value, heap: &'a GcHeap, mut acc: f64, mut f: impl FnMut(&mut f64, f64)) -> Result<f64, String> {
+    match val {
+        Value::List(r) => match heap.get(*r) {
+            GcObj::List(items) => {
+                for v in items {
+                    let n = to_f64(v, heap)?;
+                    f(&mut acc, n);
+                }
+                Ok(acc)
+            }
+            _ => Err("expected list".to_string()),
+        },
+        _ => Err("expected list".to_string()),
+    }
+}
+
 fn list_to_f64s(val: &Value, heap: &GcHeap) -> Result<Vec<f64>, String> {
     match val {
         Value::List(r) => match heap.get(*r) {
             GcObj::List(items) => items.iter().map(|v| to_f64(v, heap)).collect(),
+            _ => Err("expected list".to_string()),
+        },
+        _ => Err("expected list".to_string()),
+    }
+}
+
+fn sum_len(val: &Value, heap: &GcHeap) -> Result<(f64, usize), String> {
+    match val {
+        Value::List(r) => match heap.get(*r) {
+            GcObj::List(items) => {
+                let mut sum = 0.0;
+                for v in items {
+                    sum += to_f64(v, heap)?;
+                }
+                Ok((sum, items.len()))
+            }
             _ => Err("expected list".to_string()),
         },
         _ => Err("expected list".to_string()),
@@ -29,8 +61,8 @@ pub fn build_stats() -> Vec<(String, Value)> {
         Value::NativeFunc(NativeFunc {
             name: "<stats.sum>".to_string(),
             func: Rc::new(|args, ctx| {
-                let data = list_to_f64s(args.first().ok_or("stats.sum requires list")?, ctx.heap)?;
-                Ok(Value::Float(data.iter().sum()))
+                let total = fold_f64s(args.first().ok_or("stats.sum requires list")?, ctx.heap, 0.0, |a, v| *a += v)?;
+                Ok(Value::Float(total))
             }),
         }),
     ));
@@ -40,11 +72,22 @@ pub fn build_stats() -> Vec<(String, Value)> {
         Value::NativeFunc(NativeFunc {
             name: "<stats.mean>".to_string(),
             func: Rc::new(|args, ctx| {
-                let data = list_to_f64s(args.first().ok_or("stats.mean requires list")?, ctx.heap)?;
-                if data.is_empty() {
-                    return Err("empty list".to_string());
-                }
-                Ok(Value::Float(data.iter().sum::<f64>() / data.len() as f64))
+                let (sum, count) = {
+                    let val = args.first().ok_or("stats.mean requires list")?;
+                    match val {
+                        Value::List(r) => match ctx.heap.get(*r) {
+                            GcObj::List(items) => {
+                                if items.is_empty() { return Err("empty list".to_string()); }
+                                let mut sum = 0.0;
+                                for v in items { sum += to_f64(v, ctx.heap)?; }
+                                (sum, items.len())
+                            }
+                            _ => return Err("expected list".to_string()),
+                        },
+                        _ => return Err("expected list".to_string()),
+                    }
+                };
+                Ok(Value::Float(sum / count as f64))
             }),
         }),
     ));
@@ -99,12 +142,12 @@ pub fn build_stats() -> Vec<(String, Value)> {
         Value::NativeFunc(NativeFunc {
             name: "<stats.variance>".to_string(),
             func: Rc::new(|args, ctx| {
-                let data = list_to_f64s(args.first().ok_or("stats.variance requires list")?, ctx.heap)?;
-                if data.len() < 2 {
+                let (sum, len) = sum_len(args.first().ok_or("stats.variance requires list")?, ctx.heap)?;
+                if len < 2 {
                     return Err("need at least 2 values".to_string());
                 }
-                let mean = data.iter().sum::<f64>() / data.len() as f64;
-                let variance = data.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / (data.len() - 1) as f64;
+                let mean = sum / len as f64;
+                let variance = fold_f64s(args.first().unwrap(), ctx.heap, 0.0, |a, v| *a += (v - mean).powi(2))? / (len - 1) as f64;
                 Ok(Value::Float(variance))
             }),
         }),
@@ -115,12 +158,12 @@ pub fn build_stats() -> Vec<(String, Value)> {
         Value::NativeFunc(NativeFunc {
             name: "<stats.std>".to_string(),
             func: Rc::new(|args, ctx| {
-                let data = list_to_f64s(args.first().ok_or("stats.std requires list")?, ctx.heap)?;
-                if data.len() < 2 {
+                let (sum, len) = sum_len(args.first().ok_or("stats.std requires list")?, ctx.heap)?;
+                if len < 2 {
                     return Err("need at least 2 values".to_string());
                 }
-                let mean = data.iter().sum::<f64>() / data.len() as f64;
-                let variance = data.iter().map(|v| (v - mean).powi(2)).sum::<f64>() / (data.len() - 1) as f64;
+                let mean = sum / len as f64;
+                let variance = fold_f64s(args.first().unwrap(), ctx.heap, 0.0, |a, v| *a += (v - mean).powi(2))? / (len - 1) as f64;
                 Ok(Value::Float(variance.sqrt()))
             }),
         }),
@@ -131,10 +174,21 @@ pub fn build_stats() -> Vec<(String, Value)> {
         Value::NativeFunc(NativeFunc {
             name: "<stats.min>".to_string(),
             func: Rc::new(|args, ctx| {
-                let data = list_to_f64s(args.first().ok_or("stats.min requires list")?, ctx.heap)?;
-                data.iter().cloned().min_by(|a, b| a.partial_cmp(b).unwrap())
-                    .map(|v| Ok(Value::Float(v)))
-                    .unwrap_or(Err("empty list".to_string()))
+                let val = args.first().ok_or("stats.min requires list")?;
+                match val {
+                    Value::List(r) => match ctx.heap.get(*r) {
+                        GcObj::List(items) => {
+                            let mut best = None;
+                            for v in items {
+                                let n = to_f64(v, ctx.heap)?;
+                                match best { None => best = Some(n), Some(b) => if n < b { best = Some(n); } }
+                            }
+                            best.map(|v| Ok(Value::Float(v))).unwrap_or(Err("empty list".to_string()))
+                        }
+                        _ => Err("expected list".to_string()),
+                    },
+                    _ => Err("expected list".to_string()),
+                }
             }),
         }),
     ));
@@ -144,10 +198,21 @@ pub fn build_stats() -> Vec<(String, Value)> {
         Value::NativeFunc(NativeFunc {
             name: "<stats.max>".to_string(),
             func: Rc::new(|args, ctx| {
-                let data = list_to_f64s(args.first().ok_or("stats.max requires list")?, ctx.heap)?;
-                data.iter().cloned().max_by(|a, b| a.partial_cmp(b).unwrap())
-                    .map(|v| Ok(Value::Float(v)))
-                    .unwrap_or(Err("empty list".to_string()))
+                let val = args.first().ok_or("stats.max requires list")?;
+                match val {
+                    Value::List(r) => match ctx.heap.get(*r) {
+                        GcObj::List(items) => {
+                            let mut best = None;
+                            for v in items {
+                                let n = to_f64(v, ctx.heap)?;
+                                match best { None => best = Some(n), Some(b) => if n > b { best = Some(n); } }
+                            }
+                            best.map(|v| Ok(Value::Float(v))).unwrap_or(Err("empty list".to_string()))
+                        }
+                        _ => Err("expected list".to_string()),
+                    },
+                    _ => Err("expected list".to_string()),
+                }
             }),
         }),
     ));

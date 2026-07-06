@@ -84,6 +84,16 @@ pub fn build_logging() -> Vec<(String, Value)> {
 fn log_print(level: &str, args: &[Value], ctx: &mut VmContext) {
     let now = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default();
     let ts = now.as_secs();
-    let msg: String = args.iter().map(|a| a.to_string(ctx.heap)).collect::<Vec<_>>().join(" ");
+    let mut msg = String::new();
+    for (i, a) in args.iter().enumerate() {
+        if i > 0 { msg.push(' '); }
+        match a {
+            Value::String(r) => {
+                if let GcObj::String(s) = ctx.heap.get(*r) { msg.push_str(s.as_str()); }
+                else { msg.push_str("<string>"); }
+            }
+            other => msg.push_str(&other.to_string(ctx.heap)),
+        }
+    }
     eprintln!("[{}][{}] {}", ts, level, msg);
 }

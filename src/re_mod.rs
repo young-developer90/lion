@@ -5,17 +5,17 @@ use regex::Regex;
 use crate::gc::*;
 
 thread_local! {
-    static REGEX_CACHE: RefCell<HashMap<String, Regex>> = RefCell::new(HashMap::new());
+    static REGEX_CACHE: RefCell<HashMap<String, Rc<Regex>>> = RefCell::new(HashMap::new());
 }
 
-fn get_regex(pattern: &str) -> Result<Regex, String> {
+fn get_regex(pattern: &str) -> Result<Rc<Regex>, String> {
     REGEX_CACHE.with(|cache| {
         let mut cache = cache.borrow_mut();
         if let Some(re) = cache.get(pattern) {
-            return Ok(re.clone());
+            return Ok(Rc::clone(re));
         }
-        let re = Regex::new(pattern).map_err(|e| format!("invalid regex: {}", e))?;
-        cache.insert(pattern.to_string(), re.clone());
+        let re = Rc::new(Regex::new(pattern).map_err(|e| format!("invalid regex: {}", e))?);
+        cache.insert(pattern.to_string(), Rc::clone(&re));
         Ok(re)
     })
 }
