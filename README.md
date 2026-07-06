@@ -400,6 +400,8 @@ Supported types: `LION_NIL`, `LION_INT`, `LION_FLOAT`, `LION_BOOL`, `LION_STRING
 | Built-in CSV | Yes | `csv` | No | No | **No** |
 | Built-in HTML/parser | Yes | `bs4` | `DOMParser` | No | **No** |
 | File I/O (native) | **Yes** | Yes | Yes | Yes | **No** ❌ |
+| Cross-platform | **Yes** | Yes | Yes | Yes | **No** (Linux only) |
+| Android / Termux | **Yes** | Yes | No | Yes | **No** |
 | GPU acceleration | Optional (CUDA) | NumPy/CuPy | WebGL | No | Yes |
 | REPL | Yes | Yes | Node.js | Yes | Yes |
 | LSP support | Yes | pylance | tsserver | No | Yes |
