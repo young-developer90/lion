@@ -121,32 +121,13 @@ impl GcHeap {
     }
 
     pub fn mark_gray(&mut self, r: ObjRef) {
-        let children = {
+        let children: Vec<ObjRef> = {
             let obj = self.objects[r.0].as_ref().unwrap();
             match obj {
-                GcObj::List(items) => {
-                    let mut refs = Vec::with_capacity(items.len());
-                    for v in items { if let Some(r) = v.ref_or_nil() { refs.push(r); } }
-                    refs
-                }
-                GcObj::Dict(entries) => {
-                    let mut refs = Vec::with_capacity(entries.len() * 2);
-                    for (k, v) in entries {
-                        if let Some(r) = k.ref_or_nil() { refs.push(r); }
-                        if let Some(r) = v.ref_or_nil() { refs.push(r); }
-                    }
-                    refs
-                }
-                GcObj::Set(items) => {
-                    let mut refs = Vec::with_capacity(items.len());
-                    for v in items { if let Some(r) = v.ref_or_nil() { refs.push(r); } }
-                    refs
-                }
-                GcObj::Tuple(items) => {
-                    let mut refs = Vec::with_capacity(items.len());
-                    for v in items { if let Some(r) = v.ref_or_nil() { refs.push(r); } }
-                    refs
-                }
+                GcObj::List(items) => items.iter().filter_map(|v| v.ref_or_nil()).collect(),
+                GcObj::Dict(entries) => entries.iter().flat_map(|(k, v)| [k.ref_or_nil(), v.ref_or_nil()]).filter_map(|x| x).collect(),
+                GcObj::Set(items) => items.iter().filter_map(|v| v.ref_or_nil()).collect(),
+                GcObj::Tuple(items) => items.iter().filter_map(|v| v.ref_or_nil()).collect(),
                 GcObj::Closure { function, upvalues } => {
                     let mut refs = Vec::with_capacity(1 + upvalues.len());
                     refs.push(*function);

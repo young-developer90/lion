@@ -87,8 +87,8 @@ impl fmt::Display for Token {
     }
 }
 
-pub struct Lexer {
-    chars: Vec<char>,
+pub struct Lexer<'a> {
+    source: &'a str,
     pos: usize,
     line: usize,
     col: usize,
@@ -96,10 +96,10 @@ pub struct Lexer {
     start_col: usize,
 }
 
-impl Lexer {
-    pub fn new(source: &str) -> Self {
+impl<'a> Lexer<'a> {
+    pub fn new(source: &'a str) -> Self {
         Lexer {
-            chars: source.chars().collect(),
+            source,
             pos: 0,
             line: 1,
             col: 1,
@@ -109,25 +109,26 @@ impl Lexer {
     }
 
     fn peek(&self) -> Option<char> {
-        self.chars.get(self.pos).copied()
+        self.source[self.pos..].chars().next()
     }
 
     fn peek_next(&self) -> Option<char> {
-        self.chars.get(self.pos + 1).copied()
+        let mut chars = self.source[self.pos..].chars();
+        chars.next()?;
+        chars.next()
     }
 
     fn advance(&mut self) -> Option<char> {
-        let c = self.chars.get(self.pos).copied();
-        if let Some(ch) = c {
-            self.pos += 1;
-            if ch == '\n' {
-                self.line += 1;
-                self.col = 1;
-            } else {
-                self.col += 1;
-            }
+        let remaining = &self.source[self.pos..];
+        let c = remaining.chars().next()?;
+        self.pos += c.len_utf8();
+        if c == '\n' {
+            self.line += 1;
+            self.col = 1;
+        } else {
+            self.col += 1;
         }
-        c
+        Some(c)
     }
 
     fn skip_line_comment(&mut self) {

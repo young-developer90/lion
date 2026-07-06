@@ -335,8 +335,10 @@ impl Vm {
                         let val = self.stack[stack_idx].clone();
                         if let Value::Int(n) = val {
                             self.stack[stack_idx] = Value::Int(n + 1);
+                            self.stack.push(self.stack[stack_idx].clone());
                         } else if let Value::UInt(n) = val {
                             self.stack[stack_idx] = Value::UInt(n + 1);
+                            self.stack.push(self.stack[stack_idx].clone());
                         } else {
                             return Err("cannot increment non-integer".to_string());
                         }
@@ -352,8 +354,10 @@ impl Vm {
                         let val = self.stack[stack_idx].clone();
                         if let Value::Int(n) = val {
                             self.stack[stack_idx] = Value::Int(n - 1);
+                            self.stack.push(self.stack[stack_idx].clone());
                         } else if let Value::UInt(n) = val {
                             self.stack[stack_idx] = Value::UInt(n - 1);
+                            self.stack.push(self.stack[stack_idx].clone());
                         } else {
                             return Err("cannot decrement non-integer".to_string());
                         }
@@ -1012,10 +1016,10 @@ fn load_index(obj: &Value, index: &Value, heap: &mut GcHeap) -> Result<Value, St
         Value::String(r) => {
             let idx = match index { Value::Int(n) => *n, _ => return Err("string index must be an integer".to_string()) };
             let s = match heap.get(*r) { GcObj::String(s) => s.clone(), _ => return Err("not a string".to_string()) };
-            let chars: Vec<char> = s.chars().collect();
-            let i = if idx < 0 { chars.len() as i64 + idx } else { idx };
-            if i < 0 || i >= chars.len() as i64 { return Err("string index out of bounds".to_string()); }
-            Ok(make_string(heap, &chars[i as usize].to_string()))
+            let i = if idx < 0 { (s.chars().count() as i64) + idx } else { idx };
+            if i < 0 { return Err("string index out of bounds".to_string()); }
+            let c = s.chars().nth(i as usize).ok_or("string index out of bounds")?;
+            Ok(make_string(heap, &c.to_string()))
         }
         Value::Tuple(r) => {
             let idx = match index { Value::Int(n) => *n, _ => return Err("tuple index must be an integer".to_string()) };
@@ -1698,9 +1702,7 @@ fn load_attr(obj: &Value, name: &str, heap: &mut GcHeap) -> Result<Value, String
 fn make_iterator(obj: &Value, heap: &mut GcHeap) -> Result<Value, String> {
     match obj {
         Value::List(r) => {
-            let items = match heap.get(*r) { GcObj::List(items) => items.clone(), _ => return Err("not a list".to_string()) };
-            let iter_list = make_list(heap, items);
-            Ok(make_list(heap, vec![iter_list, Value::Int(0)]))
+            Ok(make_list(heap, vec![Value::List(*r), Value::Int(0)]))
         }
         Value::Range(r) => {
             let (start, end, _step) = match heap.get(*r) {
@@ -1710,10 +1712,7 @@ fn make_iterator(obj: &Value, heap: &mut GcHeap) -> Result<Value, String> {
             Ok(make_tuple(heap, vec![Value::Int(start), Value::Int(end), Value::Int(start)]))
         }
         Value::String(r) => {
-            let s = match heap.get(*r) { GcObj::String(s) => s.clone(), _ => return Err("not a string".to_string()) };
-            let chars: Vec<Value> = s.chars().map(|c| make_string(heap, &c.to_string())).collect();
-            let char_list = make_list(heap, chars);
-            Ok(make_list(heap, vec![char_list, Value::Int(0)]))
+            Ok(make_list(heap, vec![Value::String(*r), Value::Int(0)]))
         }
         _ => Err(format!("cannot iterate {}", obj.type_name())),
     }
@@ -1722,19 +1721,36 @@ fn make_iterator(obj: &Value, heap: &mut GcHeap) -> Result<Value, String> {
 fn next_iterator(iter: &Value, heap: &mut GcHeap) -> Result<(bool, Value), String> {
     match iter {
         Value::List(ir) => {
-            let items = match heap.get(*ir) { GcObj::List(items) => items.clone(), _ => return Err("invalid iterator".to_string()) };
-            if items.len() < 2 { return Err("invalid iterator".to_string()); }
-            let collection = &items[0];
-            let idx = match &items[1] { Value::Int(n) => *n, _ => return Err("invalid iterator state".to_string()) };
-            let coll_items = match collection {
-                Value::List(r) => match heap.get(*r) { GcObj::List(items) => items.clone(), _ => return Err("invalid collection".to_string()) },
-                _ => return Err("cannot iterate".to_string()),
+            let (collection, idx) = {
+                let items = match heap.get(*ir) { GcObj::List(items) => items, _ => return Err("invalid iterator".to_string()) };
+                if items.len() < 2 { return Err("invalid iterator".to_string()); }
+                (items[0].clone(), match &items[1] { Value::Int(n) => *n, _ => return Err("invalid iterator state".to_string()) })
             };
-            if (idx as usize) < coll_items.len() {
-                let val = coll_items[idx as usize].clone();
-                if let GcObj::List(ref mut state) = heap.get_mut(*ir) { state[1] = Value::Int(idx + 1); }
-                Ok((true, val))
-            } else { Ok((false, Value::Nil)) }
+            match collection {
+                Value::List(r) => {
+                    let val;
+                    {
+                        let items = match heap.get(r) { GcObj::List(items) => items, _ => return Err("invalid collection".to_string()) };
+                        if (idx as usize) >= items.len() { return Ok((false, Value::Nil)); }
+                        val = items[idx as usize].clone();
+                    }
+                    if let GcObj::List(ref mut state) = heap.get_mut(*ir) { state[1] = Value::Int(idx + 1); }
+                    Ok((true, val))
+                }
+                Value::String(r) => {
+                    let (c, advance) = {
+                        let s = match heap.get(r) { GcObj::String(s) => s.clone(), _ => return Err("invalid collection".to_string()) };
+                        let remaining = &s[idx as usize..];
+                        match remaining.chars().next() {
+                            Some(ch) => (make_string(heap, &ch.to_string()), ch.len_utf8() as i64),
+                            None => return Ok((false, Value::Nil)),
+                        }
+                    };
+                    if let GcObj::List(ref mut state) = heap.get_mut(*ir) { state[1] = Value::Int(idx + advance); }
+                    Ok((true, c))
+                }
+                _ => Err("cannot iterate".to_string()),
+            }
         }
         Value::Tuple(tr) => {
             let items = match heap.get(*tr) { GcObj::Tuple(items) => items.clone(), _ => return Err("invalid range iterator".to_string()) };

@@ -802,25 +802,44 @@ impl Compiler {
                 }
             }
             Expr::OpAssign { op, target, value } => {
+                if self.try_emit_inc_dec(*op, target, value) {
+                    return Ok(());
+                }
                 self.compile_expr(target)?;
                 self.compile_expr(value)?;
                 self.emit_binary_op(*op)?;
-                if let Expr::Identifier(name) = target.as_ref() {
-                    match self.resolve_variable(name) {
-                        Variable::Local(idx) => {
-                            self.chunk().emit(OpCode::StoreLocal);
-                            self.chunk().emit_u16(idx);
-                        }
-                        Variable::Upvalue(idx) => {
-                            self.chunk().emit(OpCode::StoreUpvalue);
-                            self.chunk().emit_u16(idx);
-                        }
-                        Variable::Global => {
-                            let gidx = self.add_global(name);
-                            self.chunk().emit(OpCode::StoreGlobal);
-                            self.chunk().emit_u16(gidx);
+                self.chunk().emit(OpCode::Dup);
+                match target.as_ref() {
+                    Expr::Identifier(name) => {
+                        match self.resolve_variable(name) {
+                            Variable::Local(idx) => {
+                                self.chunk().emit(OpCode::StoreLocal);
+                                self.chunk().emit_u16(idx);
+                            }
+                            Variable::Upvalue(idx) => {
+                                self.chunk().emit(OpCode::StoreUpvalue);
+                                self.chunk().emit_u16(idx);
+                            }
+                            Variable::Global => {
+                                let gidx = self.add_global(name);
+                                self.chunk().emit(OpCode::StoreGlobal);
+                                self.chunk().emit_u16(gidx);
+                            }
                         }
                     }
+                    Expr::Attr { obj, name } => {
+                        self.compile_expr(obj)?;
+                        let sidx = self.intern_string(name);
+                        self.chunk().emit(OpCode::StoreAttr);
+                        self.chunk().emit_u16(sidx);
+                    }
+                    Expr::Index { obj, index } => {
+                        self.compile_expr(obj)?;
+                        self.compile_expr(index)?;
+                        self.chunk().emit(OpCode::StoreIndex);
+                        self.chunk().emit_u16(0);
+                    }
+                    _ => {}
                 }
             }
             Expr::Call { callee, args, is_method } => {

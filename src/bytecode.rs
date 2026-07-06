@@ -1,5 +1,7 @@
 #![allow(dead_code)]
 
+use std::collections::HashMap;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum OpCode {
     Halt = 0,
@@ -189,6 +191,7 @@ pub struct Chunk {
     pub constants: Vec<super::gc::Value>,
     pub string_constants: Vec<Option<String>>,
     pub string_pool: Vec<String>,
+    string_pool_map: HashMap<String, u16>,
     pub locals: usize,
     pub upvalues: Vec<UpvalueInfo>,
     pub name: Option<String>,
@@ -210,6 +213,7 @@ impl Chunk {
             constants: Vec::new(),
             string_constants: Vec::new(),
             string_pool: Vec::new(),
+            string_pool_map: HashMap::new(),
             locals: 0,
             upvalues: Vec::new(),
             name,
@@ -245,11 +249,12 @@ impl Chunk {
     }
 
     pub fn intern_string(&mut self, s: &str) -> u16 {
-        if let Some((i, _)) = self.string_pool.iter().enumerate().find(|(_, sp)| sp == &s) {
-            i as u16
+        if let Some(&idx) = self.string_pool_map.get(s) {
+            idx
         } else {
             let idx = self.string_pool.len() as u16;
             self.string_pool.push(s.to_string());
+            self.string_pool_map.insert(s.to_string(), idx);
             idx
         }
     }
