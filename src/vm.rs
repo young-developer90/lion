@@ -8,7 +8,7 @@ pub struct Vm {
     pub chunks: Vec<Chunk>,
     pub heap: GcHeap,
     pub stack: Vec<Value>,
-    pub globals: Vec<(String, Value)>,
+    pub globals: HashMap<String, Value>,
     pub frames: Vec<Frame>,
     pub ip: usize,
     pub chunk_idx: usize,
@@ -40,7 +40,7 @@ impl Vm {
             chunks,
             heap,
             stack: Vec::new(),
-            globals: Vec::new(),
+            globals: HashMap::new(),
             frames: Vec::new(),
             ip: 0,
             chunk_idx: 0,
@@ -133,10 +133,9 @@ impl Vm {
                     let sidx = self.read_u16(self.ip) as usize;
                     self.ip += 2;
                     let name = self.chunk().string_pool.get(sidx).ok_or("invalid global name index")?.clone();
-                    if let Some((_, val)) = self.globals.iter().find(|(n, _)| n == &name) {
-                        self.stack.push(val.clone());
-                    } else {
-                        return Err(format!("undefined global '{}'", name));
+                    match self.globals.get(&name) {
+                        Some(val) => self.stack.push(val.clone()),
+                        None => return Err(format!("undefined global '{}'", name)),
                     }
                 }
                 OpCode::StoreGlobal => {
@@ -144,11 +143,7 @@ impl Vm {
                     self.ip += 2;
                     let name = self.chunk().string_pool.get(sidx).ok_or("invalid global name index")?.clone();
                     let val = self.stack.pop().ok_or("stack empty on store_global")?;
-                    if let Some((_, entry)) = self.globals.iter_mut().find(|(n, _)| n == &name) {
-                        *entry = val;
-                    } else {
-                        self.globals.push((name, val));
-                    }
+                    self.globals.insert(name, val);
                 }
                 OpCode::Add => {
                     let b = self.stack.pop().ok_or("stack empty")?;
@@ -1860,10 +1855,9 @@ fn execute_chunk(chunk_idx: usize, args: &[Value], ctx: &mut VmContext) -> Resul
                 let sidx = u16::from_le_bytes([chunk.code[ip], chunk.code[ip+1]]) as usize;
                 ip += 2;
                 let name = chunk.string_pool.get(sidx).ok_or("invalid global name index")?.clone();
-                if let Some((_, val)) = ctx.globals.iter().find(|(n, _)| n == &name) {
-                    stack.push(val.clone());
-                } else {
-                    return Err(format!("undefined global '{}'", name));
+                match ctx.globals.get(&name) {
+                    Some(val) => stack.push(val.clone()),
+                    None => return Err(format!("undefined global '{}'", name)),
                 }
             }
             OpCode::StoreGlobal => {
@@ -1871,11 +1865,7 @@ fn execute_chunk(chunk_idx: usize, args: &[Value], ctx: &mut VmContext) -> Resul
                 ip += 2;
                 let name = chunk.string_pool.get(sidx).ok_or("invalid global name index")?.clone();
                 let val = stack.pop().ok_or("stack empty")?;
-                if let Some((_, entry)) = ctx.globals.iter_mut().find(|(n, _)| n == &name) {
-                    *entry = val;
-                } else {
-                    ctx.globals.push((name, val));
-                }
+                ctx.globals.insert(name, val);
             }
             OpCode::LoadLocal => {
                 let idx = u16::from_le_bytes([chunk.code[ip], chunk.code[ip+1]]) as usize;
@@ -2263,10 +2253,9 @@ fn execute_closure_chunk(chunk_idx: usize, args: &[Value], upvalues: Vec<Upvalue
                 let sidx = u16::from_le_bytes([chunk.code[ip], chunk.code[ip+1]]) as usize;
                 ip += 2;
                 let name = chunk.string_pool.get(sidx).ok_or("invalid global name index")?.clone();
-                if let Some((_, val)) = ctx.globals.iter().find(|(n, _)| n == &name) {
-                    stack.push(val.clone());
-                } else {
-                    return Err(format!("undefined global '{}'", name));
+                match ctx.globals.get(&name) {
+                    Some(val) => stack.push(val.clone()),
+                    None => return Err(format!("undefined global '{}'", name)),
                 }
             }
             OpCode::StoreGlobal => {
@@ -2274,11 +2263,7 @@ fn execute_closure_chunk(chunk_idx: usize, args: &[Value], upvalues: Vec<Upvalue
                 ip += 2;
                 let name = chunk.string_pool.get(sidx).ok_or("invalid global name index")?.clone();
                 let val = stack.pop().ok_or("stack empty")?;
-                if let Some((_, entry)) = ctx.globals.iter_mut().find(|(n, _)| n == &name) {
-                    *entry = val;
-                } else {
-                    ctx.globals.push((name, val));
-                }
+                ctx.globals.insert(name, val);
             }
             OpCode::LoadLocal => {
                 let idx = u16::from_le_bytes([chunk.code[ip], chunk.code[ip+1]]) as usize;

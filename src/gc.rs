@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 
+use std::collections::HashMap;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
@@ -429,7 +430,7 @@ impl Value {
 
 pub struct VmContext<'a> {
     pub heap: &'a mut GcHeap,
-    pub globals: &'a mut Vec<(String, Value)>,
+    pub globals: &'a mut HashMap<String, Value>,
     pub modules: &'a mut Vec<Value>,
     pub chunks: &'a Vec<Chunk>,
     pub try_frames: &'a mut Vec<(usize, usize)>,

@@ -112,6 +112,9 @@ struct LibHandle {
     ptr: isize,
 }
 
+unsafe impl Send for LibHandle {}
+unsafe impl Sync for LibHandle {}
+
 fn open_lib(path: &Path) -> Result<LibHandle, String> {
     let cpath = CString::new(path.to_str().ok_or("invalid path")?).map_err(|e| e.to_string())?;
     #[cfg(unix)]

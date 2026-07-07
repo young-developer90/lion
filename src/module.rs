@@ -7,6 +7,7 @@ use crate::compiler::Compiler;
 use crate::gc::*;
 use crate::http_module;
 use crate::jaguar_mod;
+#[cfg(target_os = "windows")]
 use crate::leopard_mod;
 use crate::parser::Parser;
 use crate::stdlib;
@@ -40,6 +41,7 @@ impl ModuleLoader {
         }
         modules.insert("http".to_string(), Value::Dict(heap.alloc(GcObj::Dict(http_items))));
 
+        #[cfg(target_os = "windows")]
         {
             let mut leopard_items = Vec::new();
             for (key, val) in leopard_mod::build_leopard() {
@@ -107,9 +109,9 @@ impl ModuleLoader {
         modules
     }
 
-    fn add_globals(globals: &mut Vec<(String, Value)>) {
-        globals.push(("main".to_string(), Value::Nil));
-        globals.push(("print".to_string(), Value::NativeFunc(NativeFunc {
+    fn add_globals(globals: &mut HashMap<String, Value>) {
+        globals.insert("main".to_string(), Value::Nil);
+        globals.insert("print".to_string(), Value::NativeFunc(NativeFunc {
             name: "<print>".to_string(),
             func: Rc::new(|args, ctx| {
                 for arg in args {
@@ -118,16 +120,16 @@ impl ModuleLoader {
                 println!();
                 Ok(Value::Nil)
             }),
-        })));
+        }));
 
         // Add jaguar() as a top-level function
         for (name, val) in jaguar_mod::build_jaguar() {
-            globals.push((name, val));
+            globals.insert(name, val);
         }
 
         // Add cheetah() as a top-level function
         for (name, val) in cheetah_mod::build_cheetah() {
-            globals.push((name, val));
+            globals.insert(name, val);
         }
     }
 
@@ -146,7 +148,7 @@ impl ModuleLoader {
 
         let modules = Self::build_modules(&mut vm.heap);
         for (mod_name, val) in modules {
-            vm.globals.push((mod_name, val));
+            vm.globals.insert(mod_name, val);
         }
 
         Self::add_globals(&mut vm.globals);
@@ -166,7 +168,7 @@ impl ModuleLoader {
 
         let modules = Self::build_modules(&mut vm.heap);
         for (mod_name, val) in modules {
-            vm.globals.push((mod_name, val));
+            vm.globals.insert(mod_name, val);
         }
 
         Self::add_globals(&mut vm.globals);
