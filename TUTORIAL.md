@@ -702,6 +702,7 @@ Explore the examples in the `examples/` directory:
 | `stdlib_extended.lion` | Advanced stdlib |
 | `textedit.lion` | GUI text editor with panther |
 | `panther_test.lion` | Panther GUI test |
+| `panda_demo.lion` | panda numerical library demo |
 | `http.lion` | HTTP client examples |
 
 Run the test suite:

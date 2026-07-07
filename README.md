@@ -301,6 +301,8 @@ let evens   = [x for x in 0..20 if x % 2 == 0];
 | `collections` | `Counter`, `deque`, `push_left`, `push_right`, `pop_left`, `pop_right`, `flatten`, `group_by` |
 | `itertools` | `sorted`, `unique`, `reverse`, `enumerate`, `zip`, `map`, `filter`, `reduce`, `take`, `drop`, `slice`, `cycle`, `repeat`, `chunks`, `any`, `all`, `product`, `compose` |
 | `test` | `assert_eq`, `assert_ne`, `assert_true`, `assert_false`, `assert_lt`, `assert_gt`, `assert_approx` |
+| **C Extensions** | |
+| `panda` | NumPy-like arrays: `arange`, `zeros`, `ones`, `linspace`, `sum`, `mean`, `min`, `max`, `std`, `abs`, `sin`, `cos`, `sqrt`, `pow`, `add`, `sub`, `mul`, `dot`, `shape`, `reshape`, `eye` (build: `make -C modules`) |
 | **Windows** | |
 | `leopard` | Native GUI toolkit (Win32) |
 | **Linux** | |
@@ -366,6 +368,20 @@ Build and run:
 cargo build --release --features panther
 ./target/release/lion run examples/textedit.lion
 ```
+
+### Portable Package
+
+Create a self-contained tarball for distribution:
+
+```bash
+# Without GTK (portable to any Linux with glibc)
+bash scripts/package.sh
+
+# With GTK (bundles GTK4 shared libraries)
+bash scripts/package.sh --panther
+```
+
+The output appears in `dist/` and includes the binary, C extensions, examples, and a launcher script.
 
 ### Python Interop
 
