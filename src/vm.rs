@@ -63,6 +63,29 @@ impl Vm {
     }
 
     pub fn run(&mut self) -> Result<Value, String> {
+        self.run_inner()
+    }
+
+    pub fn run_chunk(&mut self, chunk_idx: usize) -> Result<Value, String> {
+        let saved_chunk = self.chunk_idx;
+        let saved_ip = self.ip;
+        let saved_stack = self.stack.len();
+        let saved_frames = self.frames.len();
+        let saved_try = self.try_frames.len();
+
+        self.chunk_idx = chunk_idx;
+        self.ip = 0;
+        let result = self.run_inner();
+
+        self.stack.truncate(saved_stack);
+        self.frames.truncate(saved_frames);
+        self.try_frames.truncate(saved_try);
+        self.chunk_idx = saved_chunk;
+        self.ip = saved_ip;
+        result
+    }
+
+    fn run_inner(&mut self) -> Result<Value, String> {
         loop {
             let code = &self.chunks[self.chunk_idx].code;
             if self.ip >= code.len() {
