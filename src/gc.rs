@@ -497,3 +497,23 @@ pub fn to_i64(val: &Value) -> Result<i64, String> {
         _ => Err(format!("cannot convert {} to int", val.type_name())),
     }
 }
+
+pub fn get_str<'a>(val: &'a Value, heap: &'a GcHeap) -> Result<&'a str, String> {
+    match val {
+        Value::String(r) => match heap.get(*r) {
+            GcObj::String(s) => Ok(s.as_str()),
+            _ => Err("invalid string".to_string()),
+        },
+        _ => Err("expected string".to_string()),
+    }
+}
+
+pub fn get_str_owned(val: &Value, heap: &GcHeap) -> Result<String, String> {
+    match val {
+        Value::String(r) => match heap.get(*r) {
+            GcObj::String(s) => Ok(s.clone()),
+            _ => Err("invalid string".to_string()),
+        },
+        other => Ok(other.to_string(heap)),
+    }
+}

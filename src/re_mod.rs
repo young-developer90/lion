@@ -27,9 +27,9 @@ pub fn build_re() -> Vec<(String, Value)> {
         name: "<re.find>".to_string(),
         func: Rc::new(|args, ctx| {
             if args.len() < 2 { return Err("re.find requires pattern and string".to_string()); }
-            let pattern = args[0].to_string(ctx.heap);
+            let pattern = get_str(&args[0], ctx.heap)?;
             let text = args[1].to_string(ctx.heap);
-            let re = get_regex(&pattern)?;
+            let re = get_regex(pattern)?;
             Ok(re.find(&text).map(|m| make_string(ctx.heap, m.as_str())).unwrap_or(Value::Nil))
         }),
     })));
@@ -38,10 +38,10 @@ pub fn build_re() -> Vec<(String, Value)> {
         name: "<re.is_match>".to_string(),
         func: Rc::new(|args, ctx| {
             if args.len() < 2 { return Err("re.is_match requires pattern and string".to_string()); }
-            let pattern = args[0].to_string(ctx.heap);
+            let pattern = get_str(&args[0], ctx.heap)?;
             let text = args[1].to_string(ctx.heap);
-            let re = get_regex(&pattern)?;
-            Ok(Value::Bool(re.is_match(&text)))
+            let re = get_regex(pattern)?;
+                        Ok(Value::Bool(re.is_match(&text)))
         }),
     })));
 
@@ -49,10 +49,10 @@ pub fn build_re() -> Vec<(String, Value)> {
         name: "<re.split>".to_string(),
         func: Rc::new(|args, ctx| {
             if args.len() < 2 { return Err("re.split requires pattern and string".to_string()); }
-            let pattern = args[0].to_string(ctx.heap);
+            let pattern = get_str(&args[0], ctx.heap)?;
             let text = args[1].to_string(ctx.heap);
-            let re = get_regex(&pattern)?;
-            let parts: Vec<Value> = re.split(&text).map(|s| make_string(ctx.heap, s)).collect();
+            let re = get_regex(pattern)?;
+                        let parts: Vec<Value> = re.split(&text).map(|s| make_string(ctx.heap, s)).collect();
             Ok(make_list(ctx.heap, parts))
         }),
     })));
@@ -61,11 +61,11 @@ pub fn build_re() -> Vec<(String, Value)> {
         name: "<re.sub>".to_string(),
         func: Rc::new(|args, ctx| {
             if args.len() < 3 { return Err("re.sub requires pattern, replacement, and string".to_string()); }
-            let pattern = args[0].to_string(ctx.heap);
+            let pattern = get_str(&args[0], ctx.heap)?;
             let replacement = args[1].to_string(ctx.heap);
             let text = args[2].to_string(ctx.heap);
-            let re = get_regex(&pattern)?;
-            let result = re.replace(&text, replacement.as_str());
+            let re = get_regex(pattern)?;
+                        let result = re.replace(&text, replacement.as_str());
             Ok(make_string_owned(ctx.heap, result.into_owned()))
         }),
     })));
@@ -74,11 +74,11 @@ pub fn build_re() -> Vec<(String, Value)> {
         name: "<re.sub_all>".to_string(),
         func: Rc::new(|args, ctx| {
             if args.len() < 3 { return Err("re.sub_all requires pattern, replacement, and string".to_string()); }
-            let pattern = args[0].to_string(ctx.heap);
+            let pattern = get_str(&args[0], ctx.heap)?;
             let replacement = args[1].to_string(ctx.heap);
             let text = args[2].to_string(ctx.heap);
-            let re = get_regex(&pattern)?;
-            let result = re.replace_all(&text, replacement.as_str());
+            let re = get_regex(pattern)?;
+                        let result = re.replace_all(&text, replacement.as_str());
             Ok(make_string_owned(ctx.heap, result.into_owned()))
         }),
     })));
@@ -87,10 +87,10 @@ pub fn build_re() -> Vec<(String, Value)> {
         name: "<re.find_all>".to_string(),
         func: Rc::new(|args, ctx| {
             if args.len() < 2 { return Err("re.find_all requires pattern and string".to_string()); }
-            let pattern = args[0].to_string(ctx.heap);
+            let pattern = get_str(&args[0], ctx.heap)?;
             let text = args[1].to_string(ctx.heap);
-            let re = get_regex(&pattern)?;
-            let matches: Vec<Value> = re.find_iter(&text).map(|m| make_string(ctx.heap, m.as_str())).collect();
+            let re = get_regex(pattern)?;
+                        let matches: Vec<Value> = re.find_iter(&text).map(|m| make_string(ctx.heap, m.as_str())).collect();
             Ok(make_list(ctx.heap, matches))
         }),
     })));
@@ -99,10 +99,10 @@ pub fn build_re() -> Vec<(String, Value)> {
         name: "<re.captures>".to_string(),
         func: Rc::new(|args, ctx| {
             if args.len() < 2 { return Err("re.captures requires pattern and string".to_string()); }
-            let pattern = args[0].to_string(ctx.heap);
+            let pattern = get_str(&args[0], ctx.heap)?;
             let text = args[1].to_string(ctx.heap);
-            let re = get_regex(&pattern)?;
-            if let Some(caps) = re.captures(&text) {
+            let re = get_regex(pattern)?;
+                        if let Some(caps) = re.captures(&text) {
                 let groups: Vec<Value> = caps.iter()
                     .map(|m| m.map(|s| make_string(ctx.heap, s.as_str())).unwrap_or(Value::Nil))
                     .collect();

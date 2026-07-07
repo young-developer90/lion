@@ -49,6 +49,7 @@ impl Vm {
         }
     }
 
+    #[inline(always)]
     pub fn read_u16(&self, pos: usize) -> u16 {
         u16::from_le_bytes([
             self.chunks[self.chunk_idx].code[pos],
@@ -56,17 +57,19 @@ impl Vm {
         ])
     }
 
+    #[inline(always)]
     pub fn chunk(&self) -> &Chunk {
         &self.chunks[self.chunk_idx]
     }
 
     pub fn run(&mut self) -> Result<Value, String> {
         loop {
-            if self.ip >= self.chunk().code.len() {
+            let code = &self.chunks[self.chunk_idx].code;
+            if self.ip >= code.len() {
                 return Err("program counter out of bounds".to_string());
             }
 
-            let op = OpCode::from_u8(self.chunk().code[self.ip])
+            let op = OpCode::from_u8(code[self.ip])
                 .ok_or(format!("unknown opcode at {}", self.ip))?;
             self.ip += 1;
 

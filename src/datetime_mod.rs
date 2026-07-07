@@ -41,7 +41,7 @@ pub fn build_datetime(heap: &mut GcHeap) -> Vec<(String, Value)> {
         func: Rc::new(|args, ctx| {
             if args.len() < 2 { return Err("datetime.format requires a datetime dict and format string".to_string()); }
             let dt = &args[0];
-            let fmt = args[1].to_string(ctx.heap);
+            let fmt = get_str(&args[1], ctx.heap)?;
             let (year, month, day, hour, minute, second, _) = extract_datetime_fields(dt, ctx.heap)?;
             let mut result = String::with_capacity(fmt.len());
             let mut chars = fmt.chars();
@@ -72,8 +72,8 @@ pub fn build_datetime(heap: &mut GcHeap) -> Vec<(String, Value)> {
         name: "<datetime.parse>".to_string(),
         func: Rc::new(move |args, ctx| {
             if args.len() < 2 { return Err("datetime.parse requires a date string and format string".to_string()); }
-            let s = args[0].to_string(ctx.heap);
-            let fmt = args[1].to_string(ctx.heap);
+            let s = get_str_owned(&args[0], ctx.heap)?;
+            let fmt = get_str_owned(&args[1], ctx.heap)?;
             let mut year = 0i64; let mut month = 1i64; let mut day = 1i64;
             let mut hour = 0i64; let mut minute = 0i64; let mut second = 0i64;
             let mut peek_chars = s.chars().peekable();
