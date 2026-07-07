@@ -394,8 +394,12 @@ cargo build --bin lion-lsp
 ### VS Code Extension
 
 ```bash
-cd vscode-lion && npm install && cd ..
-code --install-extension vscode-lion/
+# Package and install
+cd vscode-lion
+npm install
+npx @vscode/vsce package
+code --install-extension lion-lang-*.vsix
+cd ..
 ```
 
 ## Running Tests
