@@ -6,12 +6,12 @@ use gtk4::prelude::*;
 use gtk4::Button as GtkButton;
 use gtk4::Entry as GtkEntry;
 use gtk4::Label as GtkLabel;
-use gtk4::Application;
-use gtk4::ApplicationWindow;
+use gtk4::Window as GtkWindow;
 use gtk4::Box as GtkBox;
 use gtk4::Frame as GtkFrame;
 use gtk4::Align;
 use gtk4::Orientation;
+
 
 use crate::gc::*;
 use crate::vm::call_func_closure;
@@ -20,12 +20,19 @@ static NEXT_ID: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize:
 
 thread_local! {
     static WIDGETS: RefCell<HashMap<usize, gtk4::Widget>> = RefCell::new(HashMap::new());
-    static WINDOWS: RefCell<HashMap<usize, Application>> = RefCell::new(HashMap::new());
+    static WIDGET_TYPES: RefCell<HashMap<usize, &'static str>> = RefCell::new(HashMap::new());
+    static CONTENT_BOX: RefCell<HashMap<usize, usize>> = RefCell::new(HashMap::new());
     static CALLBACKS: RefCell<HashMap<usize, Value>> = RefCell::new(HashMap::new());
 }
 
 fn alloc_id() -> usize {
     NEXT_ID.fetch_add(1, std::sync::atomic::Ordering::Relaxed)
+}
+
+fn ensure_init() -> Result<(), String> {
+    static INIT: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    INIT.get_or_init(|| gtk4::init().is_ok());
+    Ok(())
 }
 
 fn get_ptr(val: &Value, heap: &GcHeap) -> Result<usize, String> {
@@ -66,34 +73,18 @@ fn get_widget(id: usize) -> Result<gtk4::Widget, String> {
         .ok_or_else(|| "widget not found".to_string())
 }
 
-fn get_parent_box(parent_id: usize) -> Result<gtk4::Widget, String> {
-    let parent = get_widget(parent_id)?;
-    if parent.clone().downcast::<ApplicationWindow>().is_ok() {
-        WIDGETS.with(|w| w.borrow().get(&(parent_id.wrapping_add(1))).cloned())
-            .ok_or_else(|| "parent content box not found".to_string())
-    } else if parent.clone().downcast::<GtkFrame>().is_ok() {
-        WIDGETS.with(|w| w.borrow().get(&(parent_id.wrapping_add(2))).cloned())
-            .ok_or_else(|| "frame content box not found".to_string())
-    } else {
-        Ok(parent)
-    }
-}
-
 pub fn build_panther() -> Vec<(String, Value)> {
     let mut funcs = Vec::new();
 
     funcs.push(("Leo".to_string(), Value::NativeFunc(NativeFunc {
         name: "<panther.Leo>".to_string(),
         func: Rc::new(|args, ctx| {
+            ensure_init()?;
             let title = args.first().map(|a| a.to_string(ctx.heap)).unwrap_or_else(|| "Panther".to_string());
             let width = args.get(1).and_then(|a| to_i64(a).ok()).unwrap_or(640) as i32;
             let height = args.get(2).and_then(|a| to_i64(a).ok()).unwrap_or(480) as i32;
 
-            let app = Application::builder()
-                .application_id(&format!("com.lion.panther.{}", alloc_id()))
-                .build();
-            let win = ApplicationWindow::builder()
-                .application(&app)
+            let win = GtkWindow::builder()
                 .title(&title)
                 .default_width(width)
                 .default_height(height)
@@ -107,11 +98,17 @@ pub fn build_panther() -> Vec<(String, Value)> {
             win.set_child(Some(&content));
 
             let win_id = alloc_id();
+            let content_id = alloc_id();
             WIDGETS.with(|w| {
                 w.borrow_mut().insert(win_id, win.upcast::<gtk4::Widget>());
-                w.borrow_mut().insert(win_id.wrapping_add(1), content.upcast::<gtk4::Widget>());
+                w.borrow_mut().insert(content_id, content.upcast::<gtk4::Widget>());
             });
-            WINDOWS.with(|w| w.borrow_mut().insert(win_id, app));
+            WIDGET_TYPES.with(|t| {
+                t.borrow_mut().insert(win_id, "window");
+            });
+            CONTENT_BOX.with(|c| {
+                c.borrow_mut().insert(win_id, content_id);
+            });
 
             Ok(make_widget_dict(ctx.heap, win_id, "tk"))
         }),
@@ -120,6 +117,7 @@ pub fn build_panther() -> Vec<(String, Value)> {
     funcs.push(("Frame".to_string(), Value::NativeFunc(NativeFunc {
         name: "<panther.Frame>".to_string(),
         func: Rc::new(|args, ctx| {
+            ensure_init()?;
             let parent_ptr = get_ptr(&args[0], ctx.heap)?;
             let parent_box = get_parent_box(parent_ptr)?;
 
@@ -130,14 +128,21 @@ pub fn build_panther() -> Vec<(String, Value)> {
             let frame_box = GtkBox::new(Orientation::Vertical, 4);
             frame.set_child(Some(&frame_box));
 
-            parent_box.dynamic_cast_ref::<gtk4::Box>()
+            parent_box.dynamic_cast_ref::<GtkBox>()
                 .ok_or("parent is not a box container")?
                 .append(&frame);
 
             let frame_id = alloc_id();
+            let frame_box_id = alloc_id();
             WIDGETS.with(|w| {
                 w.borrow_mut().insert(frame_id, frame.upcast::<gtk4::Widget>());
-                w.borrow_mut().insert(frame_id.wrapping_add(2), frame_box.upcast::<gtk4::Widget>());
+                w.borrow_mut().insert(frame_box_id, frame_box.upcast::<gtk4::Widget>());
+            });
+            WIDGET_TYPES.with(|t| {
+                t.borrow_mut().insert(frame_id, "frame");
+            });
+            CONTENT_BOX.with(|c| {
+                c.borrow_mut().insert(frame_id, frame_box_id);
             });
 
             Ok(make_widget_dict(ctx.heap, frame_id, "frame"))
@@ -147,6 +152,7 @@ pub fn build_panther() -> Vec<(String, Value)> {
     funcs.push(("Label".to_string(), Value::NativeFunc(NativeFunc {
         name: "<panther.Label>".to_string(),
         func: Rc::new(|args, ctx| {
+            ensure_init()?;
             let parent_ptr = get_ptr(&args[0], ctx.heap)?;
             let parent_box = get_parent_box(parent_ptr)?;
             let text = args.get(1).map(|a| a.to_string(ctx.heap)).unwrap_or_default();
@@ -154,7 +160,7 @@ pub fn build_panther() -> Vec<(String, Value)> {
             let label = GtkLabel::new(Some(&text));
             label.set_halign(Align::Start);
 
-            parent_box.dynamic_cast_ref::<gtk4::Box>()
+            parent_box.dynamic_cast_ref::<GtkBox>()
                 .ok_or("parent is not a box container")?
                 .append(&label);
 
@@ -167,6 +173,7 @@ pub fn build_panther() -> Vec<(String, Value)> {
     funcs.push(("Button".to_string(), Value::NativeFunc(NativeFunc {
         name: "<panther.Button>".to_string(),
         func: Rc::new(|args, ctx| {
+            ensure_init()?;
             let parent_ptr = get_ptr(&args[0], ctx.heap)?;
             let parent_box = get_parent_box(parent_ptr)?;
             let text = args.get(1).map(|a| a.to_string(ctx.heap)).unwrap_or_default();
@@ -198,7 +205,7 @@ pub fn build_panther() -> Vec<(String, Value)> {
                 });
             }
 
-            parent_box.dynamic_cast_ref::<gtk4::Box>()
+            parent_box.dynamic_cast_ref::<GtkBox>()
                 .ok_or("parent is not a box container")?
                 .append(&btn);
 
@@ -210,6 +217,7 @@ pub fn build_panther() -> Vec<(String, Value)> {
     funcs.push(("Entry".to_string(), Value::NativeFunc(NativeFunc {
         name: "<panther.Entry>".to_string(),
         func: Rc::new(|args, ctx| {
+            ensure_init()?;
             let parent_ptr = get_ptr(&args[0], ctx.heap)?;
             let parent_box = get_parent_box(parent_ptr)?;
 
@@ -217,7 +225,7 @@ pub fn build_panther() -> Vec<(String, Value)> {
                 .hexpand(true)
                 .build();
 
-            parent_box.dynamic_cast_ref::<gtk4::Box>()
+            parent_box.dynamic_cast_ref::<GtkBox>()
                 .ok_or("parent is not a box container")?
                 .append(&entry);
 
@@ -231,10 +239,6 @@ pub fn build_panther() -> Vec<(String, Value)> {
         name: "<panther.pack>".to_string(),
         func: Rc::new(|args, ctx| {
             let id = get_ptr(&args[0], ctx.heap)?;
-            let _side = args.get(1).map(|a| a.to_string(ctx.heap)).unwrap_or_else(|| "top".to_string());
-            let _padx = args.get(2).and_then(|a| to_i64(a).ok()).unwrap_or(0) as i32;
-            let _pady = args.get(3).and_then(|a| to_i64(a).ok()).unwrap_or(0) as i32;
-
             let widget = get_widget(id)?;
             widget.set_visible(true);
             Ok(Value::Nil)
@@ -245,11 +249,6 @@ pub fn build_panther() -> Vec<(String, Value)> {
         name: "<panther.place>".to_string(),
         func: Rc::new(|args, ctx| {
             let id = get_ptr(&args[0], ctx.heap)?;
-            let _x = args.get(1).and_then(|a| to_i64(a).ok()).unwrap_or(0) as i32;
-            let _y = args.get(2).and_then(|a| to_i64(a).ok()).unwrap_or(0) as i32;
-            let _w = args.get(3).and_then(|a| to_i64(a).ok());
-            let _h = args.get(4).and_then(|a| to_i64(a).ok());
-
             let widget = get_widget(id)?;
             widget.set_visible(true);
             Ok(Value::Nil)
@@ -352,7 +351,7 @@ pub fn build_panther() -> Vec<(String, Value)> {
             let text = args.get(1).map(|a| a.to_string(ctx.heap)).unwrap_or_default();
 
             let widget = get_widget(id)?;
-            if let Ok(win) = widget.downcast::<ApplicationWindow>() {
+            if let Ok(win) = widget.downcast::<GtkWindow>() {
                 win.set_title(Some(&text));
             }
             Ok(Value::Nil)
@@ -367,7 +366,7 @@ pub fn build_panther() -> Vec<(String, Value)> {
             let h = args.get(2).and_then(|a| to_i64(a).ok()).unwrap_or(480) as i32;
 
             let widget = get_widget(id)?;
-            if let Ok(win) = widget.downcast::<ApplicationWindow>() {
+            if let Ok(win) = widget.downcast::<GtkWindow>() {
                 win.set_default_size(w, h);
             }
             Ok(Value::Nil)
@@ -390,17 +389,15 @@ pub fn build_panther() -> Vec<(String, Value)> {
         name: "<panther.mainloop>".to_string(),
         func: Rc::new(|args, ctx| {
             let id = get_ptr(&args[0], ctx.heap)?;
-
-            let app = WINDOWS.with(|w| {
-                w.borrow().get(&id).cloned()
-            }).ok_or("application not found (call Leo first)")?;
-
             let widget = get_widget(id)?;
-            if let Ok(win) = widget.downcast::<ApplicationWindow>() {
+            if let Ok(win) = widget.downcast::<GtkWindow>() {
                 win.present();
+                win.connect_close_request(move |_| {
+                    gtk4::glib::MainLoop::new(None, false).quit();
+                    gtk4::glib::Propagation::Proceed
+                });
             }
-
-            app.run();
+            gtk4::glib::MainLoop::new(None, false).run();
             Ok(Value::Nil)
         }),
     })));
@@ -408,6 +405,7 @@ pub fn build_panther() -> Vec<(String, Value)> {
     funcs.push(("messagebox".to_string(), Value::NativeFunc(NativeFunc {
         name: "<panther.messagebox>".to_string(),
         func: Rc::new(|args, ctx| {
+            ensure_init()?;
             let text = args.get(0).map(|a| a.to_string(ctx.heap)).unwrap_or_default();
             let _title = args.get(1).map(|a| a.to_string(ctx.heap)).unwrap_or_else(|| "Message".to_string());
 
@@ -422,4 +420,12 @@ pub fn build_panther() -> Vec<(String, Value)> {
     })));
 
     funcs
+}
+
+fn get_parent_box(parent_id: usize) -> Result<gtk4::Widget, String> {
+    let box_id = CONTENT_BOX.with(|c| c.borrow().get(&parent_id).copied());
+    match box_id {
+        Some(box_id) => get_widget(box_id),
+        None => get_widget(parent_id),
+    }
 }
