@@ -10,13 +10,15 @@ function activate(ctx) {
     const extDir = ctx.extensionPath;
     const workspaceFolders = vscode.workspace.workspaceFolders;
     const wsDir = workspaceFolders ? workspaceFolders[0].uri.fsPath : path.dirname(extDir);
+    const ext = process.platform === 'win32' ? '.exe' : '';
 
     const candidates = [
         'lion-lsp',
-        path.join(wsDir, 'target', 'debug', 'lion-lsp.exe'),
-        path.join(wsDir, 'target', 'release', 'lion-lsp.exe'),
-        path.join(extDir, 'lion-lsp.exe'),
-        path.join(extDir, '..', 'target', 'debug', 'lion-lsp.exe'),
+        path.join(wsDir, 'target', 'debug', `lion-lsp${ext}`),
+        path.join(wsDir, 'target', 'release', `lion-lsp${ext}`),
+        path.join(extDir, `lion-lsp${ext}`),
+        path.join(extDir, '..', 'target', 'debug', `lion-lsp${ext}`),
+        path.join(extDir, '..', 'target', 'release', `lion-lsp${ext}`),
     ];
 
     let serverModule = null;

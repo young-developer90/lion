@@ -1,0 +1,122 @@
+{
+  "Function definition": {
+    "prefix": "func",
+    "body": "func ${1:name}(${2:params}) {\n\t${3}\n}",
+    "description": "Define a function"
+  },
+  "Anonymous function (lambda)": {
+    "prefix": "fn",
+    "body": "|${1:x}| ${2:expr}",
+    "description": "Create a lambda"
+  },
+  "If statement": {
+    "prefix": "if",
+    "body": "if ${1:condition} {\n\t${2}\n}",
+    "description": "If statement"
+  },
+  "If-elif-else": {
+    "prefix": "ife",
+    "body": "if ${1:cond} {\n\t${2}\n} elif ${3:cond2} {\n\t${4}\n} else {\n\t${5}\n}",
+    "description": "If-elif-else chain"
+  },
+  "While loop": {
+    "prefix": "while",
+    "body": "while ${1:condition} {\n\t${2}\n}",
+    "description": "While loop"
+  },
+  "For loop (range)": {
+    "prefix": "forr",
+    "body": "for ${1:i} in ${2:0}..${3:10} {\n\t${4}\n}",
+    "description": "For loop over range"
+  },
+  "For loop (list)": {
+    "prefix": "for",
+    "body": "for ${1:item} in ${2:list} {\n\t${3}\n}",
+    "description": "For loop over collection"
+  },
+  "For loop with index": {
+    "prefix": "fori",
+    "body": "for ${1:i}, ${2:item} in ${3:list} {\n\t${4}\n}",
+    "description": "For loop with index"
+  },
+  "Match statement": {
+    "prefix": "match",
+    "body": "match ${1:value} {\n\t${2:pattern} => ${3},\n\t_ => ${4},\n}",
+    "description": "Pattern matching"
+  },
+  "Try-catch": {
+    "prefix": "try",
+    "body": "try {\n\t${1}\n} catch ${2:e} {\n\t${3}\n}",
+    "description": "Error handling"
+  },
+  "Struct definition": {
+    "prefix": "struct",
+    "body": "struct ${1:Name} {\n\tfunc new() { return ${1}{ ${2:field} = ${3} }; }\n\tfunc ${4:method}(self) {\n\t\t${5}\n\t}\n}",
+    "description": "Define a struct"
+  },
+  "Export function": {
+    "prefix": "export",
+    "body": "export func ${1:name}(${2:params}) {\n\t${3}\n}",
+    "description": "Export a function from a module"
+  },
+  "Import module": {
+    "prefix": "import",
+    "body": "import \"${1:module}.lion\" as ${2:name}",
+    "description": "Import a module"
+  },
+  "Lambda expression": {
+    "prefix": "lam",
+    "body": "|${1:x}| ${2:expr}",
+    "description": "Lambda expression"
+  },
+  "For comprehension": {
+    "prefix": "comp",
+    "body": "[${1:expr} for ${2:x} in ${3:list}]",
+    "description": "List comprehension"
+  },
+  "Filtered comprehension": {
+    "prefix": "compf",
+    "body": "[${1:expr} for ${2:x} in ${3:list} if ${4:cond}]",
+    "description": "Filtered list comprehension"
+  },
+  "F-string": {
+    "prefix": "fstr",
+    "body": "f\"${1:text}${2:{${3:var}}}\"",
+    "description": "Interpolated string"
+  },
+  "HTTP GET": {
+    "prefix": "httpget",
+    "body": "let resp = http.get(\"${1:url}\");\nprint(resp.json())",
+    "description": "HTTP GET request"
+  },
+  "File read": {
+    "prefix": "fsread",
+    "body": "let ${1:content} = fs.read(\"${2:path}\");",
+    "description": "Read a file"
+  },
+  "File write": {
+    "prefix": "fswrite",
+    "body": "let _ = fs.write(\"${1:path}\", ${2:content});",
+    "description": "Write to a file"
+  },
+  "JSON parse": {
+    "prefix": "jsonparse",
+    "body": "let ${1:data} = json.parse(\"${2:json_string}\");",
+    "description": "Parse JSON string"
+  },
+  "Assert test": {
+    "prefix": "assert",
+    "body": "test.assert_eq(${1:actual}, ${2:expected}, \"${3:description}\")",
+    "description": "Unit test assertion"
+  },
+  "Panther window": {
+    "prefix": "panther",
+    "body": "let root = panther.Leo(\"${1:App}\", ${2:640}, ${3:480});\npanther.mainloop(root);",
+    "description": "Create a GUI window"
+  },
+  "Panther button": {
+    "prefix": "pbtn",
+    "body": "let ${1:btn} = panther.Button(${2:parent}, \"${3:Click}\", func() {\n\t${4}\n});\npanther.pack(${1:btn});",
+    "description": "GUI button with callback"
+  }
+}

@@ -1,9 +1,10 @@
 {
   "name": "lion-lang",
   "displayName": "Lion Language",
-  "description": "Lion scripting language support",
-  "version": "0.1.0",
+  "description": "Lion scripting language — syntax highlighting, snippets, and LSP support",
+  "version": "0.2.0",
   "publisher": "lion-lang",
+  "icon": "icon.ico",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -21,6 +22,10 @@
       "language": "lion",
       "scopeName": "source.lion",
       "path": "./syntaxes/lion.tmLanguage.json"
+    }],
+    "snippets": [{
+      "language": "lion",
+      "path": "./snippets/lion.json"
     }]
   },
   "dependencies": {

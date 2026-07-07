@@ -6,12 +6,14 @@
   "brackets": [
     ["{", "}"],
     ["[", "]"],
-    ["(", ")"]
+    ["(", ")"],
+    ["\"\"\"", "\"\"\""]
   ],
   "autoClosingPairs": [
     { "open": "{", "close": "}" },
     { "open": "[", "close": "]" },
     { "open": "(", "close": ")" },
+    { "open": "\"\"\"", "close": "\"\"\"" },
     { "open": "\"", "close": "\"", "notIn": ["string"] },
     { "open": "f\"", "close": "\"", "notIn": ["string"] }
   ],
@@ -20,5 +22,10 @@
     ["[", "]"],
     ["(", ")"],
     ["\"", "\""]
-  ]
+  ],
+  "indentationRules": {
+    "increaseIndentPattern": "^\\s*.*(\\bif\\b|\\belse\\b|\\belif\\b|\\bwhile\\b|\\bfor\\b|\\bmatch\\b|\\bfunc\\b|\\btry\\b|\\bcatch\\b|\\bstruct\\b)\\s*(?:\\|.*\\|)?\\s*\\{[^}]*$",
+    "decreaseIndentPattern": "^\\s*\\}"
+  },
+  "wordPattern": "(-?\\d*\\.?\\d+)|([a-zA-Z_][a-zA-Z0-9_]*(\\.\\w+)*)|(\"[^\"]*\")|(f\"[^\"]*\")"
 }
