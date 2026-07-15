@@ -293,6 +293,8 @@ let evens   = [x for x in 0..20 if x % 2 == 0];
 | `test` | `assert_eq`, `assert_ne`, `assert_true`, `assert_false`, `assert_lt`, `assert_gt`, `assert_approx` |
 | **C Extensions** | |
 | `panda` | NumPy-like arrays: `arange`, `zeros`, `ones`, `linspace`, `sum`, `mean`, `min`, `max`, `std`, `abs`, `sin`, `cos`, `sqrt`, `pow`, `add`, `sub`, `mul`, `dot`, `shape`, `reshape`, `eye` (build: `make -C modules`) |
+| **Optional (feature flags)** | |
+| `opencv` | Computer vision: `imread`, `imwrite`, `cvt_color`, `resize`, `gaussian_blur`, `canny`, `threshold`, `shape`, `imshow`, `wait_key`, `free` (feature=opencv, requires system OpenCV 4/5) |
 | **Windows** | |
 | `leopard` | Native GUI toolkit (Win32) |
 | **Linux** | |
@@ -373,6 +375,39 @@ bash scripts/package.sh --panther
 
 The output appears in `dist/` and includes the binary, C extensions, examples, and a launcher script.
 
+### OpenCV Computer Vision
+
+Requires system OpenCV 4/5 development libraries:
+
+```bash
+# Ubuntu/Debian
+sudo apt install libopencv-dev
+
+# Fedora
+sudo dnf install opencv-devel
+
+# Arch
+sudo pacman -S opencv
+```
+
+Build and set `PKG_CONFIG_PATH` if needed:
+
+```bash
+PKG_CONFIG_PATH=/usr/lib/pkgconfig cargo build --release --features opencv
+```
+
+Usage:
+
+```lion
+let img = opencv.imread("photo.jpg");
+let gray = opencv.cvt_color(img, opencv.BGR2GRAY);
+let edges = opencv.canny(gray, 50.0, 150.0);
+opencv.imwrite("edges.jpg", edges);
+opencv.free(img);
+opencv.free(gray);
+opencv.free(edges);
+```
+
 ### CUDA Support
 
 ```bash
@@ -442,6 +477,7 @@ modules/       # C extension shared libraries (.dll/.so/.dylib)
 |---------|----------|
 | `cargo build` warns about CUDA | Warning only — build succeeds without CUDA |
 | Python interop not working | Build with `--features python`, ensure Python dev headers installed |
+| OpenCV build fails (`opencv4.pc` not found) | Set `PKG_CONFIG_PATH` to the directory containing `opencv5.pc` (e.g. `/usr/lib/pkgconfig`) |
 | Slow performance | Always use `cargo build --release` — debug builds are ~50× slower |
 | Tests fail | Build release binary first: `cargo build --release --bin lion` |
 

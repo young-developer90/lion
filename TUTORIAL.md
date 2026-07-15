@@ -28,6 +28,7 @@ A step-by-step guide to learning Lion, from zero to building real applications.
 
 - **Rust** 1.80 or later ([rustup.rs](https://rustup.rs/))
 - **Git**
+- **OpenCV 4/5** (optional, for `opencv` module) — `libopencv-dev` on Debian/Ubuntu, `opencv-devel` on Fedora
 
 ### Build Lion
 
@@ -571,6 +572,37 @@ test.assert_true(is_even(4));
 test.assert_approx(3.14159, 3.14, 0.01);
 test.assert_lt(1, 2);
 ```
+
+### Computer Vision (`opencv`)
+
+Requires building with `--features opencv` and system OpenCV 4/5:
+
+```bash
+PKG_CONFIG_PATH=/usr/lib/pkgconfig cargo build --release --features opencv
+```
+
+```lion
+let img = opencv.imread("photo.jpg");
+print(opencv.shape(img));                      // [height, width, channels]
+
+let gray = opencv.cvt_color(img, opencv.BGR2GRAY);
+let edges = opencv.canny(gray, 50.0, 150.0);
+let blurred = opencv.gaussian_blur(gray, 5, 5, 1.5);
+let small = opencv.resize(img, 200, 200);
+
+opencv.imwrite("output.jpg", edges);
+
+// Display in a window (requires display)
+opencv.imshow("result", edges);
+opencv.wait_key(0);
+opencv.destroy_all_windows();
+
+opencv.free(img);
+opencv.free(gray);
+opencv.free(edges);
+```
+
+Available: `imread`, `imwrite`, `cvt_color`, `resize`, `gaussian_blur`, `canny`, `threshold`, `shape`, `imshow`, `wait_key`, `destroy_all_windows`, `free`. Constants: `BGR2GRAY`, `GRAY2BGR`, `BGR2RGB`, `RGB2GRAY`, `THRESH_BINARY`, `THRESH_BINARY_INV`.
 
 ---
 

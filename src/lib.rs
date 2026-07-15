@@ -32,6 +32,8 @@ pub mod string_mod;
 pub mod subprocess_mod;
 pub mod test_mod;
 pub mod url_mod;
+#[cfg(feature = "opencv")]
+pub mod opencv_mod;
 pub mod vm;
 
 #[cfg(cuda_support)]

@@ -17,10 +17,12 @@ scraper = "0.27"
 url = "2"
 ureq = "2"
 gtk4 = { version = "0.9", optional = true }
+opencv = { version = "0.99", optional = true }
 
 [features]
-python = ["pyo3"]
-panther = ["gtk4"]
+python = ["dep:pyo3"]
+panther = ["dep:gtk4"]
+opencv = ["dep:opencv"]
 default = []
 
 [[bin]]

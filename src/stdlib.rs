@@ -16,6 +16,8 @@ use crate::hashlib_mod;
 use crate::collections_mod;
 use crate::itertools_mod;
 use crate::test_mod;
+#[cfg(feature = "opencv")]
+use crate::opencv_mod;
 
 pub fn build_stdlib(heap: &mut GcHeap) -> Vec<(String, Vec<(String, Value)>)> {
     let mut modules = Vec::new();
@@ -457,6 +459,8 @@ pub fn build_stdlib(heap: &mut GcHeap) -> Vec<(String, Vec<(String, Value)>)> {
     modules.push(("collections".to_string(), collections_mod::build_collections()));
     modules.push(("itertools".to_string(), itertools_mod::build_itertools()));
     modules.push(("test".to_string(), test_mod::build_test()));
+    #[cfg(feature = "opencv")]
+    modules.push(("opencv".to_string(), opencv_mod::build_opencv()));
 
     modules
 }

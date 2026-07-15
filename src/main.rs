@@ -41,6 +41,8 @@ mod linum;
 
 #[cfg(feature = "python")]
 mod py;
+#[cfg(feature = "opencv")]
+mod opencv_mod;
 
 use cli::Command;
 
