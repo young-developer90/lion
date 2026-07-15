@@ -314,21 +314,19 @@ Benchmarks comparing Lion 1.6.3 (release build) against Python 3.14 on the same 
 
 | Benchmark | Lion (ms) | Python (ms) | vs Python |
 |-----------|-----------|-------------|-----------|
-| `re.find_all` — 10k lines | 5.64 | 5.53 | ~1.0× (on par) |
-| `re.sub_all` — 10k lines | 11.00 | 28.48 | **~2.6× faster** |
-| `re.split` — 10k lines | 2.43 | 1.50 | ~1.6× slower |
-| `collections.Counter` — 50k words | 5.33 | 3.56 | ~1.5× slower |
-| `itertools.unique` — 20k items | 1.56 | 0.52 | ~3.0× slower |
-| `itertools.sorted` — 10k items | 0.17 | 0.16 | ~1.1× slower |
-| `datetime.now` — 10k calls | 89.37 | 12.31 | ~7.3× slower |
-| `datetime.format` — 10k calls | 133.39 | 53.72 | ~2.5× slower |
-| `hashlib.sha256` — 1k strings | 1.98 | 1.10 | ~1.8× slower |
-| `hashlib.base64` — 1k strings | 2.24 | 0.96 | ~2.3× slower |
-| `subprocess.run_shell` — 100 calls | 506.35 | 522.30 | **~1.0× faster** |
+| `re.find_all` — 10k lines | 5.53 | 5.35 | ~1.0× (on par) |
+| `re.sub_all` — 10k lines | 11.24 | 27.74 | **~2.5× faster** |
+| `re.split` — 10k lines | 2.49 | 1.54 | ~1.6× slower |
+| `collections.Counter` — 50k words | 5.25 | 3.38 | ~1.6× slower |
+| `itertools.unique` — 20k items | 1.52 | 0.41 | ~3.7× slower |
+| `itertools.sorted` — 10k items | 0.21 | 0.14 | ~1.5× slower |
+| `datetime.now` — 10k calls | 18.38 | 11.81 | ~1.6× slower |
+| `datetime.format` — 10k calls | 126.01 | 51.78 | ~2.4× slower |
+| `hashlib.sha256` — 1k strings | 2.21 | 1.10 | ~2.0× slower |
+| `hashlib.base64` — 1k strings | 2.39 | 0.93 | ~2.6× slower |
+| `subprocess.run_shell` — 100 calls | 508.09 | 523.89 | **~1.0× faster** |
 
-Lion is a young interpreted bytecode VM while Python benefits from decades of optimization and C-backed native libraries. Performance has improved significantly in v1.6.2 thanks to GC optimizations and reduced allocation overhead.
-
-Lion is a young interpreted bytecode VM while Python benefits from decades of optimization and C-backed native libraries.
+Lion is a young interpreted bytecode VM while Python benefits from decades of optimization and C-backed native libraries. Performance has improved significantly in v1.6.3 — `datetime.now` is now only 1.6× slower (down from 7.3× in v1.6.2) thanks to GC pool pre-allocation and reduced allocation overhead.
 
 Run benchmarks yourself:
 
