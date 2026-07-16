@@ -51,19 +51,21 @@ fn main() {
 
     match cmd {
         Command::Run { file, disassemble } => {
-            if disassemble {
-                match disassemble_file(&file) {
-                    Ok(output) => println!("{}", output),
-                    Err(e) => eprintln!("Error: {}", e),
-                }
-            } else {
-                let mut loader = module::ModuleLoader::new();
-                loader.load_stdlib();
-                match loader.execute_file(&file) {
-                    Ok(()) => {}
-                    Err(e) => {
-                        eprintln!("Error: {}", e);
-                        std::process::exit(1);
+            if let Some(f) = file {
+                if disassemble {
+                    match disassemble_file(&f) {
+                        Ok(output) => println!("{}", output),
+                        Err(e) => eprintln!("Error: {}", e),
+                    }
+                } else {
+                    let mut loader = module::ModuleLoader::new();
+                    loader.load_stdlib();
+                    match loader.execute_file(&f) {
+                        Ok(()) => {}
+                        Err(e) => {
+                            eprintln!("Error: {}", e);
+                            std::process::exit(1);
+                        }
                     }
                 }
             }
@@ -87,8 +89,14 @@ fn main() {
                 Err(e) => eprintln!("Error: {}", e),
             }
         }
-        Command::Test { path } => {
-            let test_path = path.unwrap_or_else(|| ".".to_string());
+        Command::Test { filter } => {
+            let test_path = filter.as_deref().unwrap_or(
+                if std::path::Path::new("lion.json").exists() && std::path::Path::new("tests").is_dir() {
+                    "tests"
+                } else {
+                    "."
+                }
+            );
             match run_tests(&test_path) {
                 Ok(results) => {
                     for (name, passed, msg) in &results {
@@ -111,6 +119,30 @@ fn main() {
                 }
             }
         }
+        Command::ProjectNew { name } => {
+            match project_new(&name) {
+                Ok(()) => println!("Created project '{}'", name),
+                Err(e) => { eprintln!("Error: {}", e); std::process::exit(1); }
+            }
+        }
+        Command::ProjectInit => {
+            match project_init() {
+                Ok(()) => {},
+                Err(e) => { eprintln!("Error: {}", e); std::process::exit(1); }
+            }
+        }
+        Command::ProjectBuild => {
+            match project_build() {
+                Ok(()) => {},
+                Err(e) => { eprintln!("Error: {}", e); std::process::exit(1); }
+            }
+        }
+        Command::ProjectRun { args } => {
+            match project_run(&args) {
+                Ok(()) => {},
+                Err(e) => { eprintln!("Error: {}", e); std::process::exit(1); }
+            }
+        }
         Command::Help => {
             println!("Lion v{}", env!("CARGO_PKG_VERSION"));
             println!("Usage:");
@@ -119,10 +151,159 @@ fn main() {
             println!("  lion repl                 Start interactive REPL");
             println!("  lion version              Show version");
             println!("  lion fmt <file>           Format a source file");
-            println!("  lion test [path]          Run tests");
+            println!("  lion test [filter]        Run tests");
+            println!("  lion new <name>           Create a new project");
+            println!("  lion init                 Initialize project in current dir");
+            println!("  lion build                Check project for errors");
+            println!("  lion-rs <file>            Quick-run a file");
         }
     }
 }
+
+// ----- Project management -----
+
+fn project_root() -> Result<std::path::PathBuf, String> {
+    let cwd = std::env::current_dir().map_err(|e| e.to_string())?;
+    let mut dir = Some(cwd.as_path());
+    while let Some(d) = dir {
+        if d.join("lion.json").exists() {
+            return Ok(d.to_path_buf());
+        }
+        dir = d.parent();
+    }
+    Err("no lion.json found in current or parent directories".to_string())
+}
+
+fn project_new(name: &str) -> Result<(), String> {
+    let dir = std::path::Path::new(name);
+    if dir.exists() {
+        return Err(format!("directory '{}' already exists", name));
+    }
+    std::fs::create_dir_all(dir.join("src"))
+        .map_err(|e| format!("cannot create directory: {}", e))?;
+
+    let manifest = serde_json::json!({
+        "name": name,
+        "version": "0.1.0",
+        "entry": "src/main.lion",
+        "dependencies": {}
+    });
+    std::fs::write(dir.join("lion.json"), serde_json::to_string_pretty(&manifest).unwrap())
+        .map_err(|e| format!("cannot write lion.json: {}", e))?;
+
+    let main_code = format!("print(\"Hello from {}!\")\n", name);
+    std::fs::write(dir.join("src/main.lion"), &main_code)
+        .map_err(|e| format!("cannot write main.lion: {}", e))?;
+
+    println!("Created project '{}'", name);
+    println!("  cd {} && lion run", name);
+    Ok(())
+}
+
+fn project_init() -> Result<(), String> {
+    let cwd = std::env::current_dir().map_err(|e| e.to_string())?;
+    if cwd.join("lion.json").exists() {
+        return Err("lion.json already exists".to_string());
+    }
+    let name = cwd.file_name().and_then(|s| s.to_str()).unwrap_or("project");
+    std::fs::create_dir_all(cwd.join("src"))
+        .map_err(|e| format!("cannot create src directory: {}", e))?;
+
+    let manifest = serde_json::json!({
+        "name": name,
+        "version": "0.1.0",
+        "entry": "src/main.lion",
+        "dependencies": {}
+    });
+    std::fs::write(cwd.join("lion.json"), serde_json::to_string_pretty(&manifest).unwrap())
+        .map_err(|e| format!("cannot write lion.json: {}", e))?;
+
+    let main_path = cwd.join("src/main.lion");
+    if !main_path.exists() {
+        std::fs::write(&main_path, format!("print(\"Hello from {}!\")\n", name))
+            .map_err(|e| format!("cannot write main.lion: {}", e))?;
+    }
+    println!("Initialized Lion project in {}", cwd.display());
+    Ok(())
+}
+
+fn read_manifest(dir: &std::path::Path) -> Result<serde_json::Value, String> {
+    let text = std::fs::read_to_string(dir.join("lion.json"))
+        .map_err(|e| format!("cannot read lion.json: {}", e))?;
+    serde_json::from_str(&text)
+        .map_err(|e| format!("invalid lion.json: {}", e))
+}
+
+fn collect_lion_files(dir: &std::path::Path, files: &mut Vec<std::path::PathBuf>) -> Result<(), String> {
+    for entry in std::fs::read_dir(dir).map_err(|e| e.to_string())? {
+        let entry = entry.map_err(|e| e.to_string())?;
+        let path = entry.path();
+        if path.is_dir() {
+            collect_lion_files(&path, files)?;
+        } else if path.extension().and_then(|s| s.to_str()) == Some("lion") {
+            files.push(path);
+        }
+    }
+    Ok(())
+}
+
+fn project_build() -> Result<(), String> {
+    let root = project_root()?;
+    let manifest = read_manifest(&root)?;
+    let name = manifest.get("name").and_then(|v| v.as_str()).unwrap_or("project");
+
+    let mut files = Vec::new();
+    collect_lion_files(&root, &mut files)?;
+
+    if files.is_empty() {
+        return Err("no .lion files found in project".to_string());
+    }
+
+    let mut errors = 0;
+    for file in &files {
+        let source = std::fs::read_to_string(file)
+            .map_err(|e| format!("cannot read {}: {}", file.display(), e))?;
+        let mut parser = parser::Parser::new(&source);
+        match parser.parse() {
+            Ok(program) => {
+                let mut compiler = compiler::Compiler::new();
+                if let Err(e) = compiler.compile(&program) {
+                    eprintln!("error: {}: {}", file.display(), e);
+                    errors += 1;
+                }
+            }
+            Err(e) => {
+                eprintln!("error: {}: {}", file.display(), e);
+                errors += 1;
+            }
+        }
+    }
+
+    if errors == 0 {
+        println!("Checked {} file(s) in '{}' - no errors", files.len(), name);
+    } else {
+        println!("Checked {} file(s) in '{}' - {} error(s)", files.len(), name, errors);
+        return Err(format!("build failed with {} error(s)", errors));
+    }
+    Ok(())
+}
+
+fn project_run(_args: &[String]) -> Result<(), String> {
+    let root = project_root()?;
+    let manifest = read_manifest(&root)?;
+    let entry = manifest.get("entry").and_then(|v| v.as_str()).unwrap_or("src/main.lion");
+    let entry_path = root.join(entry);
+
+    if !entry_path.exists() {
+        return Err(format!("entry file '{}' not found", entry_path.display()));
+    }
+
+    let mut loader = module::ModuleLoader::new();
+    loader.load_stdlib();
+    loader.execute_file(&entry_path.to_string_lossy())
+}
+
+// ----- End project management -----
 
 fn disassemble_file(path: &str) -> Result<String, String> {
     let source = std::fs::read_to_string(path)

@@ -4,8 +4,17 @@ use std::collections::HashMap;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::rc::Rc;
+use std::sync::Mutex;
 
 use crate::bytecode::Chunk;
+
+type ResourceDropper = fn(i64);
+static RESOURCE_DROPPER: Mutex<Option<ResourceDropper>> = Mutex::new(None);
+
+/// Register a global callback that is invoked when an `OcvHandle` is freed by GC.
+pub fn set_resource_dropper(f: ResourceDropper) {
+    *RESOURCE_DROPPER.lock().unwrap() = Some(f);
+}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ObjRef(pub usize);
@@ -49,6 +58,9 @@ pub enum GcObj {
         struct_ref: ObjRef,
         fields: Vec<(Value, Value)>,
     },
+    /// External resource handle (e.g. OpenCV image). When collected by GC,
+    /// the global resource dropper is called with this handle.
+    OcvHandle(i64),
 }
 
 #[derive(Debug, Clone)]
@@ -118,7 +130,8 @@ impl GcHeap {
                 | Value::Range(r)
                 | Value::Matrix(r)
                 | Value::Struct(r)
-                | Value::StructInstance(r) => self.mark(*r),
+                | Value::StructInstance(r)
+                | Value::Image(r) => self.mark(*r),
             _ => {}
         }
     }
@@ -167,8 +180,14 @@ impl GcHeap {
         for i in 0..len {
             if self.marks[i] { self.mark_gray(ObjRef(i)); }
         }
+        let dropper = *RESOURCE_DROPPER.lock().unwrap();
         for i in 0..len {
             if !self.marks[i] {
+                if let Some(GcObj::OcvHandle(h)) = &self.objects[i] {
+                    if let Some(drop_fn) = dropper {
+                        drop_fn(*h);
+                    }
+                }
                 self.objects[i] = None;
                 self.free_list.push(i);
             } else {
@@ -221,6 +240,7 @@ pub enum Value {
     Matrix(ObjRef),
     Struct(ObjRef),
     StructInstance(ObjRef),
+    Image(ObjRef),
 }
 
 impl fmt::Display for Value {
@@ -246,6 +266,7 @@ impl fmt::Display for Value {
             Value::Matrix(_) => write!(f, "<matrix>"),
             Value::Struct(_) => write!(f, "<struct>"),
             Value::StructInstance(_) => write!(f, "<instance>"),
+            Value::Image(_) => write!(f, "<image>"),
         }
     }
 }
@@ -264,7 +285,8 @@ impl Value {
             | Value::Range(r)
             | Value::Matrix(r)
             | Value::Struct(r)
-            | Value::StructInstance(r) => Some(*r),
+            | Value::StructInstance(r)
+            | Value::Image(r) => Some(*r),
             _ => None,
         }
     }
@@ -340,6 +362,10 @@ impl Value {
                 }
                 _ => "<matrix>".to_string(),
             },
+            Value::Image(r) => match heap.get(*r) {
+                GcObj::OcvHandle(_) => "<image>".to_string(),
+                _ => "<image>".to_string(),
+            },
         }
     }
 
@@ -372,6 +398,7 @@ impl Value {
             Value::Matrix(_) => "matrix",
             Value::Struct(_) => "struct",
             Value::StructInstance(_) => "instance",
+            Value::Image(_) => "image",
         }
     }
 
@@ -481,6 +508,10 @@ pub fn make_struct_def(heap: &mut GcHeap, name: &str, methods: Vec<(String, usiz
 
 pub fn make_struct_instance(heap: &mut GcHeap, struct_ref: ObjRef, fields: Vec<(Value, Value)>) -> Value {
     Value::StructInstance(heap.alloc(GcObj::StructInstance { struct_ref, fields }))
+}
+
+pub fn make_image(heap: &mut GcHeap, handle: i64) -> Value {
+    Value::Image(heap.alloc(GcObj::OcvHandle(handle)))
 }
 
 pub fn to_f64(val: &Value) -> Result<f64, String> {

@@ -45,7 +45,7 @@ pub mod linum;
 pub mod py;
 
 pub use vm::Vm;
-pub use gc::{GcHeap, Value, GcObj, ObjRef, VmContext, NativeFunc, make_string, make_string_owned, make_list, make_dict, make_set, make_tuple, make_error, make_range, make_matrix, make_struct_def, make_struct_instance, to_f64, to_i64, get_str, get_str_owned};
+pub use gc::{GcHeap, Value, GcObj, ObjRef, VmContext, NativeFunc, make_string, make_string_owned, make_list, make_dict, make_set, make_tuple, make_error, make_range, make_matrix, make_struct_def, make_struct_instance, make_image, set_resource_dropper, to_f64, to_i64, get_str, get_str_owned};
 pub use bytecode::{Chunk, OpCode, UpvalueInfo};
 pub use compiler::Compiler;
 pub use parser::Parser;
