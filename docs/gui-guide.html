@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GUI Toolkit Guide - Lion Programming Language</title>
+  <meta name="description" content="Build native desktop applications with Lion's GUI toolkits: Leopard on Windows and Panther on Linux. Widgets, layouts, events, and complete examples.">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">L</div> Lion Docs</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Search docs... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="Toggle theme">&#9790;</button>
+      <button id="print-btn" title="Print">&#128424;</button>
+    </div>
+  </header>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Getting Started</div>
+        <a href="index.html" class="sidebar-link">Overview</a>
+        <a href="getting-started.html" class="sidebar-link">Installation</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Language</div>
+        <a href="language-guide.html" class="sidebar-link">Language Guide</a>
+        <a href="standard-library.html" class="sidebar-link">Standard Library</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Features</div>
+        <a href="gui-guide.html" class="sidebar-link active">GUI Toolkit</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Reference</div>
+        <a href="project-management.html" class="sidebar-link">Project CLI</a>
+        <a href="performance.html" class="sidebar-link">Performance</a>
+        <a href="faq.html" class="sidebar-link">FAQ</a>
+      </div>
+    </nav>
+
+    <main class="content">
+      <div class="content-inner">
+
+        <nav class="breadcrumb">
+          <a href="index.html">Home</a> &gt; <span>GUI Toolkit Guide</span>
+        </nav>
+
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <a href="#overview">Overview</a>
+          <a href="#quick-start">Quick Start</a>
+          <a href="#widget-reference">Widget Reference</a>
+          <a href="#leo-window">Leo (Window)</a>
+          <a href="#frame">Frame</a>
+          <a href="#label">Label</a>
+          <a href="#button">Button</a>
+          <a href="#entry">Entry</a>
+          <a href="#layout-management">Layout Management</a>
+          <a href="#widget-operations">Widget Operations</a>
+          <a href="#example-calculator">Example: Calculator</a>
+          <a href="#example-text-editor">Example: Text Editor</a>
+          <a href="#platform-notes">Platform Notes</a>
+        </div>
+
+        <h1>GUI Toolkit Guide</h1>
+        <p class="subtitle">Build native desktop applications with Lion's cross-platform GUI toolkits.</p>
+
+        <!-- Overview -->
+        <h2 id="overview">Overview</h2>
+        <p>Lion ships with two GUI toolkits that share the same API surface, so code written for one works on the other with no changes:</p>
+        <ul>
+          <li><strong>Leopard</strong> (Windows) &mdash; A Win32-based toolkit that ships as a built-in module on Windows. No external dependencies are required.</li>
+          <li><strong>Panther</strong> (Linux) &mdash; A GTK4-based toolkit available behind the <code>panther</code> feature flag. Requires GTK4 development libraries on the host system.</li>
+        </ul>
+        <p>Both toolkits expose the same function names and widget constructors. You pick the one that matches your platform, and the rest of your code stays the same.</p>
+        <div class="callout callout-info">
+          <div class="callout-title">&#128161; Note</div>
+          <p>On Windows, <code>leopard()</code> is always available. On Linux, use <code>panther()</code> and build with <code>--features panther</code>.</p>
+        </div>
+
+        <!-- Quick Start -->
+        <h2 id="quick-start">Quick Start</h2>
+        <p>Here is a minimal GUI application that displays a window with a label:</p>
+        <pre><code><span class="kw">let</span> gui = leopard()  <span class="cm">// or panther() on Linux</span>
+<span class="kw">let</span> win = gui.<span class="fn">Leo</span>(<span class="str">"My App"</span>, <span class="num">400</span>, <span class="num">300</span>)
+<span class="kw">let</span> label = gui.<span class="fn">Label</span>(win, <span class="str">"Hello, Lion!"</span>)
+gui.<span class="fn">pack</span>(label)
+gui.<span class="fn">mainloop</span>(win)</code></pre>
+        <p>Save this as <code>app.lion</code> and run it:</p>
+        <pre><code>$ lion run app.lion</code></pre>
+        <p>A window titled "My App" appears with the text "Hello, Lion!" centered inside it.</p>
+
+        <!-- Widget Reference -->
+        <h2 id="widget-reference">Widget Reference</h2>
+
+        <!-- Leo (Window) -->
+        <h3 id="leo-window">Leo (Window)</h3>
+        <p>The top-level window that holds all other widgets.</p>
+        <table>
+          <thead>
+            <tr><th>Signature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Leo(title?, width?, height?)</code></td>
+              <td>Creates a new top-level window. Defaults to 640&times;480 if width/height are omitted.</td>
+            </tr>
+          </tbody>
+        </table>
+        <pre><code><span class="kw">let</span> gui = leopard()
+<span class="kw">let</span> win = gui.<span class="fn">Leo</span>(<span class="str">"Settings"</span>, <span class="num">800</span>, <span class="num">600</span>)</code></pre>
+
+        <!-- Frame -->
+        <h3 id="frame">Frame</h3>
+        <p>A container widget used to group and organize child widgets.</p>
+        <table>
+          <thead>
+            <tr><th>Signature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Frame(parent)</code></td>
+              <td>Creates a frame inside the given parent widget.</td>
+            </tr>
+          </tbody>
+        </table>
+        <pre><code><span class="kw">let</span> gui = leopard()
+<span class="kw">let</span> win = gui.<span class="fn">Leo</span>(<span class="str">"App"</span>, <span class="num">400</span>, <span class="num">300</span>)
+<span class="kw">let</span> frame = gui.<span class="fn">Frame</span>(win)
+gui.<span class="fn">pack</span>(frame)</code></pre>
+
+        <!-- Label -->
+        <h3 id="label">Label</h3>
+        <p>Displays static text. Does not accept user input.</p>
+        <table>
+          <thead>
+            <tr><th>Signature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Label(parent, text?)</code></td>
+              <td>Creates a label with the given text inside the parent widget.</td>
+            </tr>
+          </tbody>
+        </table>
+        <pre><code><span class="kw">let</span> gui = leopard()
+<span class="kw">let</span> win = gui.<span class="fn">Leo</span>(<span class="str">"App"</span>, <span class="num">400</span>, <span class="num">300</span>)
+<span class="kw">let</span> lbl = gui.<span class="fn">Label</span>(win, <span class="str">"Status: Ready"</span>)
+gui.<span class="fn">pack</span>(lbl)</code></pre>
+
+        <!-- Button -->
+        <h3 id="button">Button</h3>
+        <p>A clickable button that triggers a callback when pressed.</p>
+        <table>
+          <thead>
+            <tr><th>Signature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Button(parent, text?, callback?)</code></td>
+              <td>Creates a button with optional label and click handler.</td>
+            </tr>
+          </tbody>
+        </table>
+        <pre><code><span class="kw">let</span> gui = leopard()
+<span class="kw">let</span> win = gui.<span class="fn">Leo</span>(<span class="str">"App"</span>, <span class="num">400</span>, <span class="num">300</span>)
+
+<span class="kw">fn</span> on_click():
+    print(<span class="str">"Button was clicked!"</span>)
+
+<span class="kw">let</span> btn = gui.<span class="fn">Button</span>(win, <span class="str">"Click Me"</span>, on_click)
+gui.<span class="fn">pack</span>(btn)
+gui.<span class="fn">mainloop</span>(win)</code></pre>
+        <p>Callbacks are plain Lion functions. They can accept arguments or be closures that capture local state.</p>
+
+        <!-- Entry -->
+        <h3 id="entry">Entry</h3>
+        <p>A single-line text input field for user input.</p>
+        <table>
+          <thead>
+            <tr><th>Signature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>Entry(parent)</code></td>
+              <td>Creates a text input field inside the parent widget.</td>
+            </tr>
+          </tbody>
+        </table>
+        <pre><code><span class="kw">let</span> gui = leopard()
+<span class="kw">let</span> win = gui.<span class="fn">Leo</span>(<span class="str">"App"</span>, <span class="num">400</span>, <span class="num">300</span>)
+<span class="kw">let</span> entry = gui.<span class="fn">Entry</span>(win)
+gui.<span class="fn">pack</span>(entry)</code></pre>
+
+        <!-- Layout Management -->
+        <h2 id="layout-management">Layout Management</h2>
+        <p>Lion GUI toolkits provide two layout methods for arranging widgets:</p>
+
+        <h3>pack</h3>
+        <table>
+          <thead>
+            <tr><th>Signature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>pack(widget, side?, padx?, pady?)</code></td>
+              <td>Places a widget using the pack geometry manager. <code>side</code> can be <code>"top"</code>, <code>"bottom"</code>, <code>"left"</code>, or <code>"right"</code>. <code>padx</code> and <code>pady</code> add horizontal and vertical padding in pixels.</td>
+            </tr>
+          </tbody>
+        </table>
+        <pre><code>gui.<span class="fn">pack</span>(label, <span class="str">"top"</span>, <span class="num">10</span>, <span class="num">5</span>)
+gui.<span class="fn">pack</span>(btn, <span class="str">"left"</span>, <span class="num">5</span>, <span class="num">5</span>)</code></pre>
+
+        <h3>place</h3>
+        <table>
+          <thead>
+            <tr><th>Signature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>place(widget, x, y, w?, h?)</code></td>
+              <td>Places a widget at absolute coordinates. <code>w</code> and <code>h</code> set the width and height if desired.</td>
+            </tr>
+          </tbody>
+        </table>
+        <pre><code>gui.<span class="fn">place</span>(label, <span class="num">20</span>, <span class="num">50</span>, <span class="num">200</span>, <span class="num">30</span>)</code></pre>
+
+        <!-- Widget Operations -->
+        <h2 id="widget-operations">Widget Operations</h2>
+        <p>These functions modify or query widgets after they have been created.</p>
+
+        <table>
+          <thead>
+            <tr><th>Function</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>config(widget, property, value)</code></td>
+              <td>Set a property on a widget. Common properties: <code>"text"</code>, <code>"command"</code>, <code>"font"</code>, <code>"fg"</code>, <code>"bg"</code>.</td>
+            </tr>
+            <tr>
+              <td><code>get(entry)</code></td>
+              <td>Return the current text content of an Entry widget.</td>
+            </tr>
+            <tr>
+              <td><code>insert(entry, pos, text)</code></td>
+              <td>Insert text at the given position in an Entry widget.</td>
+            </tr>
+            <tr>
+              <td><code>delete(entry, start, end?)</code></td>
+              <td>Delete characters from <code>start</code> to <code>end</code> in an Entry widget. If <code>end</code> is omitted, deletes one character.</td>
+            </tr>
+            <tr>
+              <td><code>title(window, text)</code></td>
+              <td>Change the title of a window.</td>
+            </tr>
+            <tr>
+              <td><code>geometry(window, w, h)</code></td>
+              <td>Resize a window to the given width and height.</td>
+            </tr>
+            <tr>
+              <td><code>destroy(widget)</code></td>
+              <td>Remove a widget from the layout and free its resources.</td>
+            </tr>
+            <tr>
+              <td><code>messagebox(text, title?)</code></td>
+              <td>Show a modal message dialog with the given text and optional title.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <pre><code>gui.<span class="fn">config</span>(btn, <span class="str">"text"</span>, <span class="str">"Updated Label"</span>)
+<span class="kw">let</span> value = gui.<span class="fn">get</span>(entry)
+gui.<span class="fn">title</span>(win, <span class="str">"New Title"</span>)
+gui.<span class="fn">messagebox</span>(<span class="str">"Operation complete!"</span>, <span class="str">"Info"</span>)</code></pre>
+
+        <!-- Example: Calculator -->
+        <h2 id="example-calculator">Example: Calculator</h2>
+        <p>A complete calculator application with a display field and arithmetic buttons:</p>
+        <pre><code><span class="kw">let</span> gui = leopard()
+<span class="kw">let</span> win = gui.<span class="fn">Leo</span>(<span class="str">"Calculator"</span>, <span class="num">280</span>, <span class="num">350</span>)
+
+<span class="kw">let</span> display = gui.<span class="fn">Entry</span>(win)
+gui.<span class="fn">pack</span>(display, <span class="str">"top"</span>, <span class="num">10</span>, <span class="num">10</span>)
+
+<span class="kw">let</span> expression = <span class="str">""</span>
+
+<span class="kw">fn</span> on_digit(d):
+    expression = expression + d
+    gui.<span class="fn">config</span>(display, <span class="str">"text"</span>, expression)
+
+<span class="kw">fn</span> on_operator(op):
+    expression = expression + <span class="str">" "</span> + op + <span class="str">" "</span>
+    gui.<span class="fn">config</span>(display, <span class="str">"text"</span>, expression)
+
+<span class="kw">fn</span> on_clear():
+    expression = <span class="str">""</span>
+    gui.<span class="fn">config</span>(display, <span class="str">"text"</span>, <span class="str">""</span>)
+
+<span class="kw">fn</span> on_equal():
+    <span class="kw">let</span> result = <span class="fn">eval</span>(expression)
+    gui.<span class="fn">config</span>(display, <span class="str">"text"</span>, <span class="fn">str</span>(result))
+    expression = <span class="fn">str</span>(result)
+
+<span class="cm">// Build the button row for digits 1-9</span>
+<span class="kw">for</span> row <span class="kw">in</span> <span class="num">0</span>..<span class="num">3</span>:
+    <span class="kw">let</span> frame = gui.<span class="fn">Frame</span>(win)
+    gui.<span class="fn">pack</span>(frame, <span class="str">"top"</span>)
+    <span class="kw">for</span> col <span class="kw">in</span> <span class="num">0</span>..<span class="num">3</span>:
+        <span class="kw">let</span> digit = <span class="fn">str</span>(row * <span class="num">3</span> + col + <span class="num">1</span>)
+        <span class="kw">let</span> d = digit
+        <span class="kw">let</span> btn = gui.<span class="fn">Button</span>(frame, digit, <span class="kw">fn</span>(): on_digit(d))
+        gui.<span class="fn">pack</span>(btn, <span class="str">"left"</span>, <span class="num">2</span>, <span class="num">2</span>)
+
+<span class="cm">// Bottom row: 0, clear, equals</span>
+<span class="kw">let</span> bottom = gui.<span class="fn">Frame</span>(win)
+gui.<span class="fn">pack</span>(bottom, <span class="str">"top"</span>)
+<span class="kw">let</span> b0 = gui.<span class="fn">Button</span>(bottom, <span class="str">"0"</span>, <span class="kw">fn</span>(): on_digit(<span class="str">"0"</span>))
+gui.<span class="fn">pack</span>(b0, <span class="str">"left"</span>, <span class="num">2</span>, <span class="num">2</span>)
+<span class="kw">let</span> bc = gui.<span class="fn">Button</span>(bottom, <span class="str">"C"</span>, on_clear)
+gui.<span class="fn">pack</span>(bc, <span class="str">"left"</span>, <span class="num">2</span>, <span class="num">2</span>)
+<span class="kw">let</span> be = gui.<span class="fn">Button</span>(bottom, <span class="str">"="</span>, on_equal)
+gui.<span class="fn">pack</span>(be, <span class="str">"left"</span>, <span class="num">2</span>, <span class="num">2</span>)
+
+<span class="cm">// Operator buttons</span>
+<span class="kw">let</span> ops = gui.<span class="fn">Frame</span>(win)
+gui.<span class="fn">pack</span>(ops, <span class="str">"top"</span>)
+<span class="kw">for</span> op <span class="kw">in</span> [<span class="str">"+"</span>, <span class="str">"-"</span>, <span class="str">"*"</span>, <span class="str">"/"</span>]:
+    <span class="kw">let</span> o = op
+    <span class="kw">let</span> b = gui.<span class="fn">Button</span>(ops, op, <span class="kw">fn</span>(): on_operator(o))
+    gui.<span class="fn">pack</span>(b, <span class="str">"left"</span>, <span class="num">2</span>, <span class="num">2</span>)
+
+gui.<span class="fn">mainloop</span>(win)</code></pre>
+
+        <!-- Example: Text Editor -->
+        <h2 id="example-text-editor">Example: Text Editor</h2>
+        <p>A basic text editor with an input field, open button, and save button:</p>
+        <pre><code><span class="kw">let</span> gui = leopard()
+<span class="kw">let</span> win = gui.<span class="fn">Leo</span>(<span class="str">"Text Editor"</span>, <span class="num">600</span>, <span class="num">400</span>)
+
+<span class="cm">// File path entry</span>
+<span class="kw">let</span> top_frame = gui.<span class="fn">Frame</span>(win)
+gui.<span class="fn">pack</span>(top_frame, <span class="str">"top"</span>, <span class="num">5</span>, <span class="num">5</span>)
+
+gui.<span class="fn">Label</span>(top_frame, <span class="str">"File:"</span>)
+<span class="kw">let</span> path_entry = gui.<span class="fn">Entry</span>(top_frame)
+gui.<span class="fn">pack</span>(path_entry, <span class="str">"left"</span>, <span class="num">5</span>, <span class="num">5</span>)
+
+<span class="cm">// Text area (simulated with a large Entry)</span>
+<span class="kw">let</span> text_area = gui.<span class="fn">Entry</span>(win)
+gui.<span class="fn">pack</span>(text_area, <span class="str">"top"</span>, <span class="num">10</span>, <span class="num">10</span>)
+
+<span class="cm">// Button bar</span>
+<span class="kw">let</span> btn_frame = gui.<span class="fn">Frame</span>(win)
+gui.<span class="fn">pack</span>(btn_frame, <span class="str">"top"</span>, <span class="num">5</span>, <span class="num">5</span>)
+
+<span class="kw">fn</span> on_open():
+    <span class="kw">let</span> path = gui.<span class="fn">get</span>(path_entry)
+    <span class="kw">if</span> path == <span class="str">""</span>:
+        gui.<span class="fn">messagebox</span>(<span class="str">"Enter a file path first."</span>, <span class="str">"Error"</span>)
+        <span class="kw">return</span>
+    <span class="kw">let</span> content = <span class="fn">read</span>(path)
+    gui.<span class="fn">config</span>(text_area, <span class="str">"text"</span>, content)
+    gui.<span class="fn">title</span>(win, <span class="str">"Text Editor - </span>{path}<span class="str">"</span>)
+
+<span class="kw">fn</span> on_save():
+    <span class="kw">let</span> path = gui.<span class="fn">get</span>(path_entry)
+    <span class="kw">if</span> path == <span class="str">""</span>:
+        gui.<span class="fn">messagebox</span>(<span class="str">"Enter a file path first."</span>, <span class="str">"Error"</span>)
+        <span class="kw">return</span>
+    <span class="kw">let</span> content = gui.<span class="fn">get</span>(text_area)
+    <span class="fn">write</span>(path, content)
+    gui.<span class="fn">messagebox</span>(<span class="str">"File saved!"</span>, <span class="str">"Success"</span>)
+
+<span class="kw">let</span> open_btn = gui.<span class="fn">Button</span>(btn_frame, <span class="str">"Open"</span>, on_open)
+gui.<span class="fn">pack</span>(open_btn, <span class="str">"left"</span>, <span class="num">5</span>, <span class="num">5</span>)
+
+<span class="kw">let</span> save_btn = gui.<span class="fn">Button</span>(btn_frame, <span class="str">"Save"</span>, on_save)
+gui.<span class="fn">pack</span>(save_btn, <span class="str">"left"</span>, <span class="num">5</span>, <span class="num">5</span>)
+
+gui.<span class="fn">mainloop</span>(win)</code></pre>
+
+        <!-- Platform Notes -->
+        <h2 id="platform-notes">Platform Notes</h2>
+
+        <h3>Leopard (Windows)</h3>
+        <ul>
+          <li>Built on top of the Win32 API directly &mdash; no external dependencies or runtime libraries required.</li>
+          <li>Ships as a built-in module on Windows builds of Lion.</li>
+          <li>Supports standard Windows look-and-feel with native widget rendering.</li>
+        </ul>
+
+        <h3>Panther (Linux)</h3>
+        <ul>
+          <li>Built on GTK4 for modern Linux desktop environments.</li>
+          <li>Requires GTK4 development libraries to be installed:</li>
+        </ul>
+        <pre><code><span class="cm"># Debian / Ubuntu</span>
+sudo apt install libgtk-4-dev
+
+<span class="cm"># Fedora</span>
+sudo dnf install gtk4-devel
+
+<span class="cm"># Arch</span>
+sudo pacman -S gtk4</code></pre>
+        <ul>
+          <li>Build Lion with the <code>panther</code> feature enabled:</li>
+        </ul>
+        <pre><code>cargo build --release --features panther</code></pre>
+
+        <h3>macOS</h3>
+        <ul>
+          <li>macOS support is planned for a future release. On macOS today, you can use the standard library modules to build command-line tools.</li>
+        </ul>
+
+        <div class="callout callout-tip">
+          <div class="callout-title">&#10004; Tip</div>
+          <p>Since both Leopard and Panther share the same API, you can write your GUI code once and compile it for different platforms by selecting the appropriate toolkit constructor at the top of your file.</p>
+        </div>
+
+        <!-- Page Meta -->
+        <div class="page-meta">
+          <a id="edit-link" href="#" target="_blank">Edit this page on GitHub</a>
+          <span>Last updated: July 2026</span>
+        </div>
+        <!-- Feedback -->
+        <div class="feedback">
+          <span>Was this page helpful?</span>
+          <button>&#128077; Yes</button>
+          <button>&#128078; No</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/script.js"></script>
+</body>
+</html>

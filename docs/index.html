@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lion Programming Language</title>
+  <meta name="description" content="Lion is a fast, readable programming language with a powerful standard library, built-in GUI toolkit, and cross-platform support.">
+  <meta property="og:title" content="Lion Programming Language">
+  <meta property="og:description" content="A fast, readable programming language with a powerful standard library, built-in GUI toolkit, and cross-platform support.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">L</div> Lion Docs</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Search docs... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="Toggle theme">&#9790;</button>
+      <button id="print-btn" title="Print">&#128424;</button>
+    </div>
+  </header>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Getting Started</div>
+        <a href="index.html" class="sidebar-link active">Overview</a>
+        <a href="getting-started.html" class="sidebar-link">Installation</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Language</div>
+        <a href="language-guide.html" class="sidebar-link">Language Guide</a>
+        <a href="standard-library.html" class="sidebar-link">Standard Library</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Features</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI Toolkit</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Reference</div>
+        <a href="project-management.html" class="sidebar-link">Project CLI</a>
+        <a href="performance.html" class="sidebar-link">Performance</a>
+        <a href="faq.html" class="sidebar-link">FAQ</a>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="content">
+      <div class="content-inner">
+
+        <!-- Hero -->
+        <section class="hero">
+          <h1>Lion</h1>
+          <p class="hero-tagline">A fast, readable programming language</p>
+          <p>Lion combines Python-like syntax with a high-performance VM, giving you the best of both worlds: code that's easy to write and read, yet runs fast enough for demanding applications. With 25+ built-in standard library modules, a native GUI toolkit, and seamless C and Python interop, Lion is ready for real-world projects.</p>
+          <div class="hero-buttons">
+            <a href="getting-started.html" class="btn btn-primary">Get Started</a>
+            <a href="language-guide.html" class="btn btn-secondary">Language Guide</a>
+          </div>
+        </section>
+
+        <!-- Features -->
+        <section class="features">
+          <h2>Why Lion?</h2>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <div class="feature-icon">&#9889;</div>
+              <h3>Fast VM</h3>
+              <p>Bytecode VM with JIT-inspired optimizations delivers performance up to 11x faster than baseline interpreters. Lion handles tight loops, function calls, and local variable access with ease.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#128221;</div>
+              <h3>Readable Syntax</h3>
+              <p>Python-like syntax that feels natural from the start. Indentation-based blocks, clean expressions, and straightforward type annotations make your code easy to read and maintain.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#128230;</div>
+              <h3>Self-Contained</h3>
+              <p>Over 25 standard library modules ship out of the box. File I/O, networking, JSON, regex, math, datetime, and more&mdash;no external package manager required for everyday tasks.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#127760;</div>
+              <h3>Cross-Platform</h3>
+              <p>Build and run on Linux, macOS, and Windows with a single codebase. The Lion compiler and runtime are fully portable, so your projects go wherever you do.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#128268;</div>
+              <h3>Extensible</h3>
+              <p>Write C extensions for performance-critical code, call Python libraries directly, or leverage NVIDIA CUDA for GPU-accelerated computation. Lion plays well with the ecosystem you already know.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#128444;</div>
+              <h3>Built-in GUI</h3>
+              <p>Create native desktop applications with the Leopard GUI toolkit on Windows or Panther on Linux. Widgets, layouts, event handling, and styling are all part of the standard experience.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick Example -->
+        <section class="quick-example">
+          <h2>Quick Example</h2>
+          <p>Here's a taste of what Lion code looks like:</p>
+          <pre><code><span class="kw">fn</span> greet(name):
+    print(<span class="str">"Hello, </span>{name}<span class="str">!"</span>)
+
+<span class="kw">fn</span> fibonacci(n):
+    <span class="kw">if</span> n &lt;= <span class="num">1</span>:
+        <span class="kw">return</span> n
+    <span class="kw">return</span> fibonacci(n - <span class="num">1</span>) + fibonacci(n - <span class="num">2</span>)
+
+greet(<span class="str">"World"</span>)
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="num">0</span>..<span class="num">10</span>:
+    print(<span class="str">"fib(</span>{i}<span class="str">) = </span>{fibonacci(i)}<span class="str">"</span>)</code></pre>
+        </section>
+
+        <!-- Performance -->
+        <section class="performance">
+          <h2>Performance</h2>
+          <p>Lion's bytecode VM with register-based architecture and JIT-inspired optimizations delivers strong performance across common workloads:</p>
+          <div class="benchmark-results">
+            <div class="benchmark-item">
+              <div class="benchmark-label">Integer loop (100M iterations)</div>
+              <div class="benchmark-bar-container">
+                <div class="benchmark-bar" style="width: 100%;">11x faster</div>
+              </div>
+            </div>
+            <div class="benchmark-item">
+              <div class="benchmark-label">Function calls (10M calls)</div>
+              <div class="benchmark-bar-container">
+                <div class="benchmark-bar" style="width: 65%;">7.2x faster</div>
+              </div>
+            </div>
+            <div class="benchmark-item">
+              <div class="benchmark-label">Local variable access (100M reads)</div>
+              <div class="benchmark-bar-container">
+                <div class="benchmark-bar" style="width: 91%;">10x faster</div>
+              </div>
+            </div>
+            <div class="benchmark-item">
+              <div class="benchmark-label">String concatenation (1M operations)</div>
+              <div class="benchmark-bar-container">
+                <div class="benchmark-bar" style="width: 26%;">2.9x faster</div>
+              </div>
+            </div>
+          </div>
+          <p><a href="performance.html">View detailed benchmarks &rarr;</a></p>
+        </section>
+
+        <!-- Documentation Pages -->
+        <section class="doc-pages">
+          <h2>Documentation</h2>
+          <div class="doc-grid">
+            <a href="getting-started.html" class="doc-card">
+              <h3>Getting Started</h3>
+              <p>Install Lion and write your first program.</p>
+            </a>
+            <a href="language-guide.html" class="doc-card">
+              <h3>Language Guide</h3>
+              <p>Types, functions, control flow, and more.</p>
+            </a>
+            <a href="standard-library.html" class="doc-card">
+              <h3>Standard Library</h3>
+              <p>Explore all 25+ built-in modules.</p>
+            </a>
+            <a href="gui-guide.html" class="doc-card">
+              <h3>GUI Toolkit</h3>
+              <p>Build native desktop apps with Leopard and Panther.</p>
+            </a>
+            <a href="opencv-guide.html" class="doc-card">
+              <h3>OpenCV Integration</h3>
+              <p>Image processing and computer vision in Lion.</p>
+            </a>
+            <a href="advanced-guide.html" class="doc-card">
+              <h3>Advanced Topics</h3>
+              <p>C extensions, Python interop, and CUDA.</p>
+            </a>
+            <a href="project-management.html" class="doc-card">
+              <h3>Project CLI</h3>
+              <p>Create, build, and manage Lion projects.</p>
+            </a>
+            <a href="performance.html" class="doc-card">
+              <h3>Performance</h3>
+              <p>Benchmarks and optimization techniques.</p>
+            </a>
+            <a href="faq.html" class="doc-card">
+              <h3>FAQ</h3>
+              <p>Common questions and answers.</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Page Meta -->
+        <div class="page-meta">
+          <a id="edit-link" href="#" target="_blank">Edit this page on GitHub</a>
+          <span>Last updated: July 2026</span>
+        </div>
+        <!-- Feedback -->
+        <div class="feedback">
+          <span>Was this page helpful?</span>
+          <button>&#128077; Yes</button>
+          <button>&#128078; No</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/script.js"></script>
+</body>
+</html>

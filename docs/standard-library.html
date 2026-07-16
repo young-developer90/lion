@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Standard Library - Lion Programming Language</title>
+  <meta name="description" content="Complete reference for all Lion standard library modules">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">L</div> Lion Docs</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Search docs... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="Toggle theme">&#9790;</button>
+      <button id="print-btn" title="Print">&#128424;</button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Getting Started</div>
+        <a href="index.html" class="sidebar-link">Overview</a>
+        <a href="getting-started.html" class="sidebar-link">Installation</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Language</div>
+        <a href="language-guide.html" class="sidebar-link">Language Guide</a>
+        <a href="standard-library.html" class="sidebar-link active">Standard Library</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Features</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI Toolkit</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Reference</div>
+        <a href="project-management.html" class="sidebar-link">Project CLI</a>
+        <a href="performance.html" class="sidebar-link">Performance</a>
+        <a href="faq.html" class="sidebar-link">FAQ</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">Home</a><span class="sep">/</span><span>Standard Library</span>
+        </div>
+
+        <h1>Standard Library Reference</h1>
+        <p>Lion ships with a comprehensive standard library. Built-in functions are available globally, and all other modules are available without import. This page covers every module and every function in the standard library.</p>
+
+        <!-- ============================================================ -->
+        <!-- TABLE OF CONTENTS -->
+        <!-- ============================================================ -->
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <a href="#built-in-functions">Built-in Functions</a>
+          <a href="#math-module"><code>math</code> Module</a>
+          <a href="#string-module"><code>string</code> Module</a>
+          <a href="#fs-module"><code>fs</code> Module</a>
+          <a href="#os-module"><code>os</code> Module</a>
+          <a href="#json-module"><code>json</code> Module</a>
+          <a href="#re-module"><code>re</code> Module</a>
+          <a href="#http-module"><code>http</code> Module</a>
+          <a href="#url-module"><code>url</code> Module</a>
+          <a href="#csv-module"><code>csv</code> Module</a>
+          <a href="#datetime-module"><code>datetime</code> Module</a>
+          <a href="#stats-module"><code>stats</code> Module</a>
+          <a href="#hashlib-module"><code>hashlib</code> Module</a>
+          <a href="#logging-module"><code>logging</code> Module</a>
+          <a href="#subprocess-module"><code>subprocess</code> Module</a>
+          <a href="#path-module"><code>path</code> Module</a>
+          <a href="#collections-module"><code>collections</code> Module</a>
+          <a href="#itertools-module"><code>itertools</code> Module</a>
+          <a href="#test-module"><code>test</code> Module</a>
+          <a href="#time-module"><code>time</code> Module</a>
+          <a href="#rand-module"><code>rand</code> Module</a>
+          <a href="#matrix-module"><code>matrix</code> Module</a>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- BUILT-IN FUNCTIONS -->
+        <!-- ============================================================ -->
+        <h2 id="built-in-functions">Built-in Functions</h2>
+        <p>These functions are available globally in every Lion script without any import.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>print</code></td><td><code>print(*args)</code></td><td>Prints all arguments to stdout with no trailing newline. Multiple arguments are printed consecutively.</td></tr>
+            <tr><td><code>println</code></td><td><code>println(*args)</code></td><td>Same as <code>print</code> but appends a newline after all arguments.</td></tr>
+            <tr><td><code>input</code></td><td><code>input(prompt?)</code></td><td>Prints the optional prompt, reads a line from stdin, and returns it as a string (trimmed).</td></tr>
+            <tr><td><code>type</code></td><td><code>type(val)</code></td><td>Returns the type name of <code>val</code> as a string (e.g. <code>"int"</code>, <code>"string"</code>, <code>"list"</code>).</td></tr>
+            <tr><td><code>len</code></td><td><code>len(val)</code></td><td>Returns the length of a string, list, dict, or set.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>print("Hello, Lion!");
+print("the answer is", 42);
+println("this has a newline");
+
+let name = input("Enter your name: ");
+print(f"Hello, {name}!");
+
+print(type(42));          // int
+print(type("hello"));     // string
+print(type([1, 2, 3]));   // list
+print(type(true));        // bool
+
+print(len("hello"));      // 5
+print(len([1, 2, 3]));    // 3</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- MATH MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="math-module"><code>math</code> Module</h2>
+        <p>Mathematical functions and constants. All trigonometric functions use radians.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>sqrt</code></td><td><code>math.sqrt(x)</code></td><td>Returns the square root of <code>x</code>.</td></tr>
+            <tr><td><code>pow</code></td><td><code>math.pow(x, y)</code></td><td>Returns <code>x</code> raised to the power <code>y</code>.</td></tr>
+            <tr><td><code>abs</code></td><td><code>math.abs(x)</code></td><td>Returns the absolute value of <code>x</code>.</td></tr>
+            <tr><td><code>sin</code></td><td><code>math.sin(x)</code></td><td>Returns the sine of <code>x</code> (radians).</td></tr>
+            <tr><td><code>cos</code></td><td><code>math.cos(x)</code></td><td>Returns the cosine of <code>x</code> (radians).</td></tr>
+            <tr><td><code>tan</code></td><td><code>math.tan(x)</code></td><td>Returns the tangent of <code>x</code> (radians).</td></tr>
+            <tr><td><code>pi</code></td><td><code>math.pi</code></td><td>The constant pi (3.14159...).</td></tr>
+            <tr><td><code>e</code></td><td><code>math.e</code></td><td>Euler's number e (2.71828...).</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>print(math.sqrt(25));            // 5.0
+print(math.pow(2, 10));          // 1024.0
+print(math.abs(-42));            // 42.0
+
+print(math.sin(math.pi / 2));    // 1.0
+print(math.cos(0));              // 1.0
+print(math.tan(math.pi / 4));    // ~1.0
+
+print(math.pi);                  // 3.141592653589793
+print(math.e);                   // 2.718281828459045</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- STRING MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="string-module"><code>string</code> Module</h2>
+        <p>Functions for string manipulation. All functions take a string as the first argument.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>len</code></td><td><code>string.len(s)</code></td><td>Returns the byte length of <code>s</code>.</td></tr>
+            <tr><td><code>upper</code></td><td><code>string.upper(s)</code></td><td>Returns an uppercase copy of <code>s</code>.</td></tr>
+            <tr><td><code>lower</code></td><td><code>string.lower(s)</code></td><td>Returns a lowercase copy of <code>s</code>.</td></tr>
+            <tr><td><code>trim</code></td><td><code>string.trim(s)</code></td><td>Removes leading and trailing whitespace from <code>s</code>.</td></tr>
+            <tr><td><code>trim_start</code></td><td><code>string.trim_start(s)</code></td><td>Removes leading whitespace from <code>s</code>.</td></tr>
+            <tr><td><code>trim_end</code></td><td><code>string.trim_end(s)</code></td><td>Removes trailing whitespace from <code>s</code>.</td></tr>
+            <tr><td><code>split</code></td><td><code>string.split(s, delim?)</code></td><td>Splits <code>s</code> on <code>delim</code> (default: space). Returns a list.</td></tr>
+            <tr><td><code>join</code></td><td><code>string.join(list, sep?)</code></td><td>Joins list items into a string with optional separator.</td></tr>
+            <tr><td><code>contains</code></td><td><code>string.contains(s, sub)</code></td><td>Returns <code>true</code> if <code>s</code> contains <code>sub</code>.</td></tr>
+            <tr><td><code>starts_with</code></td><td><code>string.starts_with(s, prefix)</code></td><td>Returns <code>true</code> if <code>s</code> starts with <code>prefix</code>.</td></tr>
+            <tr><td><code>ends_with</code></td><td><code>string.ends_with(s, suffix)</code></td><td>Returns <code>true</code> if <code>s</code> ends with <code>suffix</code>.</td></tr>
+            <tr><td><code>replace</code></td><td><code>string.replace(s, from, to)</code></td><td>Replaces all occurrences of <code>from</code> with <code>to</code> in <code>s</code>.</td></tr>
+            <tr><td><code>reverse</code></td><td><code>string.reverse(s)</code></td><td>Returns a reversed copy of <code>s</code>.</td></tr>
+            <tr><td><code>repeat</code></td><td><code>string.repeat(s, n)</code></td><td>Returns <code>s</code> repeated <code>n</code> times.</td></tr>
+            <tr><td><code>substring</code></td><td><code>string.substring(s, start, end?)</code></td><td>Returns the substring from <code>start</code> to <code>end</code> (or end of string).</td></tr>
+            <tr><td><code>bytes</code></td><td><code>string.bytes(s)</code></td><td>Returns a list of integer byte values for <code>s</code>.</td></tr>
+            <tr><td><code>from_bytes</code></td><td><code>string.from_bytes(list)</code></td><td>Converts a list of integers to a string.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>print(string.len("hello"));                          // 5
+print(string.upper("hello"));                        // "HELLO"
+print(string.lower("HELLO"));                        // "hello"
+print(string.trim("  hi  "));                        // "hi"
+print(string.trim_start("  hi  "));                  // "hi  "
+print(string.trim_end("  hi  "));                    // "  hi"
+
+print(string.split("a,b,c", ","));                   // ["a", "b", "c"]
+print(string.split("hello world"));                  // ["hello", "world"]
+print(string.join(["a", "b", "c"], ", "));           // "a, b, c"
+
+print(string.contains("hello world", "world"));      // true
+print(string.starts_with("hello", "hel"));           // true
+print(string.ends_with("hello", "llo"));             // true
+print(string.replace("a-b-c", "-", ":"));            // "a:b:c"
+
+print(string.reverse("abc"));                        // "cba"
+print(string.repeat("x", 3));                        // "xxx"
+print(string.substring("hello", 1, 4));              // "ell"
+
+let bytes = string.bytes("ABC");                     // [65, 66, 67]
+print(string.from_bytes(bytes));                     // "ABC"</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- FS MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="fs-module"><code>fs</code> Module</h2>
+        <p>File system operations for reading and writing files.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>read</code></td><td><code>fs.read(path)</code></td><td>Reads the entire file at <code>path</code> and returns its contents as a string.</td></tr>
+            <tr><td><code>write</code></td><td><code>fs.write(path, content)</code></td><td>Writes <code>content</code> to the file at <code>path</code>, overwriting existing content. Returns <code>true</code>.</td></tr>
+            <tr><td><code>exists</code></td><td><code>fs.exists(path)</code></td><td>Returns <code>true</code> if <code>path</code> exists on disk.</td></tr>
+            <tr><td><code>mkdir</code></td><td><code>fs.mkdir(path)</code></td><td>Creates a directory (and parents) at <code>path</code>. Returns <code>true</code>.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>fs.write("hello.txt", "Hello, Lion!");
+let content = fs.read("hello.txt");
+print(content);                         // Hello, Lion!
+
+print(fs.exists("hello.txt"));          // true
+print(fs.exists("missing.txt"));        // false
+
+fs.mkdir("output/data");
+fs.write("output/data/result.txt", "done");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- OS MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="os-module"><code>os</code> Module</h2>
+        <p>Operating system interaction: environment variables, arguments, and shell commands.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>cwd</code></td><td><code>os.cwd()</code></td><td>Returns the current working directory as a string.</td></tr>
+            <tr><td><code>args</code></td><td><code>os.args()</code></td><td>Returns a list of command-line arguments.</td></tr>
+            <tr><td><code>getenv</code></td><td><code>os.getenv(name)</code></td><td>Returns the value of the environment variable <code>name</code>, or <code>nil</code> if not set.</td></tr>
+            <tr><td><code>name</code></td><td><code>os.name()</code></td><td>Returns the OS name (e.g. <code>"linux"</code>, <code>"windows"</code>).</td></tr>
+            <tr><td><code>system</code></td><td><code>os.system(cmd)</code></td><td>Runs <code>cmd</code> via the system shell. Returns the exit code.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>print(os.cwd());                        // /home/user/project
+print(os.name());                       // "linux"
+
+let args = os.args();
+print(f"You are running: {args[0]}");
+
+let home = os.getenv("HOME");
+print(f"Home dir: {home}");
+
+let status = os.system("echo hello");
+print(f"Exit code: {status}");           // 0</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- JSON MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="json-module"><code>json</code> Module</h2>
+        <p>JSON parsing and serialization. Supports strings, numbers, booleans, null, arrays, and objects.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>parse</code></td><td><code>json.parse(s)</code></td><td>Parses a JSON string into a Lion value (dict, list, etc.).</td></tr>
+            <tr><td><code>loads</code></td><td><code>json.loads(s)</code></td><td>Alias for <code>json.parse</code>.</td></tr>
+            <tr><td><code>stringify</code></td><td><code>json.stringify(val)</code></td><td>Converts a Lion value to a JSON string.</td></tr>
+            <tr><td><code>dumps</code></td><td><code>json.dumps(val)</code></td><td>Alias for <code>json.stringify</code>.</td></tr>
+            <tr><td><code>dump</code></td><td><code>json.dump(val, path)</code></td><td>Writes <code>val</code> as JSON to the file at <code>path</code>.</td></tr>
+            <tr><td><code>load</code></td><td><code>json.load(path)</code></td><td>Reads and parses a JSON file at <code>path</code>.</td></tr>
+            <tr><td><code>pretty</code></td><td><code>json.pretty(val, indent?)</code></td><td>Returns a pretty-printed JSON string with configurable indentation (default: 2 spaces).</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let data = json.parse('{"name": "Lion", "version": 1.0}');
+print(data["name"]);                    // Lion
+
+let encoded = json.stringify(data);
+print(encoded);                         // {"name":"Lion","version":1.0}
+
+let pretty = json.pretty(data);
+print(pretty);
+// {
+//   "name": "Lion",
+//   "version": 1.0
+// }
+
+json.dump(data, "config.json");
+let loaded = json.load("config.json");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- RE MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="re-module"><code>re</code> Module</h2>
+        <p>Regular expression support using Rust's regex syntax. Patterns are cached for repeated use.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>find</code></td><td><code>re.find(pattern, text)</code></td><td>Returns the first match of <code>pattern</code> in <code>text</code>, or <code>nil</code>.</td></tr>
+            <tr><td><code>is_match</code></td><td><code>re.is_match(pattern, text)</code></td><td>Returns <code>true</code> if <code>pattern</code> matches somewhere in <code>text</code>.</td></tr>
+            <tr><td><code>split</code></td><td><code>re.split(pattern, text)</code></td><td>Splits <code>text</code> on the regex <code>pattern</code>. Returns a list.</td></tr>
+            <tr><td><code>sub</code></td><td><code>re.sub(pattern, replacement, text)</code></td><td>Replaces the first match of <code>pattern</code> with <code>replacement</code>.</td></tr>
+            <tr><td><code>sub_all</code></td><td><code>re.sub_all(pattern, replacement, text)</code></td><td>Replaces all matches of <code>pattern</code> with <code>replacement</code>.</td></tr>
+            <tr><td><code>find_all</code></td><td><code>re.find_all(pattern, text)</code></td><td>Returns a list of all matches of <code>pattern</code> in <code>text</code>.</td></tr>
+            <tr><td><code>captures</code></td><td><code>re.captures(pattern, text)</code></td><td>Returns a list of capture groups (including group 0), or <code>nil</code>.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let text = "Contact: user@example.com, admin@test.com";
+
+let emails = re.find_all(r"[\w.]+@[\w.]+", text);
+print(emails);                          // ["user@example.com", "admin@test.com"]
+
+let first = re.find(r"\d+", "abc 123 def 456");
+print(first);                           // "123"
+
+print(re.is_match(r"\d+", "abc 123"));  // true
+
+let cleaned = re.sub(r"\d+", "#", "abc 123 def 456");
+print(cleaned);                         // "abc # def 456"
+
+let all_clean = re.sub_all(r"\d+", "#", "abc 123 def 456");
+print(all_clean);                       // "abc # def #"
+
+let parts = re.split(r"[,;]", "a,b;c");
+print(parts);                           // ["a", "b", "c"]
+
+let caps = re.captures(r"(\w+)@(\w+)", "user@example.com");
+print(caps);                           // ["user@example.com", "user", "example.com"]</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- HTTP MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="http-module"><code>http</code> Module</h2>
+        <p>HTTP client for making requests. All functions return a response dict with keys <code>status</code> (int), <code>headers</code> (dict), and <code>body</code> (string).</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>get</code></td><td><code>http.get(url)</code></td><td>Sends a GET request to <code>url</code>. Returns a response dict.</td></tr>
+            <tr><td><code>post</code></td><td><code>http.post(url, body)</code></td><td>Sends a POST request with <code>body</code> (string) to <code>url</code>. Returns a response dict.</td></tr>
+            <tr><td><code>request</code></td><td><code>http.request(method, url, headers?, body?)</code></td><td>Sends a request with any HTTP method. <code>headers</code> is a dict, <code>body</code> is a string.</td></tr>
+          </tbody>
+        </table>
+        <h3>Response Dict</h3>
+        <table>
+          <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>status</code></td><td><code>int</code></td><td>HTTP status code (e.g. 200, 404).</td></tr>
+            <tr><td><code>headers</code></td><td><code>dict</code></td><td>Response headers as key-value pairs.</td></tr>
+            <tr><td><code>body</code></td><td><code>string</code></td><td>The response body as a string.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let resp = http.get("https://api.github.com/repos/young-developer90/lion");
+print(resp.status);                     // 200
+print(resp.body);                       // JSON string
+
+let resp2 = http.post("https://httpbin.org/post",
+    json.stringify({"key": "value"})
+);
+print(resp2.status);
+
+let resp3 = http.request("GET", "https://httpbin.org/get",
+    {"Accept": "application/json"}
+);
+print(resp3.headers["content-type"]);</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- URL MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="url-module"><code>url</code> Module</h2>
+        <p>URL parsing, encoding, decoding, and joining.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>parse</code></td><td><code>url.parse(url_string)</code></td><td>Parses a URL string into a dict with keys: <code>scheme</code>, <code>host</code>, <code>path</code>, <code>query</code>, <code>fragment</code>, <code>port</code>, <code>query_params</code>.</td></tr>
+            <tr><td><code>encode</code></td><td><code>url.encode(text)</code></td><td>URL-encodes the given text (percent encoding).</td></tr>
+            <tr><td><code>decode</code></td><td><code>url.decode(text)</code></td><td>URL-decodes the given percent-encoded text.</td></tr>
+            <tr><td><code>join</code></td><td><code>url.join(base, relative)</code></td><td>Resolves a relative URL against a base URL. Returns the joined URL string.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let parsed = url.parse("https://example.com:8080/path?q=1#section");
+print(parsed["scheme"]);                // "https"
+print(parsed["host"]);                  // "example.com"
+print(parsed["port"]);                  // 8080
+print(parsed["path"]);                  // "/path"
+
+let encoded = url.encode("hello world&foo=bar");
+print(encoded);                         // "hello%20world%26foo%3Dbar"
+print(url.decode(encoded));             // "hello world&foo=bar"
+
+let joined = url.join("https://example.com/api", "users/1");
+print(joined);                          // "https://example.com/api/users/1"</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- CSV MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="csv-module"><code>csv</code> Module</h2>
+        <p>CSV parsing and serialization. Supports quoted fields and escaped commas.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>parse</code></td><td><code>csv.parse(text)</code></td><td>Parses CSV text into a list of rows (each row is a list of strings).</td></tr>
+            <tr><td><code>parse_header</code></td><td><code>csv.parse_header(text)</code></td><td>Parses CSV text using the first row as headers. Returns a list of dicts.</td></tr>
+            <tr><td><code>stringify</code></td><td><code>csv.stringify(rows)</code></td><td>Converts a list of rows (lists or dicts) to CSV text.</td></tr>
+            <tr><td><code>load</code></td><td><code>csv.load(path)</code></td><td>Reads and parses a CSV file at <code>path</code>.</td></tr>
+            <tr><td><code>save</code></td><td><code>csv.save(path, rows)</code></td><td>Saves a list of rows to a CSV file at <code>path</code>.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let csv_text = "name,age\nAlice,30\nBob,25";
+let rows = csv.parse(csv_text);
+print(rows);                            // [["name","age"],["Alice","30"],["Bob","25"]]
+
+let records = csv.parse_header(csv_text);
+print(records[0]["name"]);              // "Alice"
+print(records[0]["age"]);               // "30"
+
+let output = csv.stringify([["x", "y"], ["1", "2"], ["3", "4"]]);
+print(output);
+
+csv.save("output.csv", [["a", "b"], ["1", "2"]]);
+let data = csv.load("output.csv");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- DATETIME MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="datetime-module"><code>datetime</code> Module</h2>
+        <p>Date and time functions. Datetime values are represented as dicts with keys: <code>year</code>, <code>month</code>, <code>day</code>, <code>hour</code>, <code>minute</code>, <code>second</code>, <code>unix</code>.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>now</code></td><td><code>datetime.now()</code></td><td>Returns the current date/time as a datetime dict.</td></tr>
+            <tr><td><code>from_unix</code></td><td><code>datetime.from_unix(timestamp)</code></td><td>Converts a Unix timestamp (seconds) to a datetime dict.</td></tr>
+            <tr><td><code>format</code></td><td><code>datetime.format(dt, fmt)</code></td><td>Formats a datetime dict using format specifiers. Returns a string.</td></tr>
+            <tr><td><code>parse</code></td><td><code>datetime.parse(s, fmt)</code></td><td>Parses a date string using format specifiers. Returns a datetime dict.</td></tr>
+            <tr><td><code>unix</code></td><td><code>datetime.unix(dt)</code></td><td>Returns the Unix timestamp from a datetime dict.</td></tr>
+          </tbody>
+        </table>
+        <h3>Format Specifiers</h3>
+        <table>
+          <thead><tr><th>Spec</th><th>Meaning</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td><code>%Y</code></td><td>4-digit year</td><td><code>2026</code></td></tr>
+            <tr><td><code>%y</code></td><td>2-digit year</td><td><code>26</code></td></tr>
+            <tr><td><code>%m</code></td><td>Month (01-12)</td><td><code>07</code></td></tr>
+            <tr><td><code>%d</code></td><td>Day (01-31)</td><td><code>16</code></td></tr>
+            <tr><td><code>%H</code></td><td>Hour (00-23)</td><td><code>14</code></td></tr>
+            <tr><td><code>%M</code></td><td>Minute (00-59)</td><td><code>30</code></td></tr>
+            <tr><td><code>%S</code></td><td>Second (00-59)</td><td><code>05</code></td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let now = datetime.now();
+print(now["year"]);                     // 2026
+print(now["month"]);                    // 7
+print(now["day"]);                      // 16
+
+let formatted = datetime.format(now, "%Y-%m-%d %H:%M:%S");
+print(formatted);                       // "2026-07-16 14:30:05"
+
+let short = datetime.format(now, "%m/%d/%Y");
+print(short);                           // "07/16/2026"
+
+let parsed = datetime.parse("2026-01-15", "%Y-%m-%d");
+print(parsed["year"]);                  // 2026
+print(parsed["month"]);                 // 1
+
+let ts = datetime.from_unix(1700000000);
+print(datetime.format(ts, "%Y-%m-%d")); // "2023-11-14"
+
+print(datetime.unix(now));              // current timestamp</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- STATS MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="stats-module"><code>stats</code> Module</h2>
+        <p>Statistical functions for lists of numbers.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>sum</code></td><td><code>stats.sum(list)</code></td><td>Returns the sum of all elements.</td></tr>
+            <tr><td><code>mean</code></td><td><code>stats.mean(list)</code></td><td>Returns the arithmetic mean.</td></tr>
+            <tr><td><code>median</code></td><td><code>stats.median(list)</code></td><td>Returns the median value.</td></tr>
+            <tr><td><code>mode</code></td><td><code>stats.mode(list)</code></td><td>Returns a list of the most frequent values.</td></tr>
+            <tr><td><code>variance</code></td><td><code>stats.variance(list)</code></td><td>Returns the sample variance.</td></tr>
+            <tr><td><code>std</code></td><td><code>stats.std(list)</code></td><td>Returns the sample standard deviation.</td></tr>
+            <tr><td><code>min</code></td><td><code>stats.min(list)</code></td><td>Returns the minimum value.</td></tr>
+            <tr><td><code>max</code></td><td><code>stats.max(list)</code></td><td>Returns the maximum value.</td></tr>
+            <tr><td><code>quantile</code></td><td><code>stats.quantile(list, q)</code></td><td>Returns the <code>q</code>-th quantile (q between 0 and 1).</td></tr>
+            <tr><td><code>covariance</code></td><td><code>stats.covariance(x, y)</code></td><td>Returns the sample covariance of two lists.</td></tr>
+            <tr><td><code>correlation</code></td><td><code>stats.correlation(x, y)</code></td><td>Returns the Pearson correlation coefficient of two lists.</td></tr>
+            <tr><td><code>normalize</code></td><td><code>stats.normalize(list)</code></td><td>Normalizes values to the [0, 1] range. Returns a list.</td></tr>
+            <tr><td><code>standardize</code></td><td><code>stats.standardize(list)</code></td><td>Z-score standardization (zero mean, unit variance). Returns a list.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let data = [1.0, 2.0, 3.0, 4.0, 5.0];
+
+print(stats.sum(data));                 // 15.0
+print(stats.mean(data));                // 3.0
+print(stats.median(data));              // 3.0
+print(stats.std(data));                 // ~1.5811
+print(stats.variance(data));            // 2.5
+print(stats.min(data));                 // 1.0
+print(stats.max(data));                 // 5.0
+
+print(stats.quantile(data, 0.25));      // 2.0 (25th percentile)
+print(stats.quantile(data, 0.75));      // 4.0 (75th percentile)
+
+let x = [1.0, 2.0, 3.0, 4.0, 5.0];
+let y = [2.0, 4.0, 5.0, 4.0, 5.0];
+print(stats.correlation(x, y));         // ~0.86
+print(stats.covariance(x, y));          // ~1.5
+
+print(stats.normalize(data));           // [0.0, 0.25, 0.5, 0.75, 1.0]
+print(stats.standardize(data));         // z-scored values</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- HASHLIB MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="hashlib-module"><code>hashlib</code> Module</h2>
+        <p>Cryptographic hash functions and encoding/decoding utilities.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>sha256</code></td><td><code>hashlib.sha256(data)</code></td><td>Returns the SHA-256 hash of <code>data</code> as a hex string.</td></tr>
+            <tr><td><code>sha512</code></td><td><code>hashlib.sha512(data)</code></td><td>Returns the SHA-512 hash of <code>data</code> as a hex string.</td></tr>
+            <tr><td><code>md5</code></td><td><code>hashlib.md5(data)</code></td><td>Returns the MD5 hash of <code>data</code> as a hex string.</td></tr>
+            <tr><td><code>sha1</code></td><td><code>hashlib.sha1(data)</code></td><td>Returns the SHA-1 hash of <code>data</code> as a hex string.</td></tr>
+            <tr><td><code>base64_encode</code></td><td><code>hashlib.base64_encode(data)</code></td><td>Base64-encodes <code>data</code>.</td></tr>
+            <tr><td><code>base64_decode</code></td><td><code>hashlib.base64_decode(data)</code></td><td>Base64-decodes <code>data</code>.</td></tr>
+            <tr><td><code>hex_encode</code></td><td><code>hashlib.hex_encode(data)</code></td><td>Hex-encodes the raw bytes of <code>data</code>.</td></tr>
+            <tr><td><code>hex_decode</code></td><td><code>hashlib.hex_decode(data)</code></td><td>Hex-decodes a hex string back to raw bytes.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>print(hashlib.sha256("hello"));
+// 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+
+print(hashlib.md5("hello"));
+// 5d41402abc4b2a76b9719d911017c592
+
+print(hashlib.sha1("hello"));
+// aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d
+
+let encoded = hashlib.base64_encode("hello");
+print(encoded);                         // "aGVsbG8="
+print(hashlib.base64_decode(encoded));  // "hello"
+
+let hex = hashlib.hex_encode("ABC");
+print(hex);                             // "414243"
+print(hashlib.hex_decode(hex));         // "ABC"</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- LOGGING MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="logging-module"><code>logging</code> Module</h2>
+        <p>Structured logging with configurable log levels. Output goes to stderr.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>debug</code></td><td><code>logging.debug(*args)</code></td><td>Logs a DEBUG message (only shown if level is DEBUG).</td></tr>
+            <tr><td><code>info</code></td><td><code>logging.info(*args)</code></td><td>Logs an INFO message (shown at INFO level and below).</td></tr>
+            <tr><td><code>warn</code></td><td><code>logging.warn(*args)</code></td><td>Logs a WARN message (shown at WARN level and below).</td></tr>
+            <tr><td><code>error</code></td><td><code>logging.error(*args)</code></td><td>Logs an ERROR message (always shown).</td></tr>
+            <tr><td><code>set_level</code></td><td><code>logging.set_level(level)</code></td><td>Sets the minimum log level. Accepts: <code>"DEBUG"</code>, <code>"INFO"</code>, <code>"WARN"</code>, <code>"ERROR"</code>.</td></tr>
+            <tr><td><code>basic_config</code></td><td><code>logging.basic_config(level?)</code></td><td>Initializes logging with an optional level (default: DEBUG).</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>logging.set_level("DEBUG");
+
+logging.debug("Starting application");
+logging.info("Server running on port 8080");
+logging.warn("Disk space low");
+logging.error("Connection failed");
+
+// Output format: [timestamp][LEVEL] message
+
+logging.set_level("WARN");
+logging.debug("this is hidden");
+logging.warn("this is visible");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- SUBPROCESS MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="subprocess-module"><code>subprocess</code> Module</h2>
+        <p>Run external commands and capture their output.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>run</code></td><td><code>subprocess.run(cmd)</code></td><td>Runs <code>cmd</code> as a direct command. Returns a result dict with <code>returncode</code>, <code>stdout</code>, and <code>stderr</code>.</td></tr>
+            <tr><td><code>run_shell</code></td><td><code>subprocess.run_shell(cmd)</code></td><td>Runs <code>cmd</code> via the system shell (<code>sh -c</code> or <code>cmd /C</code>). Returns a result dict.</td></tr>
+            <tr><td><code>run_output</code></td><td><code>subprocess.run_output(cmd)</code></td><td>Runs <code>cmd</code> and returns only the stdout as a string.</td></tr>
+            <tr><td><code>run_shell_output</code></td><td><code>subprocess.run_shell_output(cmd)</code></td><td>Runs <code>cmd</code> via shell and returns only the stdout as a string.</td></tr>
+          </tbody>
+        </table>
+        <h3>Result Dict</h3>
+        <table>
+          <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>returncode</code></td><td><code>int</code></td><td>The exit code of the process.</td></tr>
+            <tr><td><code>stdout</code></td><td><code>string</code></td><td>Captured standard output.</td></tr>
+            <tr><td><code>stderr</code></td><td><code>string</code></td><td>Captured standard error.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let result = subprocess.run("echo hello");
+print(result["returncode"]);            // 0
+print(result["stdout"]);                // "hello\n"
+
+let output = subprocess.run_output("whoami");
+print(output);                          // "current username"
+
+let ls = subprocess.run_shell_output("ls -la");
+print(ls);
+
+let err = subprocess.run_shell("cat /nonexistent");
+print(err["stderr"]);                   // error message
+print(err["returncode"]);               // non-zero</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- PATH MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="path-module"><code>path</code> Module</h2>
+        <p>File path manipulation and filesystem operations. Paths use forward slashes internally.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>join</code></td><td><code>path.join(*parts)</code></td><td>Joins path components with <code>/</code>.</td></tr>
+            <tr><td><code>basename</code></td><td><code>path.basename(p)</code></td><td>Returns the last component of a path (filename).</td></tr>
+            <tr><td><code>dirname</code></td><td><code>path.dirname(p)</code></td><td>Returns the directory portion of a path.</td></tr>
+            <tr><td><code>ext</code></td><td><code>path.ext(p)</code></td><td>Returns the file extension (without the dot).</td></tr>
+            <tr><td><code>is_file</code></td><td><code>path.is_file(p)</code></td><td>Returns <code>true</code> if <code>p</code> is a regular file.</td></tr>
+            <tr><td><code>is_dir</code></td><td><code>path.is_dir(p)</code></td><td>Returns <code>true</code> if <code>p</code> is a directory.</td></tr>
+            <tr><td><code>size</code></td><td><code>path.size(p)</code></td><td>Returns the file size in bytes.</td></tr>
+            <tr><td><code>rename</code></td><td><code>path.rename(old, new)</code></td><td>Renames/moves a file from <code>old</code> to <code>new</code>.</td></tr>
+            <tr><td><code>copy</code></td><td><code>path.copy(src, dst)</code></td><td>Copies a file from <code>src</code> to <code>dst</code>.</td></tr>
+            <tr><td><code>remove</code></td><td><code>path.remove(p)</code></td><td>Deletes the file at <code>p</code>.</td></tr>
+            <tr><td><code>remove_dir</code></td><td><code>path.remove_dir(p)</code></td><td>Recursively deletes the directory at <code>p</code>.</td></tr>
+            <tr><td><code>list_dir</code></td><td><code>path.list_dir(p?)</code></td><td>Returns a list of filenames in the directory (default: <code>"."</code>).</td></tr>
+            <tr><td><code>walk</code></td><td><code>path.walk(p?)</code></td><td>Recursively walks a directory. Returns a list of all file paths.</td></tr>
+            <tr><td><code>abs</code></td><td><code>path.abs(p)</code></td><td>Returns the absolute path for <code>p</code>.</td></tr>
+            <tr><td><code>split</code></td><td><code>path.split(p)</code></td><td>Splits a path into <code>[directory, basename]</code>.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>print(path.join("dir", "sub", "file.txt"));    // "dir/sub/file.txt"
+print(path.basename("/usr/local/bin/bash"));   // "bash"
+print(path.dirname("/usr/local/bin/bash"));    // "/usr/local/bin"
+print(path.ext("document.txt"));               // "txt"
+print(path.abs("."));                          // "/home/user/project"
+
+let [dir, name] = path.split("/usr/local/bin");
+print(dir);                             // "/usr/local/bin"
+print(name);                            // "bin"
+
+fs.mkdir("test_dir");
+fs.write("test_dir/a.txt", "hello");
+fs.write("test_dir/b.txt", "world");
+
+print(path.is_file("test_dir/a.txt"));  // true
+print(path.is_dir("test_dir"));          // true
+print(path.size("test_dir/a.txt"));      // 5
+
+let files = path.list_dir("test_dir");
+print(files);                           // ["a.txt", "b.txt"]
+
+let all = path.walk(".");
+path.rename("test_dir/a.txt", "test_dir/c.txt");
+path.copy("test_dir/b.txt", "test_dir/d.txt");
+path.remove("test_dir/d.txt");
+path.remove_dir("test_dir");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- COLLECTIONS MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="collections-module"><code>collections</code> Module</h2>
+        <p>Specialized collection types and utilities for counting, grouping, and deque operations.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>Counter</code></td><td><code>collections.Counter(list_or_string)</code></td><td>Returns a dict mapping each element to its frequency count.</td></tr>
+            <tr><td><code>deque</code></td><td><code>collections.deque(list?)</code></td><td>Creates a double-ended queue from an optional list.</td></tr>
+            <tr><td><code>push_left</code></td><td><code>collections.push_left(deque, val)</code></td><td>Pushes <code>val</code> to the front of the deque.</td></tr>
+            <tr><td><code>pop_left</code></td><td><code>collections.pop_left(deque)</code></td><td>Removes and returns the front element of the deque.</td></tr>
+            <tr><td><code>push_right</code></td><td><code>collections.push_right(deque, val)</code></td><td>Pushes <code>val</code> to the back of the deque.</td></tr>
+            <tr><td><code>pop_right</code></td><td><code>collections.pop_right(deque)</code></td><td>Removes and returns the back element of the deque.</td></tr>
+            <tr><td><code>group_by</code></td><td><code>collections.group_by(list, key_func)</code></td><td>Groups elements by the result of <code>key_func</code>. Returns a dict of lists.</td></tr>
+            <tr><td><code>flatten</code></td><td><code>collections.flatten(list)</code></td><td>Flattens a nested list of lists into a single list.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>// Counter
+let words = ["apple", "banana", "apple", "cherry", "banana", "apple"];
+let counts = collections.Counter(words);
+print(counts);                          // {"apple": 3, "banana": 2, "cherry": 1}
+
+let letters = collections.Counter("hello");
+print(letters);                         // {"h": 1, "e": 1, "l": 2, "o": 1}
+
+// Deque operations
+let dq = collections.deque([1, 2, 3]);
+collections.push_left(dq, 0);
+collections.push_right(dq, 4);
+print(dq);                              // [0, 1, 2, 3, 4]
+print(collections.pop_left(dq));        // 0
+print(collections.pop_right(dq));       // 4
+
+// group_by
+let people = ["Alice", "Bob", "Anna", "Ben"];
+let groups = collections.group_by(people, |name| string.upper(string.substring(name, 0, 1)));
+print(groups);                          // {"A": ["Alice", "Anna"], "B": ["Bob", "Ben"]}
+
+// flatten
+let nested = [[1, 2], [3, [4, 5]], 6];
+print(collections.flatten(nested));     // [1, 2, 3, 4, 5, 6]</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- ITERTOOLS MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="itertools-module"><code>itertools</code> Module</h2>
+        <p>Functional programming utilities for working with iterators and collections.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>chain</code></td><td><code>itertools.chain(*lists)</code></td><td>Concatenates multiple lists into one.</td></tr>
+            <tr><td><code>zip</code></td><td><code>itertools.zip(*lists)</code></td><td>Zips multiple lists into a list of sub-lists (truncated to shortest).</td></tr>
+            <tr><td><code>enumerate</code></td><td><code>itertools.enumerate(list)</code></td><td>Returns a list of <code>[index, value]</code> pairs.</td></tr>
+            <tr><td><code>map</code></td><td><code>itertools.map(fn, list)</code></td><td>Applies <code>fn</code> to each element. Returns a new list.</td></tr>
+            <tr><td><code>filter</code></td><td><code>itertools.filter(fn, list)</code></td><td>Keeps elements where <code>fn</code> returns truthy. Returns a new list.</td></tr>
+            <tr><td><code>reduce</code></td><td><code>itertools.reduce(fn, list, init?)</code></td><td>Reduces the list using a binary function. Optional initial value.</td></tr>
+            <tr><td><code>take</code></td><td><code>itertools.take(n, list)</code></td><td>Returns the first <code>n</code> elements.</td></tr>
+            <tr><td><code>drop</code></td><td><code>itertools.drop(n, list)</code></td><td>Returns all but the first <code>n</code> elements.</td></tr>
+            <tr><td><code>slice</code></td><td><code>itertools.slice(list, start, end, step?)</code></td><td>Returns a slice from <code>start</code> to <code>end</code> with optional step.</td></tr>
+            <tr><td><code>unique</code></td><td><code>itertools.unique(list)</code></td><td>Removes duplicates, preserving order.</td></tr>
+            <tr><td><code>reverse</code></td><td><code>itertools.reverse(list)</code></td><td>Returns a reversed copy of the list.</td></tr>
+            <tr><td><code>count</code></td><td><code>itertools.count(start?, step?)</code></td><td>Returns an infinite list of numbers (capped at 10,000). Default start=0, step=1.</td></tr>
+            <tr><td><code>repeat</code></td><td><code>itertools.repeat(val, n)</code></td><td>Returns a list containing <code>val</code> repeated <code>n</code> times.</td></tr>
+            <tr><td><code>product</code></td><td><code>itertools.product(*lists)</code></td><td>Computes the Cartesian product of multiple lists.</td></tr>
+            <tr><td><code>any</code></td><td><code>itertools.any(list, fn?)</code></td><td>Returns <code>true</code> if any element is truthy (or passes <code>fn</code>).</td></tr>
+            <tr><td><code>all</code></td><td><code>itertools.all(list, fn?)</code></td><td>Returns <code>true</code> if all elements are truthy (or pass <code>fn</code>).</td></tr>
+            <tr><td><code>sorted</code></td><td><code>itertools.sorted(list, key_fn?)</code></td><td>Returns a sorted copy. Optional key function for custom sort order.</td></tr>
+            <tr><td><code>identity</code></td><td><code>itertools.identity(val)</code></td><td>Returns its argument unchanged.</td></tr>
+            <tr><td><code>compose</code></td><td><code>itertools.compose(*fns)</code></td><td>Composes functions right-to-left. Returns a new function.</td></tr>
+            <tr><td><code>constantly</code></td><td><code>itertools.constantly(val)</code></td><td>Returns a function that always returns <code>val</code>.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>print(itertools.chain([1, 2], [3, 4], [5]));     // [1, 2, 3, 4, 5]
+
+print(itertools.zip([1, 2, 3], ["a", "b", "c"]));
+// [[1, "a"], [2, "b"], [3, "c"]]
+
+print(itertools.enumerate(["a", "b", "c"]));
+// [[0, "a"], [1, "b"], [2, "c"]]
+
+let doubled = itertools.map(|x| x * 2, [1, 2, 3]);
+print(doubled);                          // [2, 4, 6]
+
+let evens = itertools.filter(|x| x % 2 == 0, [1, 2, 3, 4, 5]);
+print(evens);                            // [2, 4]
+
+let total = itertools.reduce(|a, b| a + b, [1, 2, 3, 4], 0);
+print(total);                            // 10
+
+print(itertools.take(3, [1, 2, 3, 4, 5]));     // [1, 2, 3]
+print(itertools.drop(2, [1, 2, 3, 4, 5]));     // [3, 4, 5]
+print(itertools.slice([10, 20, 30, 40, 50], 1, 4)); // [20, 30, 40]
+print(itertools.unique([1, 2, 2, 3, 3, 3]));   // [1, 2, 3]
+print(itertools.reverse([1, 2, 3]));            // [3, 2, 1]
+
+print(itertools.product([1, 2], ["a", "b"]));
+// [[1, "a"], [1, "b"], [2, "a"], [2, "b"]]
+
+print(itertools.any([false, false, true]));     // true
+print(itertools.all([true, true, true]));       // true
+
+print(itertools.sorted([3, 1, 4, 1, 5]));       // [1, 1, 3, 4, 5]
+print(itertools.repeat("x", 4));                // ["x", "x", "x", "x"]
+
+let add5 = itertools.compose(
+    |x| x + 5,
+    |x| x * 2
+);
+print(add5(3));                          // 11  ((3 * 2) + 5)
+
+let always42 = itertools.constantly(42);
+print(always42("anything"));             // 42</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- TEST MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="test-module"><code>test</code> Module</h2>
+        <p>Unit testing utilities. Run with <code>lion test</code> to execute all tests in the <code>tests/</code> directory.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>assert_eq</code></td><td><code>test.assert_eq(expected, actual, msg?)</code></td><td>Asserts that <code>expected</code> equals <code>actual</code>. Optional message.</td></tr>
+            <tr><td><code>assert_ne</code></td><td><code>test.assert_ne(expected, actual, msg?)</code></td><td>Asserts that <code>expected</code> is not equal to <code>actual</code>.</td></tr>
+            <tr><td><code>assert_true</code></td><td><code>test.assert_true(val, msg?)</code></td><td>Asserts that <code>val</code> is truthy.</td></tr>
+            <tr><td><code>assert_false</code></td><td><code>test.assert_false(val, msg?)</code></td><td>Asserts that <code>val</code> is falsy.</td></tr>
+            <tr><td><code>assert_contains</code></td><td><code>test.assert_contains(container, item, msg?)</code></td><td>Asserts that <code>container</code> (list, string, dict, or set) contains <code>item</code>.</td></tr>
+            <tr><td><code>assert_raises</code></td><td><code>test.assert_raises(fn, expected_msg?, args?)</code></td><td>Asserts that calling <code>fn</code> raises an error. Optionally checks the error message.</td></tr>
+            <tr><td><code>run_test</code></td><td><code>test.run_test(name, fn)</code></td><td>Runs a test function by name. Prints PASS or FAIL.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>func add(a, b) { return a + b; }
+func divide(a, b) {
+    if b == 0 { throw "division by zero"; }
+    return a / b;
+}
+
+// Basic assertions
+test.assert_eq(add(2, 3), 5, "addition works");
+test.assert_eq(add(-1, 1), 0);
+test.assert_ne(add(1, 1), 3);
+test.assert_true(1 + 1 == 2);
+test.assert_false(1 == 2);
+
+// Contains
+test.assert_contains([1, 2, 3], 2);
+test.assert_contains("hello world", "world");
+test.assert_contains({"a": 1}, "a");
+
+// Raises
+test.assert_raises(|| divide(1, 0), "division by zero");
+
+// Named test runner
+test.run_test("addition", func() {
+    test.assert_eq(add(2, 3), 5);
+    test.assert_eq(add(0, 0), 0);
+});</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- TIME MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="time-module"><code>time</code> Module</h2>
+        <p>Time-related functions for timestamps and delays.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>now</code></td><td><code>time.now()</code></td><td>Returns the current time as a Unix timestamp with sub-second precision (float).</td></tr>
+            <tr><td><code>unix</code></td><td><code>time.unix()</code></td><td>Returns the current Unix timestamp as an integer (seconds since epoch).</td></tr>
+            <tr><td><code>sleep</code></td><td><code>time.sleep(ms)</code></td><td>Pauses execution for <code>ms</code> milliseconds.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let start = time.now();
+print(f"Current time: {start}");        // e.g. 1752705600.123
+
+print(time.unix());                     // e.g. 1752705600
+
+time.sleep(1000);                       // sleep for 1 second
+print("Resumed after 1 second");
+
+let elapsed = time.now() - start;
+print(f"Elapsed: {elapsed}s");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- RAND MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="rand-module"><code>rand</code> Module</h2>
+        <p>Random number generation and random selection.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>int</code></td><td><code>rand.int(min, max)</code></td><td>Returns a random integer between <code>min</code> and <code>max</code> (inclusive).</td></tr>
+            <tr><td><code>float</code></td><td><code>rand.float()</code></td><td>Returns a random float between 0.0 (inclusive) and 1.0 (exclusive).</td></tr>
+            <tr><td><code>choice</code></td><td><code>rand.choice(list)</code></td><td>Returns a random element from <code>list</code>.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>// Random integer between 1 and 100
+let dice = rand.int(1, 6);
+print(f"You rolled: {dice}");
+
+// Random float [0, 1)
+let r = rand.float();
+print(f"Random: {r}");
+
+// Random choice
+let colors = ["red", "green", "blue"];
+let pick = rand.choice(colors);
+print(f"Picked: {pick}");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- MATRIX MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="matrix-module"><code>matrix</code> Module</h2>
+        <p>Basic matrix creation and initialization for numerical computing.</p>
+        <h3>Functions</h3>
+        <table>
+          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>from_rows</code></td><td><code>matrix.from_rows(rows)</code></td><td>Creates a matrix from a list of rows (each row is a list of numbers).</td></tr>
+            <tr><td><code>zeros</code></td><td><code>matrix.zeros(rows, cols)</code></td><td>Creates a matrix filled with zeros.</td></tr>
+            <tr><td><code>ones</code></td><td><code>matrix.ones(rows, cols)</code></td><td>Creates a matrix filled with ones.</td></tr>
+            <tr><td><code>identity</code></td><td><code>matrix.identity(n)</code></td><td>Creates an <code>n x n</code> identity matrix.</td></tr>
+            <tr><td><code>random</code></td><td><code>matrix.random(rows, cols)</code></td><td>Creates a matrix with random values between 0.0 and 1.0.</td></tr>
+          </tbody>
+        </table>
+        <h3>Examples</h3>
+        <div class="code-header"><span>Lion</span><button class="copy-btn">Copy</button></div>
+        <pre><code>// Create from explicit rows
+let m = matrix.from_rows([
+    [1.0, 2.0, 3.0],
+    [4.0, 5.0, 6.0]
+]);
+print(m);                               // matrix 2x3
+
+// Zero and one matrices
+let z = matrix.zeros(3, 3);             // 3x3 matrix of zeros
+let o = matrix.ones(2, 4);              // 2x4 matrix of ones
+
+// Identity matrix
+let I = matrix.identity(3);             // 3x3 identity matrix
+// [[1, 0, 0],
+//  [0, 1, 0],
+//  [0, 0, 1]]
+
+// Random matrix
+let r = matrix.random(4, 4);            // 4x4 random values</code></pre>
+
+        <div class="page-meta">
+          <a id="edit-link" href="#">Edit this page on GitHub</a>
+          <span>Last updated: July 2026</span>
+        </div>
+        <div class="feedback">
+          <span>Was this page helpful?</span>
+          <button>&#128077; Yes</button>
+          <button>&#128078; No</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

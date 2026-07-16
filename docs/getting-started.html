@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Getting Started - Lion Programming Language</title>
+  <meta name="description" content="Install Lion and write your first program. Learn about prerequisites, building from source, the REPL, and project setup.">
+  <meta property="og:title" content="Getting Started - Lion">
+  <meta property="og:description" content="Install Lion and write your first program. Learn about prerequisites, building from source, the REPL, and project setup.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">L</div> Lion Docs</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Search docs... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="Toggle theme">&#9790;</button>
+      <button id="print-btn" title="Print">&#128424;</button>
+    </div>
+  </header>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Getting Started</div>
+        <a href="index.html" class="sidebar-link">Overview</a>
+        <a href="getting-started.html" class="sidebar-link active">Installation</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Language</div>
+        <a href="language-guide.html" class="sidebar-link">Language Guide</a>
+        <a href="standard-library.html" class="sidebar-link">Standard Library</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Features</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI Toolkit</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Reference</div>
+        <a href="project-management.html" class="sidebar-link">Project CLI</a>
+        <a href="performance.html" class="sidebar-link">Performance</a>
+        <a href="faq.html" class="sidebar-link">FAQ</a>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="content">
+      <div class="content-inner">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a href="index.html">Home</a> &gt; <span>Getting Started</span>
+        </nav>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+          <div class="toc-title">On this page</div>
+          <a href="#prerequisites">Prerequisites</a>
+          <a href="#installation">Installation</a>
+          <a href="#verify-installation">Verify Installation</a>
+          <a href="#your-first-script">Your First Script</a>
+          <a href="#using-the-repl">Using the REPL</a>
+          <a href="#project-setup">Project Setup</a>
+        </div>
+
+        <h1>Getting Started</h1>
+        <p>This guide walks you through installing Lion from source, verifying your setup, writing your first script, and organizing larger projects.</p>
+
+        <h2 id="prerequisites">Prerequisites</h2>
+        <p>Before building Lion, make sure you have the following installed on your system:</p>
+        <ul>
+          <li><strong>Rust 1.80+</strong> &mdash; Lion is written in Rust. Install it via <a href="https://rustup.rs">rustup</a>:</li>
+        </ul>
+        <pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></pre>
+        <ul>
+          <li><strong>Git</strong> &mdash; Required to clone the repository.</li>
+          <li><strong>C compiler</strong> &mdash; GCC or Clang on Linux/macOS, MSVC on Windows. Needed for native extensions and optional features.</li>
+        </ul>
+
+        <h2 id="installation">Installation</h2>
+        <h3>Clone and build</h3>
+        <p>Clone the repository and build Lion in release mode:</p>
+        <pre><code>git clone https://github.com/anomalyco/lion.git
+cd lion
+cargo build --release</code></pre>
+        <p>The compiled binary will be at <code>target/release/lion</code>. Add it to your <code>PATH</code> for convenient access:</p>
+        <pre><code>export PATH="$PWD/target/release:$PATH"</code></pre>
+
+        <h3>Optional features</h3>
+        <p>Lion supports optional feature flags that enable additional capabilities:</p>
+        <pre><code>cargo build --release --features opencv</code></pre>
+        <table>
+          <thead>
+            <tr><th>Feature</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>opencv</code></td><td>Enable OpenCV bindings for image processing and computer vision</td></tr>
+            <tr><td><code>panther</code></td><td>Enable the Panther GUI toolkit for Linux</td></tr>
+            <tr><td><code>python</code></td><td>Enable Python interop for calling Python libraries directly</td></tr>
+          </tbody>
+        </table>
+        <p>You can combine multiple features:</p>
+        <pre><code>cargo build --release --features "opencv,panther,python"</code></pre>
+
+        <h2 id="verify-installation">Verify Installation</h2>
+        <p>Check that Lion is installed and working:</p>
+        <pre><code>$ lion version
+lion 0.1.0</code></pre>
+        <p>Launch the interactive REPL to confirm the runtime is functional:</p>
+        <pre><code>$ lion repl
+Lion 0.1.0 (interactive)
+Type "help" for more information.
+lion&gt;</code></pre>
+
+        <h2 id="your-first-script">Your First Script</h2>
+        <p>Create a file called <code>hello.lion</code> with the following content:</p>
+        <pre><code>print("Hello, Lion!")</code></pre>
+        <p>Run it:</p>
+        <pre><code>$ lion run hello.lion
+Hello, Lion!</code></pre>
+        <p>Let's try something a bit more interesting. Replace the contents of <code>hello.lion</code> with:</p>
+        <pre><code><span class="kw">fn</span> greet(name):
+    print(<span class="str">"Hello, </span>{name}<span class="str">!"</span>)
+
+<span class="kw">fn</span> fibonacci(n):
+    <span class="kw">if</span> n &lt;= <span class="num">1</span>:
+        <span class="kw">return</span> n
+    <span class="kw">return</span> fibonacci(n - <span class="num">1</span>) + fibonacci(n - <span class="num">2</span>)
+
+greet(<span class="str">"World"</span>)
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="num">0</span>..<span class="num">10</span>:
+    print(<span class="str">"fib(</span>{i}<span class="str">) = </span>{fibonacci(i)}<span class="str">"</span>)</code></pre>
+
+        <h2 id="using-the-repl">Using the REPL</h2>
+        <p>The Lion REPL is great for experimenting with language features and testing code snippets:</p>
+        <pre><code>$ lion repl
+Lion 0.1.0 (interactive)
+Type "help" for more information.
+lion&gt; print("Hello!")
+Hello!
+lion&gt; 2 + 2
+4
+lion&gt; fn add(a, b): a + b
+lion&gt; add(10, 20)
+30
+lion&gt; [1, 2, 3].map(fn(x): x * 2)
+[2, 4, 6]
+lion&gt; .exit</code></pre>
+
+        <h2 id="project-setup">Project Setup</h2>
+        <p>For larger applications, use Lion's built-in project scaffolding:</p>
+        <pre><code>$ lion new myproject
+Created new project "myproject"
+  src/main.lion
+  lion.json</code></pre>
+        <p>This generates a project directory with the following structure:</p>
+        <pre><code>myproject/
+├── lion.json
+└── src/
+    └── main.lion</code></pre>
+
+        <h3>lion.json</h3>
+        <p>The <code>lion.json</code> file defines your project's metadata and build configuration:</p>
+        <pre><code>{
+  "name": "myproject",
+  "version": "0.1.0",
+  "entry": "src/main.lion",
+  "dependencies": [],
+  "features": []
+}</code></pre>
+
+        <h3>src/main.lion</h3>
+        <p>The entry point for your application:</p>
+        <pre><code>print(<span class="str">"Welcome to myproject!"</span>)</code></pre>
+        <p>Build and run your project:</p>
+        <pre><code>$ cd myproject
+$ lion run
+Welcome to myproject!</code></pre>
+        <p>For more details on project management, see the <a href="project-management.html">Project CLI</a> reference.</p>
+
+        <!-- Page Meta -->
+        <div class="page-meta">
+          <a id="edit-link" href="#" target="_blank">Edit this page on GitHub</a>
+          <span>Last updated: July 2026</span>
+        </div>
+        <!-- Feedback -->
+        <div class="feedback">
+          <span>Was this page helpful?</span>
+          <button>&#128077; Yes</button>
+          <button>&#128078; No</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Management - Lion Programming Language</title>
+  <meta name="description" content="Complete reference for the Lion CLI: project scaffolding, running code, the REPL, formatting, testing, and the lion.json manifest.">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">L</div> Lion Docs</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Search docs... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="Toggle theme">&#9790;</button>
+      <button id="print-btn" title="Print">&#128424;</button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Getting Started</div>
+        <a href="index.html" class="sidebar-link">Overview</a>
+        <a href="getting-started.html" class="sidebar-link">Installation</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Language</div>
+        <a href="language-guide.html" class="sidebar-link">Language Guide</a>
+        <a href="standard-library.html" class="sidebar-link">Standard Library</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Features</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI Toolkit</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Reference</div>
+        <a href="project-management.html" class="sidebar-link active">Project CLI</a>
+        <a href="performance.html" class="sidebar-link">Performance</a>
+        <a href="faq.html" class="sidebar-link">FAQ</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">Home</a><span class="sep">/</span><span>Project Management</span>
+        </div>
+
+        <h1>Project Management</h1>
+        <p>Lion ships with a full CLI toolchain for creating, running, formatting, and testing projects. This page covers every command and the project manifest format.</p>
+
+        <h2 id="cli-commands">CLI Commands</h2>
+        <table>
+          <thead>
+            <tr><th>Command</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>lion run &lt;file&gt; [--disassemble]</code></td><td>Run a Lion source file. Pass <code>--disassemble</code> to print the bytecode before execution.</td></tr>
+            <tr><td><code>lion repl</code></td><td>Start the interactive Read-Eval-Print Loop.</td></tr>
+            <tr><td><code>lion version</code></td><td>Print the Lion version, build date, and LLVM version.</td></tr>
+            <tr><td><code>lion fmt &lt;file&gt;</code></td><td>Format a Lion source file in place.</td></tr>
+            <tr><td><code>lion test [filter]</code></td><td>Run all tests, or only tests matching <code>filter</code>.</td></tr>
+            <tr><td><code>lion new &lt;name&gt;</code></td><td>Scaffold a new project directory with the standard layout.</td></tr>
+            <tr><td><code>lion init</code></td><td>Initialize a <code>lion.json</code> manifest in the current directory.</td></tr>
+            <tr><td><code>lion build</code></td><td>Build the project into a standalone executable.</td></tr>
+            <tr><td><code>lion-rs &lt;file&gt;</code></td><td>Quick runner - compiles and executes a single file in one step.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="project-structure">Project Structure</h2>
+        <p>Create a new project with:</p>
+        <pre><code>lion new my_project</code></pre>
+        <p>This generates the following layout:</p>
+        <pre><code>my_project/
+├── lion.json
+├── src/
+│   └── main.lion
+├── tests/
+│   └── main_test.lion
+└── modules/</code></pre>
+        <p>You can also initialize a manifest in an existing directory:</p>
+        <pre><code>mkdir my_project &amp;&amp; cd my_project
+lion init</code></pre>
+
+        <h2 id="lion-json">lion.json Manifest</h2>
+        <p>The <code>lion.json</code> file describes your project. Here is the full format with all supported fields:</p>
+        <pre><code>{
+  "name": "my_project",
+  "version": "0.1.0",
+  "description": "A short description of the project.",
+  "author": "Your Name",
+  "license": "MIT",
+  "entry": "src/main.lion",
+  "dependencies": {
+    "http": "^1.0.0",
+    "json": "^2.1.0"
+  },
+  "dev_dependencies": {
+    "test_utils": "^0.5.0"
+  },
+  "scripts": {
+    "start": "lion run src/main.lion",
+    "test": "lion test",
+    "fmt": "lion fmt src/"
+  },
+  "modules_path": "modules/",
+  "target": "linux-x86_64",
+  "optimization": "release"
+}</code></pre>
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>string</td><td>Project name</td></tr>
+            <tr><td><code>version</code></td><td>string</td><td>Semantic version</td></tr>
+            <tr><td><code>description</code></td><td>string</td><td>Short description</td></tr>
+            <tr><td><code>author</code></td><td>string</td><td>Author name</td></tr>
+            <tr><td><code>license</code></td><td>string</td><td>License identifier (SPDX)</td></tr>
+            <tr><td><code>entry</code></td><td>string</td><td>Entry point file (default: <code>src/main.lion</code>)</td></tr>
+            <tr><td><code>dependencies</code></td><td>object</td><td>Runtime dependencies</td></tr>
+            <tr><td><code>dev_dependencies</code></td><td>object</td><td>Development-only dependencies</td></tr>
+            <tr><td><code>scripts</code></td><td>object</td><td>Named scripts runnable with <code>lion run --script &lt;name&gt;</code></td></tr>
+            <tr><td><code>modules_path</code></td><td>string</td><td>Path to load native modules from (default: <code>modules/</code>)</td></tr>
+            <tr><td><code>target</code></td><td>string</td><td>Build target triple</td></tr>
+            <tr><td><code>optimization</code></td><td>string</td><td><code>"debug"</code> or <code>"release"</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="repl">REPL</h2>
+        <p>Start the interactive REPL with:</p>
+        <pre><code>lion repl</code></pre>
+        <p>The REPL supports the following built-in commands:</p>
+        <table>
+          <thead>
+            <tr><th>Command</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>exit</code></td><td>Exit the REPL</td></tr>
+            <tr><td><code>help</code></td><td>Show available commands and shortcuts</td></tr>
+            <tr><td><code>history</code></td><td>Print the command history for the current session</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Tab Completion</h3>
+        <p>Press <code>Tab</code> to auto-complete keywords, built-in functions, and previously used identifiers. Press <code>Tab</code> twice to see all possible completions.</p>
+
+        <h2 id="formatter">Formatter</h2>
+        <p>Lion includes a built-in code formatter. Use it to enforce consistent style:</p>
+        <pre><code>lion fmt src/main.lion</code></pre>
+        <p>You can also format all files in a directory:</p>
+        <pre><code>lion fmt src/</code></pre>
+        <p>The formatter is idempotent - running it multiple times produces the same output. It respects existing indentation and does not reorder imports.</p>
+
+        <h2 id="testing">Testing</h2>
+        <p>Lion has a built-in test framework. Write tests using the <code>test</code> module:</p>
+        <pre><code>use test
+
+fn test_addition() {
+    test.assert_eq(1 + 1, 2, "1 + 1 should equal 2")
+    test.assert(2 + 2 == 4, "2 + 2 should equal 4")
+}
+
+fn test_string_reverse() {
+    let input = "hello"
+    let reversed = input.reverse()
+    test.assert_eq(reversed, "olleh", "reverse of 'hello' is 'olleh'")
+}
+
+fn test_error_handling() {
+    test.assert_raises(fn() {
+        let x = nil
+        x.value()
+    }, "accessing nil should raise an error")
+}</code></pre>
+        <p>Run your tests with:</p>
+        <pre><code>lion test</code></pre>
+        <p>Run only tests whose names match a filter:</p>
+        <pre><code>lion test addition</code></pre>
+        <p>This will run only <code>test_addition</code>. The filter is matched as a substring against all test function names.</p>
+
+        <div class="page-meta">
+          <a id="edit-link" href="#">Edit this page on GitHub</a>
+          <span>Last updated: July 2026</span>
+        </div>
+        <div class="feedback">
+          <span>Was this page helpful?</span>
+          <button>&#128077; Yes</button>
+          <button>&#128078; No</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

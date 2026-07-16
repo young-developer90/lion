@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found - Lion Programming Language</title>
+  <meta name="description" content="The page you are looking for does not exist.">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">L</div> Lion Docs</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Search docs... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="Toggle theme">&#9790;</button>
+      <button id="print-btn" title="Print">&#128424;</button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Getting Started</div>
+        <a href="index.html" class="sidebar-link">Overview</a>
+        <a href="getting-started.html" class="sidebar-link">Installation</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Language</div>
+        <a href="language-guide.html" class="sidebar-link">Language Guide</a>
+        <a href="standard-library.html" class="sidebar-link">Standard Library</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Features</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI Toolkit</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Reference</div>
+        <a href="project-management.html" class="sidebar-link">Project CLI</a>
+        <a href="performance.html" class="sidebar-link">Performance</a>
+        <a href="faq.html" class="sidebar-link">FAQ</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">Home</a><span class="sep">/</span><span>404</span>
+        </div>
+
+        <div style="text-align: center; padding: 4rem 1rem;">
+          <h1 style="font-size: 6rem; margin: 0; color: var(--color-primary, #e74c3c);">404</h1>
+          <h2 style="margin-top: 1rem;">Page Not Found</h2>
+          <p style="margin-top: 1rem; opacity: 0.7;">The page you requested does not exist or has been moved.</p>
+          <a href="index.html" style="display: inline-block; margin-top: 2rem; padding: 0.75rem 1.5rem; background: var(--color-primary, #e74c3c); color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">Back to Documentation Home</a>
+        </div>
+
+        <div class="page-meta">
+          <a id="edit-link" href="#">Edit this page on GitHub</a>
+          <span>Last updated: July 2026</span>
+        </div>
+        <div class="feedback">
+          <span>Was this page helpful?</span>
+          <button>&#128077; Yes</button>
+          <button>&#128078; No</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

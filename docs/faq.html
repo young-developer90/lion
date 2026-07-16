@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FAQ - Lion Programming Language</title>
+  <meta name="description" content="Frequently asked questions about the Lion programming language covering installation, syntax, standard library, performance, and tooling.">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">L</div> Lion Docs</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Search docs... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="Toggle theme">&#9790;</button>
+      <button id="print-btn" title="Print">&#128424;</button>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Getting Started</div>
+        <a href="index.html" class="sidebar-link">Overview</a>
+        <a href="getting-started.html" class="sidebar-link">Installation</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Language</div>
+        <a href="language-guide.html" class="sidebar-link">Language Guide</a>
+        <a href="standard-library.html" class="sidebar-link">Standard Library</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Features</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI Toolkit</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Reference</div>
+        <a href="project-management.html" class="sidebar-link">Project CLI</a>
+        <a href="performance.html" class="sidebar-link">Performance</a>
+        <a href="faq.html" class="sidebar-link active">FAQ</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">Home</a><span class="sep">/</span><span>FAQ</span>
+        </div>
+
+        <h1>Frequently Asked Questions</h1>
+        <p>Common questions and answers about the Lion programming language.</p>
+
+        <h2 id="install">How do I install Lion?</h2>
+        <p>Install Lion using the official installer script:</p>
+        <pre><code>curl -fsSL https://lion-lang.dev/install.sh | sh</code></pre>
+        <p>Or build from source:</p>
+        <pre><code>git clone https://github.com/lion-lang/lion.git
+cd lion
+cargo build --release</code></pre>
+        <p>The binary will be at <code>target/release/lion</code>. Add it to your <code>PATH</code>.</p>
+
+        <h2 id="concat-strings">How do I concatenate strings?</h2>
+        <p>Use the <code>+</code> operator. Lion does not use <code>..</code> for string concatenation.</p>
+        <pre><code>let greeting = "Hello" + " " + "World"
+print(greeting)  // "Hello World"
+
+// f-strings are preferred for interpolation
+let name = "Alice"
+print("Hello {name}")</code></pre>
+
+        <h2 id="let-vs-const">What's the difference between let and const?</h2>
+        <p><code>let</code> declares a mutable variable. <code>const</code> declares an immutable constant that must be assigned at compile time.</p>
+        <pre><code>let x = 10
+x = 20  // OK
+
+const PI = 3.14159
+PI = 3.0  // Error: cannot reassign constant</code></pre>
+
+        <h2 id="read-files">How do I read files?</h2>
+        <p>Use the <code>fs</code> standard library module:</p>
+        <pre><code>use fs
+
+let content = fs.read("data.txt")
+print(content)
+
+// Read as lines
+let lines = fs.read_lines("data.txt")
+for line in lines {
+    print(line)
+}</code></pre>
+
+        <h2 id="http-requests">How do I make HTTP requests?</h2>
+        <p>Use the <code>http</code> module:</p>
+        <pre><code>use http
+
+let resp = http.get("https://api.example.com/data")
+print(resp.status_code)
+print(resp.body)
+
+// POST with JSON body
+let resp2 = http.post("https://api.example.com/submit", json: {
+    "name": "Alice",
+    "email": "alice@example.com"
+})
+print(resp2.status_code)</code></pre>
+
+        <h2 id="error-handling">How do I handle errors?</h2>
+        <p>Lion uses try/catch for error handling:</p>
+        <pre><code>use fs
+
+try {
+    let content = fs.read("nonexistent.txt")
+} catch err {
+    print("Error: {err.message}")
+}
+
+// Functions can return Result types
+fn divide(a, b) {
+    if b == 0 {
+        return error("Division by zero")
+    }
+    return ok(a / b)
+}
+
+let result = divide(10, 2)
+match result {
+    ok(value) => print("Result: {value}"),
+    error(msg) => print("Failed: {msg}")
+}</code></pre>
+
+        <h2 id="regex">How do I use regular expressions?</h2>
+        <p>Use the <code>regex</code> module:</p>
+        <pre><code>use regex
+
+let pattern = regex.compile(r"(\w+)@(\w+)\.(\w+)")
+let result = pattern.match("user@example.com")
+
+if result {
+    print(result.group(1))  // "user"
+    print(result.group(2))  // "example"
+    print(result.group(3))  // "com"
+}
+
+// Find all matches
+let text = "Call 555-1234 or 555-5678"
+let phones = regex.find_all(r"\d{3}-\d{4}", text)
+print(phones)  // ["555-1234", "555-5678"]</code></pre>
+
+        <h2 id="json-parse">How do I parse JSON?</h2>
+        <p>Use the <code>json</code> module:</p>
+        <pre><code>use json
+
+let data = json.parse('{"name": "Alice", "age": 30}')
+print(data.name)   // "Alice"
+print(data.age)    // 30
+
+// Serialize to JSON string
+let obj = { "name": "Bob", "age": 25 }
+let str = json.stringify(obj)
+print(str)</code></pre>
+
+        <h2 id="create-project">How do I create a project?</h2>
+        <p>Use the <code>lion new</code> command:</p>
+        <pre><code>lion new my_project
+cd my_project
+lion run src/main.lion</code></pre>
+        <p>This creates the standard project layout with <code>lion.json</code>, <code>src/main.lion</code>, <code>tests/</code>, and <code>modules/</code> directories.</p>
+
+        <h2 id="run-tests">How do I run tests?</h2>
+        <p>Write test functions using the <code>test</code> module, then run <code>lion test</code>:</p>
+        <pre><code>use test
+
+fn test_addition() {
+    test.assert_eq(1 + 1, 2)
+}
+
+fn test_string_upper() {
+    test.assert_eq("hello".upper(), "HELLO")
+}</code></pre>
+        <pre><code>lion test</code></pre>
+        <p>Filter tests by name: <code>lion test addition</code>.</p>
+
+        <h2 id="multithreading">Does Lion support multithreading?</h2>
+        <p>Lion uses a single-threaded VM with cooperative concurrency via fibers (lightweight coroutines). True OS-level multithreading is available through the <code>thread</code> module, which spawns independent VM instances on separate threads that communicate via message passing.</p>
+        <pre><code>use thread
+
+let handle = thread.spawn(fn() {
+    print("Running on thread {thread.id()}")
+    return 42
+})
+
+let result = handle.join()
+print(result)  // 42</code></pre>
+
+        <h2 id="gui-linux">How do I use GUI on Linux?</h2>
+        <p>Lion includes a built-in GUI toolkit that works on Linux via GTK4. Install the required system dependencies:</p>
+        <pre><code># Ubuntu/Debian
+sudo apt install libgtk-4-dev
+
+# Fedora
+sudo dnf install gtk4-devel</code></pre>
+        <p>Then use the <code>gui</code> module:</p>
+        <pre><code>use gui
+
+let window = gui.Window("My App", width: 800, height: 600)
+let label = gui.Label("Hello, Linux!")
+window.add(label)
+window.show()
+gui.run()</code></pre>
+        <p>See the <a href="gui-guide.html">GUI Guide</a> for full details.</p>
+
+        <h2 id="opencv-usage">How do I use OpenCV?</h2>
+        <p>Lion wraps OpenCV through the <code>cv</code> module. Install OpenCV on your system first, then:</p>
+        <pre><code>use cv
+
+let img = cv.imread("photo.jpg")
+let gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+let edges = cv.canny(gray, 50, 150)
+cv.imwrite("edges.jpg", edges)
+print("Saved edges.jpg")</code></pre>
+        <p>See the <a href="opencv-guide.html">OpenCV Guide</a> for full details.</p>
+
+        <h2 id="slow-program">Why is my program slow?</h2>
+        <p>Common causes and fixes:</p>
+        <ul>
+          <li><strong>String concatenation in loops</strong> - Use f-strings or <code>list.join()</code> instead of repeated <code>+</code> on strings.</li>
+          <li><strong>Global variable access</strong> - Local variables are ~10x faster. Cache globals in locals when accessing them in tight loops.</li>
+          <li><strong>Repeated list allocation</strong> - Use <code>list.new(capacity)</code> to pre-allocate.</li>
+          <li><strong>Unoptimized build</strong> - Use <code>lion build</code> for release builds with AOT optimizations.</li>
+          <li><strong>Suboptimal algorithm</strong> - Profile first with <code>lion run --disassemble</code> to inspect bytecode, then consider algorithmic improvements.</li>
+        </ul>
+        <p>See the <a href="performance.html">Performance</a> page for detailed benchmarks and optimization techniques.</p>
+
+        <h2 id="embed-rust">How do I embed Lion in my Rust application?</h2>
+        <p>Add Lion as a dependency and use the embedding API:</p>
+        <pre><code>// Cargo.toml
+[dependencies]
+lion = { path = "../lion" }</code></pre>
+        <pre><code>// main.rs
+fn main() {
+    lion::execute_source(r#"
+        print("Hello from embedded Lion!")
+    "#).unwrap();
+
+    lion::execute_file("scripts/plugin.lion").unwrap();
+}</code></pre>
+        <p>See the <a href="advanced-guide.html#embedding-in-rust">Embedding in Rust</a> section for the full API reference.</p>
+
+        <div class="page-meta">
+          <a id="edit-link" href="#">Edit this page on GitHub</a>
+          <span>Last updated: July 2026</span>
+        </div>
+        <div class="feedback">
+          <span>Was this page helpful?</span>
+          <button>&#128077; Yes</button>
+          <button>&#128078; No</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>
