@@ -17,8 +17,9 @@ A step-by-step guide to learning Lion, from zero to building real applications.
 9. [Error Handling](#9-error-handling)
 10. [Modules & Imports](#10-modules--imports)
 11. [Standard Library](#11-standard-library)
-12. [Building a GUI App](#12-building-a-gui-app)
-13. [What's Next](#13-whats-next)
+12. [Project Management](#12-project-management)
+13. [Building a GUI App](#13-building-a-gui-app)
+14. [What's Next](#14-whats-next)
 
 ---
 
@@ -60,7 +61,7 @@ cargo build --release --features panther
 ./target/release/lion version
 ```
 
-You should see `lion 1.6.3`.
+You should see `lion 1.7.0`.
 
 ---
 
@@ -573,13 +574,15 @@ test.assert_approx(3.14159, 3.14, 0.01);
 test.assert_lt(1, 2);
 ```
 
-### Computer Vision (`opencv`)
+### Computer Vision (`opencv`) — v1.7.0
 
 Requires building with `--features opencv` and system OpenCV 4/5:
 
 ```bash
 PKG_CONFIG_PATH=/usr/lib/pkgconfig cargo build --release --features opencv
 ```
+
+Images are **automatically garbage-collected** — no manual `free()` needed (though it still works for eager cleanup).
 
 ```lion
 let img = opencv.imread("photo.jpg");
@@ -589,6 +592,8 @@ let gray = opencv.cvt_color(img, opencv.BGR2GRAY);
 let edges = opencv.canny(gray, 50.0, 150.0);
 let blurred = opencv.gaussian_blur(gray, 5, 5, 1.5);
 let small = opencv.resize(img, 200, 200);
+let ascii = opencv.to_ascii(img, 80);          // ASCII art!
+print(ascii);
 
 opencv.imwrite("output.jpg", edges);
 
@@ -596,17 +601,120 @@ opencv.imwrite("output.jpg", edges);
 opencv.imshow("result", edges);
 opencv.wait_key(0);
 opencv.destroy_all_windows();
-
-opencv.free(img);
-opencv.free(gray);
-opencv.free(edges);
 ```
 
-Available: `imread`, `imwrite`, `cvt_color`, `resize`, `gaussian_blur`, `canny`, `threshold`, `shape`, `imshow`, `wait_key`, `destroy_all_windows`, `free`. Constants: `BGR2GRAY`, `GRAY2BGR`, `BGR2RGB`, `RGB2GRAY`, `THRESH_BINARY`, `THRESH_BINARY_INV`.
+#### Object Detection
+
+```lion
+// Face detection with Haar cascade
+let faces = opencv.detect_cascade(img,
+    "/usr/share/opencv5/haarcascades/haarcascade_frontalface_default.xml");
+for f in faces {
+    let [x, y, w, h] = f;
+    opencv.draw_rect(img, x, y, w, h, 0, 255, 0, 2);
+}
+
+// People detection with HOG
+let people = opencv.detect_people(img);
+for p in people {
+    let [x, y, w, h] = p;
+    opencv.draw_rect(img, x, y, w, h, 255, 0, 0, 2);
+}
+
+// DNN-based object detection
+let dets = opencv.detect_dnn(img, "yolov8n.onnx");
+for d in dets {
+    let [class_id, conf, x, y, w, h] = d;
+    print(f"class {class_id}: {conf} at ({x}, {y})");
+}
+```
+
+#### Image Processing
+
+```lion
+// Filters
+let blurred = opencv.blur(img, 5);
+let inverted = opencv.invert(img);
+let sepia = opencv.sepia(img);
+let pixelated = opencv.pixelate(img, 10);
+
+// Adjustments
+let brighter = opencv.brightness(img, 30.0);
+let higher_contrast = opencv.contrast(img, 1.5);
+
+// Histogram equalization
+let eq = opencv.equalize_hist(img);
+
+// Normalize
+let norm = opencv.normalize(img, 0.0, 255.0);
+
+// Template matching
+let template = opencv.crop(img, 100, 100, 50, 50);
+let result = opencv.match_template(img, template);
+let [min_val, max_val, min_x, min_y, max_x, max_y] = result;
+```
+
+#### Drawing & Geometry
+
+```lion
+// Draw shapes and text
+let marked = opencv.draw_rect(img, 10, 10, 200, 100, 255, 0, 0, 3);
+let marked = opencv.draw_text(marked, "Hello", 20, 40, 1.0, 0, 255, 0, 2);
+
+// Crop
+let cropped = opencv.crop(img, 50, 50, 200, 200);
+
+// Resize with padding
+let letterbox = opencv.letterbox(img, 640, 480, 114, 114, 114);
+
+// Faster resize (nearest neighbor)
+let fast = opencv.resize_fast(img, 320, 240);
+```
+
+Full reference: `imread`, `imread_gray`, `imwrite`, `cvt_color`, `resize`, `resize_fast`, `gaussian_blur`, `blur`, `canny`, `edges`, `threshold`, `shape`, `grayscale`, `invert`, `sepia`, `brightness`, `contrast`, `pixelate`, `flip`, `rotate`, `crop`, `letterbox`, `draw_rect`, `draw_text`, `equalize_hist`, `normalize`, `match_template`, `copy`, `thumbnail`, `to_ascii`, `read_ascii`, `imshow`, `wait_key`, `destroy_all_windows`, `free`, `detect_cascade`, `detect_people`, `detect_dnn`, plus 40+ constants.
 
 ---
 
-## 12. Building a GUI App
+## 12. Project Management
+
+Lion includes a built-in project manager. Create, build, and run projects:
+
+```bash
+# Create a new project
+lion new my-app
+cd my-app
+
+# Run the project entry point (reads lion.json)
+lion run
+
+# Check all .lion files for errors
+lion build
+
+# Run tests in tests/ directory
+lion test
+```
+
+### `lion.json`
+
+```json
+{
+  "name": "my-app",
+  "version": "0.1.0",
+  "entry": "src/main.lion"
+}
+```
+
+### Quick Runner
+
+The `lion-rs` binary runs any file directly without subcommands:
+
+```bash
+lion-rs script.lion
+```
+
+---
+
+## 13. Building a GUI App
 
 ### Linux: Panther (GTK4)
 
@@ -720,7 +828,7 @@ leopard.mainloop(root);
 
 ---
 
-## 13. What's Next
+## 14. What's Next
 
 Explore the examples in the `examples/` directory:
 
@@ -742,6 +850,9 @@ Run the test suite:
 ```bash
 cargo build --release --bin lion
 ./target/release/lion test tests/
+
+# Or from a Lion project root:
+lion test
 ```
 
 Write your own modules:

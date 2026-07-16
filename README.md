@@ -2,11 +2,11 @@
 
 [![Rust](https://img.shields.io/badge/Rust-1.80%2B-dea584?logo=rust)](https://rustup.rs/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.6.3-green)](https://github.com/young-developer90/lion/releases)
+[![Version](https://img.shields.io/badge/version-1.7.0-green)](https://github.com/young-developer90/lion/releases)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/young-developer90/lion/actions)
 [![PRs](https://img.shields.io/badge/PRs-welcome-orange)](https://github.com/young-developer90/lion/pulls)
 
-Lion is a simple, expressive scripting language with a Rust-based interpreter (v1.6.3). It combines modern language features — closures, pattern matching, string interpolation, and a module system — with a lightweight bytecode VM and optional GPU acceleration.
+Lion is a simple, expressive scripting language with a Rust-based interpreter (v1.7.0). It combines modern language features — closures, pattern matching, string interpolation, and a module system — with a lightweight bytecode VM, optional GPU acceleration, and a built-in project manager.
 
 ```
 print("Hello, Lion!");
@@ -294,7 +294,7 @@ let evens   = [x for x in 0..20 if x % 2 == 0];
 | **C Extensions** | |
 | `panda` | NumPy-like arrays: `arange`, `zeros`, `ones`, `linspace`, `sum`, `mean`, `min`, `max`, `std`, `abs`, `sin`, `cos`, `sqrt`, `pow`, `add`, `sub`, `mul`, `dot`, `shape`, `reshape`, `eye` (build: `make -C modules`) |
 | **Optional (feature flags)** | |
-| `opencv` | Computer vision: `imread`, `imwrite`, `cvt_color`, `resize`, `gaussian_blur`, `canny`, `threshold`, `shape`, `imshow`, `wait_key`, `free` (feature=opencv, requires system OpenCV 4/5) |
+| `opencv` | Computer vision: `imread`, `imwrite`, `imread_gray`, `cvt_color`, `resize`, `resize_fast`, `gaussian_blur`, `blur`, `canny`, `edges`, `threshold`, `shape`, `grayscale`, `invert`, `sepia`, `brightness`, `contrast`, `pixelate`, `flip`, `rotate`, `crop`, `letterbox`, `draw_rect`, `draw_text`, `equalize_hist`, `normalize`, `match_template`, `copy`, `thumbnail`, `to_ascii`, `read_ascii`, `imshow`, `wait_key`, `destroy_all_windows`, `free`, `detect_cascade`, `detect_people`, `detect_dnn`, plus 40+ constants (feature=opencv, requires system OpenCV 4/5) |
 | **Windows** | |
 | `leopard` | Native GUI toolkit (Win32) |
 | **Linux** | |
@@ -302,7 +302,7 @@ let evens   = [x for x in 0..20 if x % 2 == 0];
 
 ## Performance Benchmarks
 
-Benchmarks comparing Lion 1.6.3 (release build) against Python 3.14 on the same workloads. Lower is better.
+Benchmarks comparing Lion 1.7.0 (release build) against Python 3.14 on the same workloads. Lower is better.
 
 | Benchmark | Lion (ms) | Python (ms) | vs Python |
 |-----------|-----------|-------------|-----------|
@@ -318,7 +318,7 @@ Benchmarks comparing Lion 1.6.3 (release build) against Python 3.14 on the same 
 | `hashlib.base64` — 1k strings | 2.39 | 0.93 | ~2.6× slower |
 | `subprocess.run_shell` — 100 calls | 508.09 | 523.89 | **~1.0× faster** |
 
-Performance improved significantly in v1.6.3 — `datetime.now` went from 7.3× slower than Python to 1.6× slower via GC pool pre-allocation.
+Performance improved significantly in v1.6.3 — `datetime.now` went from 7.3× slower than Python to 1.6× slower via GC pool pre-allocation. v1.7.0 adds the project manager and major OpenCV expansion with automatic GC-tracked image memory.
 
 Run benchmarks yourself:
 
@@ -336,8 +336,62 @@ python3 benchmarks/bench_python.py
 | `lion repl` | Interactive REPL |
 | `lion run --disassemble <file>` | Show bytecode |
 | `lion fmt <file>` | Format source code |
-| `lion test [path]` | Run tests (default `./tests/`) |
+| `lion test [filter]` | Run tests (default `./tests/` or `.`) |
 | `lion version` | Show version |
+| `lion new <name>` | Create a new Lion project |
+| `lion init` | Initialize Lion project in current dir |
+| `lion build` | Check all `.lion` files in project for errors |
+| `lion-rs <file>` | Quick-run a file without subcommands |
+
+## Project Management (v1.7.0)
+
+Lion includes a built-in project manager via the `lion` binary. Create, build, and run Lion projects:
+
+```bash
+# Create a new project
+lion new my-app
+cd my-app
+
+# Run the project entry point
+lion run
+
+# Check all .lion files for errors
+lion build
+
+# Run tests from the tests/ directory
+lion test
+```
+
+### Project Structure
+
+```
+my-app/
+  lion.json      # Project manifest
+  src/
+    main.lion    # Entry point (default)
+  tests/         # Test files (optional)
+```
+
+### `lion.json`
+
+```json
+{
+  "name": "my-app",
+  "version": "0.1.0",
+  "entry": "src/main.lion",
+  "dependencies": {}
+}
+```
+
+### Quick Runner
+
+The `lion-rs` binary runs any Lion file directly without subcommands:
+
+```bash
+lion-rs script.lion
+```
+
+This is equivalent to `lion run script.lion` but shorter — useful for shebangs and quick scripts.
 
 ## Advanced Builds
 
@@ -375,7 +429,7 @@ bash scripts/package.sh --panther
 
 The output appears in `dist/` and includes the binary, C extensions, examples, and a launcher script.
 
-### OpenCV Computer Vision
+### OpenCV Computer Vision (v1.7.0)
 
 Requires system OpenCV 4/5 development libraries:
 
@@ -396,17 +450,106 @@ Build and set `PKG_CONFIG_PATH` if needed:
 PKG_CONFIG_PATH=/usr/lib/pkgconfig cargo build --release --features opencv
 ```
 
-Usage:
+Images are **automatically garbage-collected** — no manual `free` needed (though `opencv.free()` still works for explicit cleanup).
+
+#### Image I/O
+
+| Function | Description |
+|----------|-------------|
+| `imread(path)` | Load image (BGR) |
+| `imread_gray(path)` | Load image as grayscale |
+| `imwrite(path, img)` | Save image to file |
+| `copy(img)` | Deep-clone an image |
+| `shape(img)` | Return `[height, width, channels]` |
+
+#### Color & Conversion
+
+| Function | Description |
+|----------|-------------|
+| `cvt_color(img, code)` | Color space conversion |
+| `grayscale(img)` | Convert to grayscale |
+| `to_ascii(img, [width])` | Convert image to ASCII art |
+| `read_ascii(path, [width])` | Load file and convert to ASCII art |
+
+#### Filters & Effects
+
+| Function | Description |
+|----------|-------------|
+| `gaussian_blur(img, kx, ky, sigma)` | Gaussian blur |
+| `blur(img, ksize)` | Simple average blur |
+| `canny(img, low, high)` | Edge detection |
+| `edges(img)` | Auto-thresholded edge detection |
+| `threshold(img, thresh, maxval, type)` | Binary thresholding |
+| `invert(img)` | Bitwise NOT (invert colors) |
+| `sepia(img)` | Sepia tone filter |
+| `brightness(img, delta)` | Adjust brightness |
+| `contrast(img, alpha)` | Adjust contrast |
+| `pixelate(img, block)` | Pixelate effect |
+| `equalize_hist(img)` | Histogram equalization (auto-grayscale) |
+| `normalize(img, [alpha], [beta], [norm_type])` | Normalize value range |
+| `match_template(img, template, [method])` | Template matching |
+
+#### Geometry & Drawing
+
+| Function | Description |
+|----------|-------------|
+| `resize(img, width, height)` | Resize with linear interpolation |
+| `resize_fast(img, width, height)` | Faster resize (nearest neighbor) |
+| `thumbnail(img, max_size)` | Aspect-ratio-preserving thumbnail |
+| `flip(img, code)` | Flip (0=vertical, 1=horizontal, -1=both) |
+| `rotate(img, code)` | Rotate 90/180/270 |
+| `crop(img, x, y, w, h)` | Extract sub-region |
+| `letterbox(img, tw, th, [r], [g], [b])` | Resize with padding |
+| `draw_rect(img, x, y, w, h, [r], [g], [b], [thick])` | Draw rectangle |
+| `draw_text(img, text, x, y, [scale], [r], [g], [b], [thick])` | Draw text |
+
+#### Object Detection (v1.7.0)
+
+| Function | Description |
+|----------|-------------|
+| `detect_cascade(img, xml_path, [scale], [min_neighbors], [min_w], [min_h], [max_w], [max_h])` | Haar/LBP cascade detection → list of `[x,y,w,h]` |
+| `detect_people(img, [hit_thresh], [scale], [group_thresh])` | HOG people detection → list of `[x,y,w,h]` |
+| `detect_dnn(img, model, [config], [conf_thresh], [nms_thresh])` | DNN object detection → list of `[class_id, conf, x, y, w, h]` |
+
+#### Display
+
+| Function | Description |
+|----------|-------------|
+| `imshow(name, img)` | Show image in window |
+| `wait_key(delay)` | Wait for key press |
+| `destroy_all_windows()` | Close all windows |
+
+#### Constants
+
+| Group | Values |
+|-------|--------|
+| Color codes | `BGR2GRAY`, `GRAY2BGR`, `BGR2RGB`, `RGB2GRAY`, `BGRA2GRAY`, `GRAY2BGRA`, `BGR2HSV`, `HSV2BGR`, `BGR2HLS`, `BGR2LAB` |
+| Threshold | `THRESH_BINARY`, `THRESH_BINARY_INV`, `THRESH_TRUNC`, `THRESH_TOZERO`, `THRESH_TOZERO_INV`, `THRESH_OTSU` |
+| Interpolation | `INTER_LINEAR`, `INTER_NEAREST`, `INTER_CUBIC`, `INTER_AREA` |
+| Flip/Rotate | `FLIP_VERTICAL`, `FLIP_HORIZONTAL`, `FLIP_BOTH`, `ROTATE_90_CLOCKWISE`, `ROTATE_180`, `ROTATE_90_COUNTERCLOCKWISE` |
+| Drawing | `FILLED`, `LINE_8`, `LINE_AA`, `FONT_HERSHEY_SIMPLEX` |
+| Template matching | `TM_CCOEFF`, `TM_CCOEFF_NORMED`, `TM_CCORR`, `TM_CCORR_NORMED`, `TM_SQDIFF`, `TM_SQDIFF_NORMED` |
+| Normalize | `NORM_MINMAX`, `NORM_L1`, `NORM_L2` |
+| Border | `BORDER_CONSTANT` |
+
+Example:
 
 ```lion
 let img = opencv.imread("photo.jpg");
 let gray = opencv.cvt_color(img, opencv.BGR2GRAY);
 let edges = opencv.canny(gray, 50.0, 150.0);
 opencv.imwrite("edges.jpg", edges);
-opencv.free(img);
-opencv.free(gray);
-opencv.free(edges);
+
+// Detect faces
+let faces = opencv.detect_cascade(img, "/usr/share/opencv5/haarcascades/haarcascade_frontalface_default.xml");
+for f in faces {
+    let [x, y, w, h] = f;
+    img = opencv.draw_rect(img, x, y, w, h, 0, 255, 0, 2);
+}
+opencv.imwrite("faces.jpg", img);
 ```
+
+**Memory management**: Images are GC-tracked — they auto-free when no longer referenced. No need to call `free()`, but it's available for eager cleanup.
 
 ### CUDA Support
 
@@ -436,6 +579,11 @@ cd ..
 ```bash
 cargo build --release --bin lion
 ./target/release/lion test tests/
+
+# Or from a Lion project root:
+cd my-project
+lion test          # runs tests/ directory
+lion test filter   # runs tests matching "filter"
 ```
 
 ## Embedding Lion as a Library
