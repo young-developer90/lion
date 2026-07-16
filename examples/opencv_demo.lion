@@ -1,0 +1,113 @@
+// OpenCV Computer Vision Example
+// Demonstrates image I/O, filters, edge detection, and drawing
+//
+// Build: cargo build --release --features opencv
+// Run:   lion run examples/opencv_demo.lion
+
+print("=== OpenCV Demo ===\n");
+
+// --- Generate a synthetic test image (PPM P6 format) ---
+print("--- Generating synthetic image ---");
+let w = 64;
+let h = 64;
+let header = f"P6\n{w} {h}\n255\n";
+let pixels = "";
+for y in 0..64 {
+    for x in 0..64 {
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        // 4-color quadrants
+        if x < 32 and y < 32 { b = 255; }
+        if x >= 32 and y < 32 { g = 255; }
+        if x < 32 and y >= 32 { r = 255; }
+        if x >= 32 and y >= 32 { r = 255; g = 255; b = 255; }
+        // cross in the center
+        if x > 29 and x < 35 { r = 0; g = 0; b = 0; }
+        if y > 29 and y < 35 { r = 0; g = 0; b = 0; }
+        pixels = pixels + string.from_bytes([r, g, b]);
+    }
+}
+fs.write("examples/test_image.ppm", header + pixels);
+print(f"  Created test_image.ppm ({w}x{h})");
+
+// --- Image I/O ---
+print("\n--- Image I/O ---");
+let img = opencv.imread("examples/test_image.ppm");
+print(f"  Loaded image: {opencv.shape(img)}");
+
+// --- Color Conversion ---
+print("\n--- Color Conversion ---");
+let gray = opencv.cvt_color(img, opencv.BGR2GRAY);
+print(f"  Grayscale: {opencv.shape(gray)}");
+
+// --- Resize ---
+print("\n--- Resize ---");
+let small = opencv.resize_fast(img, 32, 32);
+print(f"  Resized to: {opencv.shape(small)}");
+let resized = opencv.resize(small, 128, 128);
+print(f"  Resized back: {opencv.shape(resized)}");
+
+// --- Blur ---
+print("\n--- Blur Filters ---");
+let blurred = opencv.gaussian_blur(img, 3, 3, 1.0);
+print("  Gaussian blur applied");
+let avg_blur = opencv.blur(img, 3);
+print("  Average blur applied");
+
+// --- Edge Detection ---
+print("\n--- Edge Detection ---");
+let edges = opencv.canny(gray, 50.0, 150.0);
+print(f"  Canny edges: {opencv.shape(edges)}");
+let auto_edges = opencv.edges(img);
+print(f"  Auto edges: {opencv.shape(auto_edges)}");
+
+// --- Threshold ---
+print("\n--- Threshold ---");
+let thresh = opencv.threshold(gray, 128.0, 255.0, opencv.THRESH_BINARY);
+print(f"  Binary threshold: {opencv.shape(thresh)}");
+
+// --- Geometric Transforms ---
+print("\n--- Geometric Transforms ---");
+let flipped = opencv.flip(img, opencv.FLIP_HORIZONTAL);
+print("  Horizontal flip applied");
+let rotated = opencv.rotate(img, opencv.ROTATE_90_CLOCKWISE);
+print(f"  Rotated 90 degrees: {opencv.shape(rotated)}");
+let cropped = opencv.crop(img, 5, 5, 30, 30);
+print(f"  Cropped: {opencv.shape(cropped)}");
+
+// --- Effects ---
+print("\n--- Effects ---");
+let inverted = opencv.invert(img);
+print("  Invert applied");
+let sepia_img = opencv.sepia(img);
+print("  Sepia filter applied");
+let bright = opencv.brightness(img, 30);
+print("  Brightness +30 applied");
+let contrast_img = opencv.contrast(img, 1.5);
+print("  Contrast x1.5 applied");
+
+// --- Drawing ---
+print("\n--- Drawing ---");
+let drawn = opencv.draw_rect(img, 5, 5, 20, 20, 255, 0, 0, 2);
+drawn = opencv.draw_rect(drawn, 40, 5, 20, 20, 0, 255, 0, 2);
+drawn = opencv.draw_text(drawn, "Hi", 15, 50, 0.6, 255, 255, 0, 1);
+print("  Drew rectangles and text");
+
+// --- Save results ---
+print("\n--- Saving Results ---");
+opencv.imwrite("examples/output_edges.png", edges);
+print("  Saved edges to output_edges.png");
+opencv.imwrite("examples/output_blur.png", blurred);
+print("  Saved blur to output_blur.png");
+opencv.imwrite("examples/output_sepia.png", sepia_img);
+print("  Saved sepia to output_sepia.png");
+opencv.imwrite("examples/output_drawn.png", drawn);
+print("  Saved drawing to output_drawn.png");
+
+// --- ASCII Art ---
+print("\n--- ASCII Art ---");
+let ascii = opencv.to_ascii(img, 40);
+print(ascii);
+
+print("\n=== OpenCV Demo Complete ===");

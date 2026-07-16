@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-VERSION="1.6.3"
+VERSION="1.7.0"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 usage() {
@@ -31,7 +31,7 @@ fi
 
 OUTDIR="${ROOT}/dist/${NAME}"
 
-cargo build --release ${FEATURES} --bin lion 2>&1
+cargo build --release ${FEATURES} --bin lion --bin lion-rs 2>&1
 
 echo "==> Building C extension modules..."
 make -C "${ROOT}/modules" clean all 2>&1
@@ -43,6 +43,7 @@ mkdir -p "${OUTDIR}/modules"
 mkdir -p "${OUTDIR}/examples"
 
 cp "${ROOT}/target/release/lion" "${OUTDIR}/bin/"
+cp "${ROOT}/target/release/lion-rs" "${OUTDIR}/bin/"
 cp "${ROOT}/modules/"*.so "${OUTDIR}/modules/" 2>/dev/null || true
 cp "${ROOT}/examples/"*.lion "${OUTDIR}/examples/" 2>/dev/null || true
 
@@ -76,6 +77,15 @@ exec "${DIR}/bin/lion" "$@"
 LAUNCHER
 chmod +x "${OUTDIR}/lion"
 
+cat > "${OUTDIR}/lion-rs" << 'LAUNCHER_RS'
+#!/usr/bin/env bash
+DIR="$(cd "$(dirname "$0")" && pwd)"
+export LD_LIBRARY_PATH="${DIR}/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export PANTHER_LIB_DIR="${DIR}/lib"
+exec "${DIR}/bin/lion-rs" "$@"
+LAUNCHER_RS
+chmod +x "${OUTDIR}/lion-rs"
+
 echo "==> Creating tarball..."
 cd "${ROOT}/dist"
 tar czf "${NAME}.tar.gz" "${NAME}/"
@@ -88,6 +98,7 @@ echo "    On target machine:"
 echo "      tar xzf dist/${NAME}.tar.gz"
 echo "      cd ${NAME}"
 echo "      ./lion run examples/hello.lion"
+echo "      ./lion-rs examples/hello.lion       # quick runner"
 if [ "$BUNDLE_GTK" -eq 1 ]; then
     echo ""
     echo "    Note: GTK4 runtime libraries are bundled, but system deps"

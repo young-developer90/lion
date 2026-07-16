@@ -85,112 +85,55 @@ impl Vm {
         result
     }
 
+    #[inline(always)]
+    fn read_u16_from(code: &[u8], pos: usize) -> u16 {
+        u16::from_le_bytes([code[pos], code[pos + 1]])
+    }
+
     fn run_inner(&mut self) -> Result<Value, String> {
         loop {
-            let code = &self.chunks[self.chunk_idx].code;
-            if self.ip >= code.len() {
-                return Err("program counter out of bounds".to_string());
-            }
-
-            // Periodically collect garbage
+            // Periodically collect garbage (check only on allocation-heavy ops)
             if self.heap.stats_total_allocated > 0
-                && self.heap.stats_total_allocated & 16383 == 0
+                && self.heap.stats_total_allocated & 65535 == 0
             {
-                let stack_copy = self.stack.clone();
-                let globals_copy: Vec<Value> = self.globals.values().cloned().collect();
-                let mut roots = Vec::with_capacity(stack_copy.len() + globals_copy.len() + 64);
-                roots.extend(stack_copy);
-                roots.extend(globals_copy);
+                let mut roots = Vec::with_capacity(self.stack.len() + self.globals.len() + 64);
+                roots.extend(self.stack.iter().cloned());
+                roots.extend(self.globals.values().cloned());
                 for chunk in &self.chunks {
                     roots.extend(chunk.constants.iter().cloned());
                 }
                 self.heap.collect_garbage(&roots);
             }
 
-            let op = OpCode::from_u8(code[self.ip])
-                .ok_or(format!("unknown opcode at {}", self.ip))?;
-            self.ip += 1;
+            let code = &self.chunks[self.chunk_idx].code;
+            let ip = self.ip;
+            if ip >= code.len() {
+                return Err("program counter out of bounds".to_string());
+            }
 
-            match op {
-                OpCode::Halt => return Ok(Value::Nil),
-                OpCode::Pop => { self.stack.pop().ok_or("stack empty on pop")?; }
-                OpCode::Dup => {
+            // Raw byte dispatch — eliminates OpCode::from_u8 conversion
+            let op_byte = code[ip];
+            self.ip = ip + 1;
+
+            match op_byte {
+                // === Halt ===
+                0 => return Ok(Value::Nil),
+
+                // === Stack operations ===
+                1 => { // Pop
+                    self.stack.pop().ok_or("stack empty on pop")?;
+                }
+                2 => { // Dup
                     let val = self.stack.last().ok_or("stack empty on dup")?.clone();
                     self.stack.push(val);
                 }
-                OpCode::Nil => self.stack.push(Value::Nil),
-                OpCode::True => self.stack.push(Value::Bool(true)),
-                OpCode::False => self.stack.push(Value::Bool(false)),
-                OpCode::LoadConst => {
-                    let idx = self.read_u16(self.ip) as usize;
-                    self.ip += 2;
-                    self.stack.push(self.chunk().constants[idx].clone());
-                }
-                OpCode::LoadLocal => {
-                    let idx = self.read_u16(self.ip) as usize;
-                    self.ip += 2;
-                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
-                    self.stack.push(self.stack[stack_idx].clone());
-                }
-                OpCode::LoadUpvalue => {
-                    let idx = self.read_u16(self.ip) as usize;
-                    self.ip += 2;
-                    let cl_ref = self.frames.last()
-                        .and_then(|f| f.closure)
-                        .ok_or("load_upvalue: no closure")?;
-                    if let GcObj::Closure { ref upvalues, .. } = self.heap.get(cl_ref) {
-                        let val = upvalues[idx].value.clone().unwrap_or(Value::Nil);
-                        self.stack.push(val);
-                    } else {
-                        return Err("load_upvalue: not a closure".to_string());
-                    }
-                }
-                OpCode::StoreUpvalue => {
-                    let idx = self.read_u16(self.ip) as usize;
-                    self.ip += 2;
-                    let val = self.stack.pop().ok_or("stack empty on store_upvalue")?;
-                    let cl_ref = self.frames.last()
-                        .and_then(|f| f.closure)
-                        .ok_or("store_upvalue: no closure")?;
-                    if let GcObj::Closure { ref mut upvalues, .. } = self.heap.get_mut(cl_ref) {
-                        upvalues[idx].value = Some(val);
-                    } else {
-                        return Err("store_upvalue: not a closure".to_string());
-                    }
-                }
-                OpCode::StoreLocal => {
-                    let idx = self.read_u16(self.ip) as usize;
-                    self.ip += 2;
-                    let val = self.stack.pop().ok_or("stack empty on store_local")?;
-                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
-                    if stack_idx < self.stack.len() {
-                        self.stack[stack_idx] = val;
-                    } else {
-                        self.stack.resize(stack_idx + 1, Value::Nil);
-                        self.stack[stack_idx] = val;
-                    }
-                }
-                OpCode::LoadGlobal => {
-                    let sidx = self.read_u16(self.ip) as usize;
-                    self.ip += 2;
-                    let name = self.chunk().string_pool.get(sidx).ok_or("invalid global name index")?.clone();
-                    match self.globals.get(&name) {
-                        Some(val) => self.stack.push(val.clone()),
-                        None => return Err(format!("undefined global '{}'", name)),
-                    }
-                }
-                OpCode::StoreGlobal => {
-                    let sidx = self.read_u16(self.ip) as usize;
-                    self.ip += 2;
-                    let name = self.chunk().string_pool.get(sidx).ok_or("invalid global name index")?.clone();
-                    let val = self.stack.pop().ok_or("stack empty on store_global")?;
-                    self.globals.insert(name, val);
-                }
-                OpCode::Add => {
+
+                // === Arithmetic (generic) ===
+                3 => { // Add
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     let result = match (&a, &b) {
-                        (Value::Int(x), Value::Int(y)) => Value::Int(x + y),
+                        (Value::Int(x), Value::Int(y)) => Value::Int(x.wrapping_add(*y)),
                         (Value::Float(x), Value::Float(y)) => Value::Float(x + y),
                         (Value::Int(x), Value::Float(y)) => Value::Float(*x as f64 + y),
                         (Value::Float(x), Value::Int(y)) => Value::Float(x + *y as f64),
@@ -198,11 +141,11 @@ impl Vm {
                     };
                     self.stack.push(result);
                 }
-                OpCode::Sub => {
+                4 => { // Sub
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     let result = match (&a, &b) {
-                        (Value::Int(x), Value::Int(y)) => Value::Int(x - y),
+                        (Value::Int(x), Value::Int(y)) => Value::Int(x.wrapping_sub(*y)),
                         (Value::Float(x), Value::Float(y)) => Value::Float(x - y),
                         (Value::Int(x), Value::Float(y)) => Value::Float(*x as f64 - y),
                         (Value::Float(x), Value::Int(y)) => Value::Float(x - *y as f64),
@@ -210,11 +153,11 @@ impl Vm {
                     };
                     self.stack.push(result);
                 }
-                OpCode::Mul => {
+                5 => { // Mul
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     let result = match (&a, &b) {
-                        (Value::Int(x), Value::Int(y)) => Value::Int(x * y),
+                        (Value::Int(x), Value::Int(y)) => Value::Int(x.wrapping_mul(*y)),
                         (Value::Float(x), Value::Float(y)) => Value::Float(x * y),
                         (Value::Int(x), Value::Float(y)) => Value::Float(*x as f64 * y),
                         (Value::Float(x), Value::Int(y)) => Value::Float(x * *y as f64),
@@ -222,7 +165,7 @@ impl Vm {
                     };
                     self.stack.push(result);
                 }
-                OpCode::Div => {
+                6 => { // Div
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     let result = match (&a, &b) {
@@ -234,81 +177,81 @@ impl Vm {
                     };
                     self.stack.push(result);
                 }
-                OpCode::Mod => {
+                7 => { // Mod
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(mod_values(&a, &b)?);
                 }
-                OpCode::Pow => {
+                8 => { // Pow
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(pow_values(&a, &b)?);
                 }
-                OpCode::IntDiv => {
+                9 => { // IntDiv
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(intdiv_values(&a, &b)?);
                 }
-                OpCode::Neg => {
+                10 => { // Neg
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(neg_value(&a)?);
                 }
-                OpCode::Not => {
+                11 => { // Not
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(Value::Bool(!a.is_truthy()));
                 }
-                OpCode::Eq => {
+
+                // === Comparisons (generic) ===
+                12 => { // Eq
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(Value::Bool(a.eq(&b, &self.heap)));
                 }
-                OpCode::Ne => {
+                13 => { // Ne
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(Value::Bool(!a.eq(&b, &self.heap)));
                 }
-                OpCode::Lt => {
+                14 => { // Lt
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(Value::Bool(cmp_lt(&a, &b)?));
                 }
-                OpCode::Gt => {
+                15 => { // Gt
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(Value::Bool(cmp_lt(&b, &a)?));
                 }
-                OpCode::Le => {
+                16 => { // Le
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(Value::Bool(!cmp_lt(&b, &a)?));
                 }
-                OpCode::Ge => {
+                17 => { // Ge
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(Value::Bool(!cmp_lt(&a, &b)?));
                 }
-                OpCode::And => {
+
+                // === Logical ===
+                18 => { // And
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(if !a.is_truthy() { a } else { b });
                 }
-                OpCode::Or => {
+                19 => { // Or
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(if a.is_truthy() { a } else { b });
                 }
-                OpCode::Concat => {
+                20 => { // Concat
                     let b = self.stack.pop().ok_or("stack empty")?;
                     let a = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(concat_values(&a, &b, &mut self.heap)?);
                 }
-                OpCode::In => {
-                    let right = self.stack.pop().ok_or("stack empty")?;
-                    let left = self.stack.pop().ok_or("stack empty")?;
-                    let result = contains_check(&left, &right, &mut self.heap)?;
-                    self.stack.push(Value::Bool(result));
-                }
-                OpCode::Return => {
+
+                // === Control flow ===
+                21 => { // Return
                     let val = self.stack.pop().ok_or("stack empty on return")?;
                     if let Some(frame) = self.frames.pop() {
                         self.stack.truncate(frame.stack_start);
@@ -319,90 +262,120 @@ impl Vm {
                         return Ok(val);
                     }
                 }
-                OpCode::Print => {
+
+                // === Constants ===
+                22 => { self.stack.push(Value::Nil); }       // Nil
+                23 => { self.stack.push(Value::Bool(true)); }  // True
+                24 => { self.stack.push(Value::Bool(false)); } // False
+
+                // === Print ===
+                25 => { // Print
                     if let Some(val) = self.stack.pop() {
                         print!("{}", val.to_string(&self.heap));
                     }
                 }
-                OpCode::PrintLn => {
+                26 => { // PrintLn
                     if let Some(val) = self.stack.pop() {
                         println!("{}", val.to_string(&self.heap));
                     } else { println!(); }
                 }
-                OpCode::Jump => { self.ip = self.read_u16(self.ip) as usize; }
-                OpCode::JumpIfTrue => {
-                    let target = self.read_u16(self.ip) as usize;
+
+                // === Variable access ===
+                27 => { // LoadConst
+                    let idx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    self.stack.push(self.chunk().constants[idx].clone());
+                }
+                28 => { // LoadLocal
+                    let idx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
+                    self.stack.push(self.stack[stack_idx].clone());
+                }
+                29 => { // StoreLocal
+                    let idx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let val = self.stack.pop().ok_or("stack empty on store_local")?;
+                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
+                    if stack_idx < self.stack.len() {
+                        self.stack[stack_idx] = val;
+                    } else {
+                        self.stack.resize(stack_idx + 1, Value::Nil);
+                        self.stack[stack_idx] = val;
+                    }
+                }
+                30 => { // LoadGlobal — borrow string instead of cloning
+                    let sidx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let name = self.chunk().string_pool.get(sidx).ok_or("invalid global name index")?;
+                    match self.globals.get(name) {
+                        Some(val) => self.stack.push(val.clone()),
+                        None => return Err(format!("undefined global '{}'", name)),
+                    }
+                }
+                31 => { // StoreGlobal — borrow string instead of cloning
+                    let sidx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let name = self.chunk().string_pool.get(sidx).ok_or("invalid global name index")?.clone();
+                    let val = self.stack.pop().ok_or("stack empty on store_global")?;
+                    self.globals.insert(name, val);
+                }
+                32 => { // LoadUpvalue
+                    let idx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let cl_ref = self.frames.last()
+                        .and_then(|f| f.closure)
+                        .ok_or("load_upvalue: no closure")?;
+                    if let GcObj::Closure { ref upvalues, .. } = self.heap.get(cl_ref) {
+                        let val = upvalues[idx].value.clone().unwrap_or(Value::Nil);
+                        self.stack.push(val);
+                    } else {
+                        return Err("load_upvalue: not a closure".to_string());
+                    }
+                }
+                33 => { // StoreUpvalue
+                    let idx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let val = self.stack.pop().ok_or("stack empty on store_upvalue")?;
+                    let cl_ref = self.frames.last()
+                        .and_then(|f| f.closure)
+                        .ok_or("store_upvalue: no closure")?;
+                    if let GcObj::Closure { ref mut upvalues, .. } = self.heap.get_mut(cl_ref) {
+                        upvalues[idx].value = Some(val);
+                    } else {
+                        return Err("store_upvalue: not a closure".to_string());
+                    }
+                }
+
+                // === Jumps ===
+                34 => { // Jump
+                    self.ip = Self::read_u16_from(code, self.ip) as usize;
+                }
+                35 => { // JumpIfTrue
+                    let target = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     if let Some(val) = self.stack.last() {
                         if val.is_truthy() { self.ip = target; }
                     }
                 }
-                OpCode::JumpIfFalse => {
-                    let target = self.read_u16(self.ip) as usize;
+                36 => { // JumpIfFalse
+                    let target = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     if let Some(val) = self.stack.last() {
                         if !val.is_truthy() { self.ip = target; }
                     }
                 }
-                OpCode::JumpIfNil => {
-                    let target = self.read_u16(self.ip) as usize;
+                37 => { // JumpIfNil
+                    let target = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     if let Some(val) = self.stack.last() {
                         if matches!(val, Value::Nil) { self.ip = target; }
                     }
                 }
-                OpCode::JumpIfFalsePop => {
-                    let target = self.read_u16(self.ip) as usize;
-                    self.ip += 2;
-                    let val = self.stack.pop().ok_or("stack empty on jump_if_false_pop")?;
-                    if !val.is_truthy() { self.ip = target; }
-                }
-                OpCode::JumpIfTruePop => {
-                    let target = self.read_u16(self.ip) as usize;
-                    self.ip += 2;
-                    let val = self.stack.pop().ok_or("stack empty on jump_if_true_pop")?;
-                    if val.is_truthy() { self.ip = target; }
-                }
-                OpCode::Inc => {
-                    let idx = self.read_u16(self.ip) as usize;
-                    self.ip += 2;
-                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
-                    if stack_idx < self.stack.len() {
-                        let val = self.stack[stack_idx].clone();
-                        if let Value::Int(n) = val {
-                            self.stack[stack_idx] = Value::Int(n + 1);
-                            self.stack.push(self.stack[stack_idx].clone());
-                        } else if let Value::UInt(n) = val {
-                            self.stack[stack_idx] = Value::UInt(n + 1);
-                            self.stack.push(self.stack[stack_idx].clone());
-                        } else {
-                            return Err("cannot increment non-integer".to_string());
-                        }
-                    } else {
-                        return Err("inc: local not found".to_string());
-                    }
-                }
-                OpCode::Dec => {
-                    let idx = self.read_u16(self.ip) as usize;
-                    self.ip += 2;
-                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
-                    if stack_idx < self.stack.len() {
-                        let val = self.stack[stack_idx].clone();
-                        if let Value::Int(n) = val {
-                            self.stack[stack_idx] = Value::Int(n - 1);
-                            self.stack.push(self.stack[stack_idx].clone());
-                        } else if let Value::UInt(n) = val {
-                            self.stack[stack_idx] = Value::UInt(n - 1);
-                            self.stack.push(self.stack[stack_idx].clone());
-                        } else {
-                            return Err("cannot decrement non-integer".to_string());
-                        }
-                    } else {
-                        return Err("dec: local not found".to_string());
-                    }
-                }
-                OpCode::Call => {
-                    let argc = self.read_u16(self.ip) as usize;
+
+                // === Call ===
+                38 => { // Call
+                    let argc = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
 
                     let mut args: Vec<Value> = if argc > 0 {
@@ -557,8 +530,10 @@ impl Vm {
                         other => return Err(format!("cannot call {}", other.type_name())),
                     }
                 }
-                OpCode::MakeFunc => {
-                    let chunk_idx = self.read_u16(self.ip) as usize;
+
+                // === Function/closure creation ===
+                39 => { // MakeFunc
+                    let chunk_idx = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     let func_ref = self.heap.alloc(GcObj::Function {
                         name: self.chunks[chunk_idx].name.clone(),
@@ -569,18 +544,8 @@ impl Vm {
                     });
                     self.stack.push(Value::Function(func_ref));
                 }
-                OpCode::CloseUpvalue => {
-                    let idx = self.read_u16(self.ip) as usize;
-                    self.ip += 2;
-                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
-                    if stack_idx < self.stack.len() {
-                        let val = self.stack[stack_idx].clone();
-                        self.stack.truncate(stack_idx);
-                        self.stack.push(val);
-                    }
-                }
-                OpCode::MakeClosure => {
-                    let chunk_idx = self.read_u16(self.ip) as usize;
+                40 => { // MakeClosure
+                    let chunk_idx = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     let upvalue_infos = self.chunks[chunk_idx].upvalues.clone();
                     let mut captured = Vec::new();
@@ -607,29 +572,41 @@ impl Vm {
                     });
                     self.stack.push(Value::Closure(closure_ref));
                 }
-                OpCode::BuildList => {
-                    let count = self.read_u16(self.ip) as usize;
+                41 => { // CloseUpvalue
+                    let idx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
+                    if stack_idx < self.stack.len() {
+                        let val = self.stack[stack_idx].clone();
+                        self.stack.remove(stack_idx);
+                        self.stack.push(val);
+                    }
+                }
+
+                // === Collection builders ===
+                42 => { // BuildList
+                    let count = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     let start = self.stack.len().saturating_sub(count);
                     let items: Vec<Value> = self.stack.drain(start..).collect();
                     self.stack.push(make_list(&mut self.heap, items));
                 }
-                OpCode::BuildDict => {
+                43 => { // BuildDict
                     self.ip += 2;
                     self.stack.push(make_dict(&mut self.heap, Vec::new()));
                 }
-                OpCode::BuildSet => {
+                44 => { // BuildSet
                     self.ip += 2;
                     self.stack.push(make_set(&mut self.heap, Vec::new()));
                 }
-                OpCode::BuildTuple => {
-                    let count = self.read_u16(self.ip) as usize;
+                45 => { // BuildTuple
+                    let count = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     let start = self.stack.len().saturating_sub(count);
                     let items: Vec<Value> = self.stack.drain(start..).collect();
                     self.stack.push(make_tuple(&mut self.heap, items));
                 }
-                OpCode::ListAppend => {
+                46 => { // ListAppend
                     self.ip += 2;
                     let val = self.stack.pop().ok_or("stack empty")?;
                     if let Some(Value::List(r)) = self.stack.pop() {
@@ -638,44 +615,42 @@ impl Vm {
                         }
                     }
                 }
-                OpCode::DictSet => {
+                47 => { // DictSet
                     self.ip += 2;
                     let val = self.stack.pop().ok_or("stack empty")?;
                     let key = self.stack.pop().ok_or("stack empty")?;
                     if let Some(Value::Dict(r)) = self.stack.pop() {
-                        let key_clone = key.clone();
-                        let mut to_remove = Vec::new();
-                        {
+                        let existing_idx = {
                             let entries = match self.heap.get(r) {
                                 GcObj::Dict(ref entries) => entries,
                                 _ => return Err("not a dict".to_string()),
                             };
-                            for (i, (k, _)) in entries.iter().enumerate() {
-                                if k.eq(&key_clone, &self.heap) { to_remove.push(i); }
-                            }
-                        }
-                        {
-                            let entries = match self.heap.get_mut(r) {
-                                GcObj::Dict(ref mut entries) => entries,
-                                _ => return Err("not a dict".to_string()),
-                            };
-                            for i in to_remove.into_iter().rev() { entries.remove(i); }
+                            let h = key.hash(&self.heap);
+                            entries.iter().position(|(k, _)| k.hash(&self.heap) == h && k.eq(&key, &self.heap))
+                        };
+                        let entries = match self.heap.get_mut(r) {
+                            GcObj::Dict(ref mut entries) => entries,
+                            _ => return Err("not a dict".to_string()),
+                        };
+                        if let Some(idx) = existing_idx {
+                            entries[idx] = (key, val);
+                        } else {
                             entries.push((key, val));
                         }
                         self.stack.push(Value::Dict(r));
                     }
                 }
-                OpCode::SetAdd => {
+                48 => { // SetAdd
                     self.ip += 2;
                     let val = self.stack.pop().ok_or("stack empty")?;
                     if let Some(Value::Set(r)) = self.stack.pop() {
-                        let val_clone = val.clone();
                         let exists = {
                             let items = match self.heap.get(r) {
                                 GcObj::Set(ref items) => items,
                                 _ => return Err("not a set".to_string()),
                             };
-                            items.iter().any(|x| x.eq(&val_clone, &self.heap))
+                            let h = val.hash(&self.heap);
+                            items.iter().any(|x| x.hash(&self.heap) == h && x.eq(&val, &self.heap))
                         };
                         if !exists {
                             if let GcObj::Set(ref mut items) = self.heap.get_mut(r) {
@@ -685,7 +660,9 @@ impl Vm {
                         self.stack.push(Value::Set(r));
                     }
                 }
-                OpCode::LoadIndex => {
+
+                // === Index access ===
+                49 => { // LoadIndex
                     self.ip += 2;
                     let index = self.stack.pop().ok_or("stack empty")?;
                     let obj = self.stack.pop().ok_or("stack empty")?;
@@ -699,7 +676,7 @@ impl Vm {
                     };
                     self.stack.push(result);
                 }
-                OpCode::StoreIndex => {
+                50 => { // StoreIndex
                     self.ip += 2;
                     let index = self.stack.pop().ok_or("stack empty")?;
                     let obj = self.stack.pop().ok_or("stack empty")?;
@@ -716,22 +693,34 @@ impl Vm {
                         _ => store_index(obj, index, val, &mut self.heap)?,
                     }
                 }
-                OpCode::LoadAttr => {
-                    let sidx = self.read_u16(self.ip) as usize;
+
+                // === Attribute access ===
+                51 => { // LoadAttr
+                    let sidx = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     let name = self.chunk().string_pool.get(sidx).ok_or("invalid attr name index")?.clone();
                     let obj = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(load_attr(&obj, &name, &mut self.heap)?);
                 }
-                OpCode::StoreAttr => {
-                    let sidx = self.read_u16(self.ip) as usize;
+                52 => { // StoreAttr
+                    let sidx = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     let name = self.chunk().string_pool.get(sidx).ok_or("invalid attr name index")?.clone();
                     let obj = self.stack.pop().ok_or("stack empty")?;
                     let val = self.stack.pop().ok_or("stack empty")?;
                     store_attr(&obj, &name, val, &mut self.heap)?;
                 }
-                OpCode::Throw => {
+
+                // === Scope ===
+                53 => { self.ip += 2; } // PushScope (no-op at runtime)
+                54 => { // PopScope
+                    let count = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    self.stack.truncate(self.stack.len() - count);
+                }
+
+                // === Exception handling ===
+                55 => { // Throw
                     let val = self.stack.pop().ok_or("stack empty")?;
                     let msg = val.to_string(&self.heap);
                     if let Some((depth, catch_ip)) = self.try_frames.pop() {
@@ -742,15 +731,28 @@ impl Vm {
                         return Err(format!("Error: {}", msg));
                     }
                 }
-                OpCode::Try => {
-                    let catch_ip = self.read_u16(self.ip) as usize;
+                56 => { // Try
+                    let catch_ip = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     self.try_frames.push((self.stack.len(), catch_ip));
                 }
-                OpCode::EndTry => {
-                    self.try_frames.pop();
+                57 => { self.try_frames.pop(); } // EndTry
+
+                // === Loop support ===
+                58 => { self.ip += 2; } // ForPrep (no-op)
+                59 => { // ForIter
+                    let target = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let obj = self.stack.pop().ok_or("stack empty")?;
+                    let (has_next, next_val) = next_iterator(&obj, &mut self.heap)?;
+                    if has_next {
+                        self.stack.push(obj);
+                        self.stack.push(next_val);
+                    } else {
+                        self.ip = target;
+                    }
                 }
-                OpCode::CheckMatch => {
+                60 => { // CheckMatch
                     self.ip += 2;
                     let val = self.stack.pop().ok_or("stack empty")?;
                     let pattern = self.stack.pop().ok_or("stack empty")?;
@@ -760,7 +762,13 @@ impl Vm {
                         });
                     self.stack.push(Value::Bool(matched));
                 }
-                OpCode::BuildRange => {
+                61 => { self.ip += 2; } // EnterLoop (no-op)
+                62 => { self.ip += 2; } // LeaveLoop (no-op)
+                63 => { self.ip += 2; } // Break (handled by Jump)
+                64 => { self.ip += 2; } // Continue (handled by Jump)
+
+                // === Misc ===
+                65 => { // BuildRange
                     self.ip += 2;
                     let step = self.stack.pop().ok_or("stack empty")?;
                     let end = self.stack.pop().ok_or("stack empty")?;
@@ -770,12 +778,12 @@ impl Vm {
                     let st = match step { Value::Int(n) => n, _ => return Err("range step must be int".to_string()) };
                     self.stack.push(make_range(&mut self.heap, s, e, st));
                 }
-                OpCode::MakeIter => {
+                66 => { // MakeIter
                     self.ip += 2;
                     let obj = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(make_iterator(&obj, &mut self.heap)?);
                 }
-                OpCode::NextIter => {
+                67 => { // NextIter
                     self.ip += 2;
                     let obj = self.stack.pop().ok_or("stack empty")?;
                     let (has_next, next_val) = next_iterator(&obj, &mut self.heap)?;
@@ -788,20 +796,21 @@ impl Vm {
                         self.stack.push(Value::Bool(false));
                     }
                 }
-                OpCode::ForIter => {
-                    let target = self.read_u16(self.ip) as usize;
+                68 => { // Len
                     self.ip += 2;
                     let obj = self.stack.pop().ok_or("stack empty")?;
-                    let (has_next, next_val) = next_iterator(&obj, &mut self.heap)?;
-                    if has_next {
-                        self.stack.push(obj);
-                        self.stack.push(next_val);
-                    } else {
-                        self.ip = target;
-                    }
+                    let len = match &obj {
+                        Value::String(r) => match self.heap.get(*r) { GcObj::String(s) => s.len() as i64, _ => 0 },
+                        Value::List(r) => match self.heap.get(*r) { GcObj::List(items) => items.len() as i64, _ => 0 },
+                        Value::Dict(r) => match self.heap.get(*r) { GcObj::Dict(entries) => entries.len() as i64, _ => 0 },
+                        Value::Set(r) => match self.heap.get(*r) { GcObj::Set(items) => items.len() as i64, _ => 0 },
+                        Value::Tuple(r) => match self.heap.get(*r) { GcObj::Tuple(items) => items.len() as i64, _ => 0 },
+                        _ => return Err(format!("cannot get length of {}", obj.type_name())),
+                    };
+                    self.stack.push(Value::Int(len));
                 }
-                OpCode::MakeStruct => {
-                    let count = self.read_u16(self.ip) as usize;
+                69 => { // MakeStruct
+                    let count = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     let name_val = self.stack.pop().ok_or("stack empty")?;
                     let name = value_display(&name_val, &self.heap);
@@ -815,8 +824,8 @@ impl Vm {
                     }
                     self.stack.push(make_struct_def(&mut self.heap, &name, methods));
                 }
-                OpCode::NewStructInstance => {
-                    let named_count = self.read_u16(self.ip) as usize;
+                70 => { // NewStructInstance
+                    let named_count = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     let struct_val = self.stack.pop().ok_or("stack empty")?;
                     let struct_ref = match struct_val { Value::Struct(r) => r, _ => return Err("expected struct".to_string()) };
@@ -828,7 +837,6 @@ impl Vm {
                     }
                     fields.reverse();
                     let instance = make_struct_instance(&mut self.heap, struct_ref, fields);
-                    // Call init if it exists
                     if let GcObj::StructDef { ref methods, .. } = self.heap.get(struct_ref).clone() {
                         if let Some((_, init_chunk)) = methods.iter().find(|(n, _)| n == "init") {
                             let inst_clone = instance.clone();
@@ -847,36 +855,270 @@ impl Vm {
                     }
                     self.stack.push(instance);
                 }
-                OpCode::StructSetField => {
-                    let sidx = self.read_u16(self.ip) as usize;
+                71 => { // StructSetField
+                    let sidx = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     let name = self.chunk().string_pool.get(sidx).ok_or("invalid field name index")?.clone();
                     let val = self.stack.pop().ok_or("stack empty")?;
                     let obj = self.stack.pop().ok_or("stack empty")?;
                     store_attr(&obj, &name, val, &mut self.heap)?;
                 }
-                OpCode::StructGetField => {
-                    let sidx = self.read_u16(self.ip) as usize;
+                72 => { // StructGetField
+                    let sidx = Self::read_u16_from(code, self.ip) as usize;
                     self.ip += 2;
                     let name = self.chunk().string_pool.get(sidx).ok_or("invalid field name index")?.clone();
                     let obj = self.stack.pop().ok_or("stack empty")?;
                     self.stack.push(load_attr(&obj, &name, &mut self.heap)?);
                 }
-                OpCode::Len => {
-                    self.ip += 2;
-                    let obj = self.stack.pop().ok_or("stack empty")?;
-                    let len = match &obj {
-                        Value::String(r) => match self.heap.get(*r) { GcObj::String(s) => s.len() as i64, _ => 0 },
-                        Value::List(r) => match self.heap.get(*r) { GcObj::List(items) => items.len() as i64, _ => 0 },
-                        Value::Dict(r) => match self.heap.get(*r) { GcObj::Dict(entries) => entries.len() as i64, _ => 0 },
-                        Value::Set(r) => match self.heap.get(*r) { GcObj::Set(items) => items.len() as i64, _ => 0 },
-                        Value::Tuple(r) => match self.heap.get(*r) { GcObj::Tuple(items) => items.len() as i64, _ => 0 },
-                        _ => return Err(format!("cannot get length of {}", obj.type_name())),
-                    };
-                    self.stack.push(Value::Int(len));
+                73 => { // In
+                    let right = self.stack.pop().ok_or("stack empty")?;
+                    let left = self.stack.pop().ok_or("stack empty")?;
+                    self.stack.push(Value::Bool(contains_check(&left, &right, &mut self.heap)?));
                 }
+                74 => { // JumpIfFalsePop
+                    let target = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let val = self.stack.pop().ok_or("stack empty on jump_if_false_pop")?;
+                    if !val.is_truthy() { self.ip = target; }
+                }
+                75 => { // JumpIfTruePop
+                    let target = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let val = self.stack.pop().ok_or("stack empty on jump_if_true_pop")?;
+                    if val.is_truthy() { self.ip = target; }
+                }
+                76 => { // Inc (legacy — with push, for expression i++)
+                    let idx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
+                    if stack_idx < self.stack.len() {
+                        let val = self.stack[stack_idx].clone();
+                        if let Value::Int(n) = val {
+                            self.stack[stack_idx] = Value::Int(n.wrapping_add(1));
+                            self.stack.push(self.stack[stack_idx].clone());
+                        } else if let Value::UInt(n) = val {
+                            self.stack[stack_idx] = Value::UInt(n.wrapping_add(1));
+                            self.stack.push(self.stack[stack_idx].clone());
+                        } else {
+                            return Err("cannot increment non-integer".to_string());
+                        }
+                    } else {
+                        return Err("inc: local not found".to_string());
+                    }
+                }
+                77 => { // Dec (legacy — with push, for expression i--)
+                    let idx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
+                    if stack_idx < self.stack.len() {
+                        let val = self.stack[stack_idx].clone();
+                        if let Value::Int(n) = val {
+                            self.stack[stack_idx] = Value::Int(n.wrapping_sub(1));
+                            self.stack.push(self.stack[stack_idx].clone());
+                        } else if let Value::UInt(n) = val {
+                            if n == 0 { return Err("cannot decrement uint below 0".to_string()); }
+                            self.stack[stack_idx] = Value::UInt(n - 1);
+                            self.stack.push(self.stack[stack_idx].clone());
+                        } else {
+                            return Err("cannot decrement non-integer".to_string());
+                        }
+                    } else {
+                        return Err("dec: local not found".to_string());
+                    }
+                }
+
+                // ================================================================
+                // === SPECIALIZED INTEGER FAST-PATH OPCODES ===
+                // ================================================================
+
+                78 => { // IntAdd — pop two ints, push int sum
+                    let b = self.stack.pop().ok_or("stack empty")?;
+                    let a = self.stack.pop().ok_or("stack empty")?;
+                    if let (Value::Int(x), Value::Int(y)) = (&a, &b) {
+                        self.stack.push(Value::Int(x.wrapping_add(*y)));
+                    } else if let (Value::Float(x), Value::Float(y)) = (&a, &b) {
+                        self.stack.push(Value::Float(x + y));
+                    } else {
+                        let result = add_values(&a, &b, &mut self.heap)?;
+                        self.stack.push(result);
+                    }
+                }
+                79 => { // IntSub — pop two ints, push int diff
+                    let b = self.stack.pop().ok_or("stack empty")?;
+                    let a = self.stack.pop().ok_or("stack empty")?;
+                    if let (Value::Int(x), Value::Int(y)) = (&a, &b) {
+                        self.stack.push(Value::Int(x.wrapping_sub(*y)));
+                    } else if let (Value::Float(x), Value::Float(y)) = (&a, &b) {
+                        self.stack.push(Value::Float(x - y));
+                    } else {
+                        self.stack.push(sub_values(&a, &b)?);
+                    }
+                }
+                80 => { // IntMul — pop two ints, push int product
+                    let b = self.stack.pop().ok_or("stack empty")?;
+                    let a = self.stack.pop().ok_or("stack empty")?;
+                    if let (Value::Int(x), Value::Int(y)) = (&a, &b) {
+                        self.stack.push(Value::Int(x.wrapping_mul(*y)));
+                    } else if let (Value::Float(x), Value::Float(y)) = (&a, &b) {
+                        self.stack.push(Value::Float(x * y));
+                    } else {
+                        self.stack.push(mul_values(&a, &b)?);
+                    }
+                }
+                81 => { // IntEq — pop two ints, push bool
+                    let b = self.stack.pop().ok_or("stack empty")?;
+                    let a = self.stack.pop().ok_or("stack empty")?;
+                    if let (Value::Int(x), Value::Int(y)) = (&a, &b) {
+                        self.stack.push(Value::Bool(x == y));
+                    } else if let (Value::Float(x), Value::Float(y)) = (&a, &b) {
+                        self.stack.push(Value::Bool(x == y));
+                    } else if let (Value::Int(x), Value::Float(y)) = (&a, &b) {
+                        self.stack.push(Value::Bool(*x as f64 == *y));
+                    } else if let (Value::Float(x), Value::Int(y)) = (&a, &b) {
+                        self.stack.push(Value::Bool(*x == *y as f64));
+                    } else {
+                        self.stack.push(Value::Bool(a.eq(&b, &self.heap)));
+                    }
+                }
+                82 => { // IntNe — pop two ints, push bool
+                    let b = self.stack.pop().ok_or("stack empty")?;
+                    let a = self.stack.pop().ok_or("stack empty")?;
+                    if let (Value::Int(x), Value::Int(y)) = (&a, &b) {
+                        self.stack.push(Value::Bool(x != y));
+                    } else if let (Value::Float(x), Value::Float(y)) = (&a, &b) {
+                        self.stack.push(Value::Bool(x != y));
+                    } else {
+                        self.stack.push(Value::Bool(!a.eq(&b, &self.heap)));
+                    }
+                }
+                83 => { // IntLt — pop two ints, push bool
+                    let b = self.stack.pop().ok_or("stack empty")?;
+                    let a = self.stack.pop().ok_or("stack empty")?;
+                    if let (Value::Int(x), Value::Int(y)) = (&a, &b) {
+                        self.stack.push(Value::Bool(x < y));
+                    } else {
+                        self.stack.push(Value::Bool(cmp_lt(&a, &b)?));
+                    }
+                }
+                84 => { // IntGt
+                    let b = self.stack.pop().ok_or("stack empty")?;
+                    let a = self.stack.pop().ok_or("stack empty")?;
+                    if let (Value::Int(x), Value::Int(y)) = (&a, &b) {
+                        self.stack.push(Value::Bool(x > y));
+                    } else {
+                        self.stack.push(Value::Bool(cmp_lt(&b, &a)?));
+                    }
+                }
+                85 => { // IntLe
+                    let b = self.stack.pop().ok_or("stack empty")?;
+                    let a = self.stack.pop().ok_or("stack empty")?;
+                    if let (Value::Int(x), Value::Int(y)) = (&a, &b) {
+                        self.stack.push(Value::Bool(x <= y));
+                    } else {
+                        self.stack.push(Value::Bool(!cmp_lt(&b, &a)?));
+                    }
+                }
+                86 => { // IntGe
+                    let b = self.stack.pop().ok_or("stack empty")?;
+                    let a = self.stack.pop().ok_or("stack empty")?;
+                    if let (Value::Int(x), Value::Int(y)) = (&a, &b) {
+                        self.stack.push(Value::Bool(x >= y));
+                    } else {
+                        self.stack.push(Value::Bool(!cmp_lt(&a, &b)?));
+                    }
+                }
+                87 => { // IntInc — increment local by 1, NO push (for loops, no stack leak)
+                    let idx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
+                    match &mut self.stack[stack_idx] {
+                        Value::Int(n) => { *n = n.wrapping_add(1); }
+                        Value::UInt(n) => { *n = n.wrapping_add(1); }
+                        _ => return Err("IntInc: local is not an integer".to_string()),
+                    }
+                }
+                88 => { // IntDec — decrement local by 1, NO push (for loops, no stack leak)
+                    let idx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
+                    match &mut self.stack[stack_idx] {
+                        Value::Int(n) => { *n = n.wrapping_sub(1); }
+                        Value::UInt(n) => {
+                            if *n == 0 { return Err("cannot decrement uint below 0".to_string()); }
+                            *n -= 1;
+                        }
+                        _ => return Err("IntDec: local is not an integer".to_string()),
+                    }
+                }
+                89 => { // IntJumpIfNotLt — if local_a >= local_b: jump to target
+                    let a_idx = Self::read_u16_from(code, self.ip) as usize;
+                    let b_idx = Self::read_u16_from(code, self.ip + 2) as usize;
+                    let target = Self::read_u16_from(code, self.ip + 4) as usize;
+                    self.ip += 6;
+                    let stack_start = self.frames.last().map(|f| f.stack_start).unwrap_or(0);
+                    let a_val = &self.stack[stack_start + a_idx];
+                    let b_val = &self.stack[stack_start + b_idx];
+                    let should_jump = match (a_val, b_val) {
+                        (Value::Int(x), Value::Int(y)) => x >= y,
+                        (Value::Float(x), Value::Float(y)) => x >= y,
+                        (Value::Int(x), Value::Float(y)) => (*x as f64) >= *y,
+                        (Value::Float(x), Value::Int(y)) => *x >= (*y as f64),
+                        _ => !cmp_lt(a_val, b_val)?,
+                    };
+                    if should_jump { self.ip = target; }
+                }
+                90 => { // IntJumpIfNotGt — if local_a <= local_b: jump to target (for negative step)
+                    let a_idx = Self::read_u16_from(code, self.ip) as usize;
+                    let b_idx = Self::read_u16_from(code, self.ip + 2) as usize;
+                    let target = Self::read_u16_from(code, self.ip + 4) as usize;
+                    self.ip += 6;
+                    let stack_start = self.frames.last().map(|f| f.stack_start).unwrap_or(0);
+                    let a_val = &self.stack[stack_start + a_idx];
+                    let b_val = &self.stack[stack_start + b_idx];
+                    let should_jump = match (a_val, b_val) {
+                        (Value::Int(x), Value::Int(y)) => x <= y,
+                        (Value::Float(x), Value::Float(y)) => x <= y,
+                        (Value::Int(x), Value::Float(y)) => (*x as f64) <= *y,
+                        (Value::Float(x), Value::Int(y)) => *x <= (*y as f64),
+                        _ => !cmp_lt(b_val, a_val)?,
+                    };
+                    if should_jump { self.ip = target; }
+                }
+                91 => { // IntAddLocal — local += immediate_i16
+                    let local_idx = Self::read_u16_from(code, self.ip) as usize;
+                    let imm = i16::from_le_bytes([code[self.ip + 2], code[self.ip + 3]]);
+                    self.ip += 4;
+                    let stack_idx = self.frames.last().map(|f| f.stack_start + local_idx).unwrap_or(local_idx);
+                    match &mut self.stack[stack_idx] {
+                        Value::Int(n) => { *n = n.wrapping_add(imm as i64); }
+                        Value::UInt(n) => { *n = n.wrapping_add(imm as u64); }
+                        _ => return Err("IntAddLocal: local is not an integer".to_string()),
+                    }
+                }
+                92 => { // IntPushConst — push constant by index (same as LoadConst but semantically for ints)
+                    let idx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    self.stack.push(self.chunk().constants[idx].clone());
+                }
+                93 => { // LoadLocalInt — fast LoadLocal (same as LoadLocal but hint for ints)
+                    let idx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let stack_idx = self.frames.last().map(|f| f.stack_start + idx).unwrap_or(idx);
+                    self.stack.push(self.stack[stack_idx].clone());
+                }
+                94 => { // LoadGlobalCached — LoadGlobal (same as generic, placeholder for future IC)
+                    let sidx = Self::read_u16_from(code, self.ip) as usize;
+                    self.ip += 2;
+                    let name = self.chunk().string_pool.get(sidx).ok_or("invalid global name index")?;
+                    match self.globals.get(name) {
+                        Some(val) => self.stack.push(val.clone()),
+                        None => return Err(format!("undefined global '{}'", name)),
+                    }
+                }
+
+                // === Fallback ===
                 _ => {
-                    return Err(format!("unimplemented opcode: {:?} at ip {}", op, self.ip - 1));
+                    return Err(format!("unknown opcode {} at ip {}", op_byte, self.ip - 1));
                 }
             }
         }
@@ -885,11 +1127,11 @@ impl Vm {
 
 fn add_values(a: &Value, b: &Value, heap: &mut GcHeap) -> Result<Value, String> {
     match (a, b) {
-        (Value::Int(x), Value::Int(y)) => Ok(Value::Int(x + y)),
+        (Value::Int(x), Value::Int(y)) => Ok(Value::Int(x.wrapping_add(*y))),
         (Value::Int(x), Value::Float(y)) => Ok(Value::Float(*x as f64 + y)),
         (Value::Float(x), Value::Int(y)) => Ok(Value::Float(x + *y as f64)),
         (Value::Float(x), Value::Float(y)) => Ok(Value::Float(x + y)),
-        (Value::UInt(x), Value::UInt(y)) => Ok(Value::UInt(x + y)),
+        (Value::UInt(x), Value::UInt(y)) => Ok(Value::UInt(x.wrapping_add(*y))),
         (Value::String(x), Value::String(y)) => {
             let mut sx = match heap.get(*x) { GcObj::String(s) => s.clone(), _ => return Err("not a string".to_string()) };
             let sy = match heap.get(*y) { GcObj::String(s) => s.as_str(), _ => return Err("not a string".to_string()) };
@@ -902,7 +1144,7 @@ fn add_values(a: &Value, b: &Value, heap: &mut GcHeap) -> Result<Value, String> 
 
 fn sub_values(a: &Value, b: &Value) -> Result<Value, String> {
     match (a, b) {
-        (Value::Int(x), Value::Int(y)) => Ok(Value::Int(x - y)),
+        (Value::Int(x), Value::Int(y)) => Ok(Value::Int(x.wrapping_sub(*y))),
         (Value::Int(x), Value::Float(y)) => Ok(Value::Float(*x as f64 - y)),
         (Value::Float(x), Value::Int(y)) => Ok(Value::Float(x - *y as f64)),
         (Value::Float(x), Value::Float(y)) => Ok(Value::Float(x - y)),
@@ -912,7 +1154,7 @@ fn sub_values(a: &Value, b: &Value) -> Result<Value, String> {
 
 fn mul_values(a: &Value, b: &Value) -> Result<Value, String> {
     match (a, b) {
-        (Value::Int(x), Value::Int(y)) => Ok(Value::Int(x * y)),
+        (Value::Int(x), Value::Int(y)) => Ok(Value::Int(x.wrapping_mul(*y))),
         (Value::Int(x), Value::Float(y)) => Ok(Value::Float(*x as f64 * y)),
         (Value::Float(x), Value::Int(y)) => Ok(Value::Float(x * *y as f64)),
         (Value::Float(x), Value::Float(y)) => Ok(Value::Float(x * y)),
@@ -943,7 +1185,7 @@ fn div_values(a: &Value, b: &Value) -> Result<Value, String> {
 }
 
 fn mod_values(a: &Value, b: &Value) -> Result<Value, String> {
-    match (a, b) { (Value::Int(x), Value::Int(y)) => Ok(Value::Int(x % y)), _ => Err(format!("cannot mod {} and {}", a.type_name(), b.type_name())) }
+    match (a, b) { (Value::Int(x), Value::Int(y)) => { if *y == 0 { return Err("division by zero".to_string()); } Ok(Value::Int(x % y)) }, _ => Err(format!("cannot mod {} and {}", a.type_name(), b.type_name())) }
 }
 
 fn pow_values(a: &Value, b: &Value) -> Result<Value, String> {
@@ -960,6 +1202,7 @@ fn intdiv_values(a: &Value, b: &Value) -> Result<Value, String> {
     match (a, b) {
         (Value::Int(x), Value::Int(y)) => {
             if *y == 0 { return Err("division by zero".to_string()); }
+            if *x == i64::MIN && *y == -1 { return Ok(Value::Int(i64::MIN)); }
             Ok(Value::Int(x / y))
         }
         _ => Err(format!("cannot integer divide {} and {}", a.type_name(), b.type_name())),
@@ -967,7 +1210,7 @@ fn intdiv_values(a: &Value, b: &Value) -> Result<Value, String> {
 }
 
 fn neg_value(a: &Value) -> Result<Value, String> {
-    match a { Value::Int(x) => Ok(Value::Int(-x)), Value::Float(x) => Ok(Value::Float(-x)), _ => Err(format!("cannot negate {}", a.type_name())) }
+    match a { Value::Int(x) => Ok(Value::Int(x.wrapping_neg())), Value::Float(x) => Ok(Value::Float(-x)), _ => Err(format!("cannot negate {}", a.type_name())) }
 }
 
 fn cmp_lt(a: &Value, b: &Value) -> Result<bool, String> {
@@ -1020,7 +1263,7 @@ fn contains_check(left: &Value, right: &Value, heap: &GcHeap) -> Result<bool, St
         }
         Value::Dict(r) => {
             let entries = match heap.get(*r) { GcObj::Dict(entries) => entries, _ => return Err("not a dict".to_string()) };
-            Ok(entries.iter().any(|(k, _)| k.eq(left, heap)))
+            Ok(dict_fast_contains(entries, left, heap))
         }
         Value::Set(r) => {
             let items = match heap.get(*r) { GcObj::Set(items) => items, _ => return Err("not a set".to_string()) };
@@ -1045,6 +1288,24 @@ fn contains_check(left: &Value, right: &Value, heap: &GcHeap) -> Result<bool, St
     }
 }
 
+/// Fast dict lookup using pre-computed hash to skip most comparisons
+fn dict_fast_get<'a>(entries: &'a [(Value, Value)], key: &Value, heap: &GcHeap) -> Option<&'a Value> {
+    let h = key.hash(heap);
+    for (k, v) in entries {
+        if k.hash(heap) == h && k.eq(key, heap) {
+            return Some(v);
+        }
+    }
+    None
+}
+
+fn dict_fast_contains(entries: &[(Value, Value)], key: &Value, heap: &GcHeap) -> bool {
+    let h = key.hash(heap);
+    entries.iter().any(|(k, _)| k.hash(heap) == h && k.eq(key, heap))
+}
+
+
+
 fn load_index(obj: &Value, index: &Value, heap: &mut GcHeap) -> Result<Value, String> {
     match obj {
         Value::List(r) => {
@@ -1056,8 +1317,7 @@ fn load_index(obj: &Value, index: &Value, heap: &mut GcHeap) -> Result<Value, St
         }
         Value::Dict(r) => {
             let entries = match heap.get(*r) { GcObj::Dict(entries) => entries, _ => return Err("not a dict".to_string()) };
-            for (k, v) in entries { if k.eq(index, heap) { return Ok(v.clone()); } }
-            Err("key not found".to_string())
+            dict_fast_get(entries, index, heap).cloned().ok_or("key not found".to_string())
         }
         Value::String(r) => {
             let idx = match index { Value::Int(n) => *n, _ => return Err("string index must be an integer".to_string()) };
@@ -1092,17 +1352,15 @@ fn store_index(obj: Value, index: Value, val: Value, heap: &mut GcHeap) -> Resul
             Ok(())
         }
         Value::Dict(r) => {
-            let key_clone = index.clone();
-            let mut to_remove = Vec::new();
-            {
+            let existing_idx = {
                 let entries = match heap.get(r) { GcObj::Dict(entries) => entries, _ => return Err("not a dict".to_string()) };
-                for (i, (k, _)) in entries.iter().enumerate() {
-                    if k.eq(&key_clone, heap) { to_remove.push(i); }
-                }
-            }
-            {
-                let entries = match heap.get_mut(r) { GcObj::Dict(ref mut entries) => entries, _ => return Err("not a dict".to_string()) };
-                for i in to_remove.into_iter().rev() { entries.remove(i); }
+                let kh = index.hash(heap);
+                entries.iter().position(|(k, _)| k.hash(heap) == kh && k.eq(&index, heap))
+            };
+            let entries = match heap.get_mut(r) { GcObj::Dict(ref mut entries) => entries, _ => return Err("not a dict".to_string()) };
+            if let Some(idx) = existing_idx {
+                entries[idx] = (index, val);
+            } else {
                 entries.push((index, val));
             }
             Ok(())
@@ -1116,9 +1374,10 @@ fn store_attr(obj: &Value, name: &str, val: Value, heap: &mut GcHeap) -> Result<
         Value::StructInstance(r) => {
             let r = *r;
             let key = make_string(heap, name);
+            let kh = key.hash(heap);
             let existing_idx = {
                 if let GcObj::StructInstance { fields, .. } = heap.get(r) {
-                    fields.iter().position(|(k, _)| k.eq(&key, heap))
+                    fields.iter().position(|(k, _)| k.hash(heap) == kh && k.eq(&key, heap))
                 } else {
                     return Err("not a struct instance".to_string());
                 }
@@ -1450,25 +1709,28 @@ fn load_attr(obj: &Value, name: &str, heap: &mut GcHeap) -> Result<Value, String
                     }),
                 })),
                 _ => {
-                    let dict_entries = match heap.get(r) {
-                        GcObj::Dict(ref e) => e,
-                        _ => return Err("not a dict".to_string()),
+                    let key_str = make_string(heap, name);
+                    let kh = key_str.hash(heap);
+                    let result = {
+                        let dict_entries = match heap.get(r) {
+                            GcObj::Dict(ref e) => e,
+                            _ => return Err("not a dict".to_string()),
+                        };
+                        dict_entries.iter().find(|(k, _)| k.hash(heap) == kh && k.eq(&key_str, heap)).map(|(_, v)| v.clone())
                     };
-                    for (k, v) in dict_entries {
-                        if let Value::String(sr) = k {
-                            if let GcObj::String(s) = heap.get(*sr) {
-                                if s == name {
-                                    return Ok(v.clone());
-                                }
-                            }
-                        }
-                    }
+                    if let Some(v) = result { return Ok(v); }
                     #[cfg(feature = "python")]
                     {
+                        let dict_entries = match heap.get(r) {
+                            GcObj::Dict(ref e) => e,
+                            _ => return Err("not a dict".to_string()),
+                        };
                         for (k, v) in dict_entries {
                             if let (Value::String(sr), Value::Int(oid)) = (k, v) {
-                                if let GcObj::String(ref s) = heap.get(*sr) {
-                                    if s == "__pyobj__" { return crate::py::py_get_attr(*oid, name, heap); }
+                                if k.hash(heap) == kh {
+                                    if let GcObj::String(ref s) = heap.get(*sr) {
+                                        if s == "__pyobj__" { return crate::py::py_get_attr(*oid, name, heap); }
+                                    }
                                 }
                             }
                         }
@@ -2272,6 +2534,8 @@ fn execute_chunk(chunk_idx: usize, args: &[Value], ctx: &mut VmContext) -> Resul
     }
 }
 
+
+
 fn execute_closure_chunk(chunk_idx: usize, args: &[Value], upvalues: Vec<Upvalue>, ctx: &mut VmContext) -> Result<Value, String> {
     let chunk = ctx.chunks.get(chunk_idx).ok_or("invalid chunk")?;
     let mut stack: Vec<Value> = Vec::new();
@@ -2547,3 +2811,4 @@ fn execute_closure_chunk(chunk_idx: usize, args: &[Value], upvalues: Vec<Upvalue
         }
     }
 }
+

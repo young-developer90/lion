@@ -304,21 +304,37 @@ let evens   = [x for x in 0..20 if x % 2 == 0];
 
 Benchmarks comparing Lion 1.7.0 (release build) against Python 3.14 on the same workloads. Lower is better.
 
+### Standard Library Benchmarks
+
 | Benchmark | Lion (ms) | Python (ms) | vs Python |
 |-----------|-----------|-------------|-----------|
-| `re.find_all` — 10k lines | 5.53 | 5.35 | ~1.0× (on par) |
-| `re.sub_all` — 10k lines | 11.24 | 27.74 | **~2.5× faster** |
-| `re.split` — 10k lines | 2.49 | 1.54 | ~1.6× slower |
-| `collections.Counter` — 50k words | 5.25 | 3.38 | ~1.6× slower |
-| `itertools.unique` — 20k items | 1.52 | 0.41 | ~3.7× slower |
-| `itertools.sorted` — 10k items | 0.21 | 0.14 | ~1.5× slower |
-| `datetime.now` — 10k calls | 18.38 | 11.81 | ~1.6× slower |
-| `datetime.format` — 10k calls | 126.01 | 51.78 | ~2.4× slower |
-| `hashlib.sha256` — 1k strings | 2.21 | 1.10 | ~2.0× slower |
-| `hashlib.base64` — 1k strings | 2.39 | 0.93 | ~2.6× slower |
-| `subprocess.run_shell` — 100 calls | 508.09 | 523.89 | **~1.0× faster** |
+| `re.find_all` — 10k lines | 6.90 | 5.35 | ~1.3× slower |
+| `re.sub_all` — 10k lines | 16.02 | 27.74 | **~1.7× faster** |
+| `re.split` — 10k lines | 3.33 | 1.54 | ~2.2× slower |
+| `collections.Counter` — 50k words | 9.21 | 3.38 | ~2.7× slower |
+| `itertools.unique` — 20k items | 2.40 | 0.41 | ~5.9× slower |
+| `itertools.sorted` — 10k items | 0.35 | 0.14 | ~2.5× slower |
+| `datetime.now` — 10k calls | 14.56 | 11.81 | ~1.2× slower |
+| `datetime.format` — 10k calls | 35.84 | 51.78 | **~1.4× faster** |
+| `hashlib.sha256` — 1k strings | 1.74 | 1.10 | ~1.6× slower |
+| `hashlib.base64` — 1k strings | 2.20 | 0.93 | ~2.4× slower |
+| `subprocess.run_shell` — 100 calls | 630.26 | 523.89 | ~1.2× slower |
 
-Performance improved significantly in v1.6.3 — `datetime.now` went from 7.3× slower than Python to 1.6× slower via GC pool pre-allocation. v1.7.0 adds the project manager and major OpenCV expansion with automatic GC-tracked image memory.
+### VM Core Benchmarks (interpreter hot path)
+
+The bytecode VM was optimized with raw byte dispatch, specialized integer opcodes, and a peephole optimizer. These benchmarks measure pure interpreter performance on tight loops.
+
+| Benchmark | Before | After | Speedup |
+|-----------|--------|-------|---------|
+| int loop — 10M iterations | 17,245 ms | 1,553 ms | **11.1×** |
+| function calls — 500K | 1,353 ms | 187 ms | **7.2×** |
+| local variable access — 5M | 12,335 ms | 1,235 ms | **10.0×** |
+| string concat — 100K | 13,812 ms | 4,772 ms | **2.9×** |
+| list push — 100K | 201 ms | 38 ms | **5.3×** |
+
+VM optimizations include: raw byte dispatch loop (eliminates `OpCode::from_u8` overhead), specialized integer opcodes (`IntInc`, `IntDec`, `IntAddLocal`, `IntJumpIfNotLt/Gt`), integer comparison folding, dead-code elimination via peephole passes, string borrow optimization for `LoadGlobal`, and efficient `PopScope` via `truncate()`.
+
+Performance improved significantly in v1.6.3 — `datetime.now` went from 7.3× slower than Python to 1.6× slower via GC pool pre-allocation. v1.7.0 adds the project manager and major OpenCV expansion with automatic GC-tracked image memory. v1.7.1 delivers up to 11× speedup on VM core benchmarks through dispatch and compiler optimizations.
 
 Run benchmarks yourself:
 

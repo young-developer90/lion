@@ -82,6 +82,25 @@ pub enum OpCode {
     JumpIfTruePop,
     Inc,
     Dec,
+
+    // --- Specialized integer fast-path opcodes ---
+    IntAdd,         // pop two ints, push int sum
+    IntSub,         // pop two ints, push int diff
+    IntMul,         // pop two ints, push int product
+    IntEq,          // pop two ints, push bool
+    IntNe,          // pop two ints, push bool
+    IntLt,          // pop two ints, push bool
+    IntGt,          // pop two ints, push bool
+    IntLe,          // pop two ints, push bool
+    IntGe,          // pop two ints, push bool
+    IntInc,         // local++ (no push, for loops)
+    IntDec,         // local-- (no push, for loops)
+    IntJumpIfNotLt, // if local_a >= local_b: jump (3 bytes: a_idx, b_idx, target_lo, target_hi)
+    IntJumpIfNotGt, // if local_a <= local_b: jump (for negative-step ranges)
+    IntAddLocal,    // local += immediate (operand: local_idx, imm as i16)
+    IntPushConst,   // push int constant by index (like LoadConst but asserts int)
+    LoadLocalInt,   // fast LoadLocal for int values (pushes raw copy)
+    LoadGlobalCached, // LoadGlobal with inline cache slot (avoids string lookup)
 }
 
 impl OpCode {
@@ -166,6 +185,24 @@ impl OpCode {
             75 => JumpIfTruePop,
             76 => Inc,
             77 => Dec,
+            // Specialized int opcodes
+            78 => IntAdd,
+            79 => IntSub,
+            80 => IntMul,
+            81 => IntEq,
+            82 => IntNe,
+            83 => IntLt,
+            84 => IntGt,
+            85 => IntLe,
+            86 => IntGe,
+            87 => IntInc,
+            88 => IntDec,
+            89 => IntJumpIfNotLt,
+            90 => IntJumpIfNotGt,
+            91 => IntAddLocal,
+            92 => IntPushConst,
+            93 => LoadLocalInt,
+            94 => LoadGlobalCached,
             _ => return None,
         })
     }
@@ -177,9 +214,11 @@ impl OpCode {
             | LoadUpvalue | StoreUpvalue | Jump | JumpIfTrue | JumpIfFalse
             | JumpIfNil | Call | MakeFunc | MakeClosure | BuildList
             | BuildDict | BuildSet | BuildTuple | Try | ForPrep | ForIter
-            |             CheckMatch | MakeIter | NextIter | LoadAttr | StoreAttr | Len
+            | CheckMatch | MakeIter | NextIter | LoadAttr | StoreAttr | Len
             | MakeStruct | NewStructInstance | StructSetField | StructGetField
-            | JumpIfFalsePop | JumpIfTruePop | Inc | Dec => 1,
+            | JumpIfFalsePop | JumpIfTruePop | Inc | Dec
+            | IntInc | IntDec | IntPushConst | LoadLocalInt | LoadGlobalCached => 1,
+            IntJumpIfNotLt | IntJumpIfNotGt | IntAddLocal => 2, // 2 operands (each u16)
             _ => 0,
         }
     }
@@ -227,6 +266,10 @@ impl Chunk {
     }
 
     pub fn emit_u16(&mut self, val: u16) {
+        self.code.extend_from_slice(&val.to_le_bytes());
+    }
+
+    pub fn emit_i16(&mut self, val: i16) {
         self.code.extend_from_slice(&val.to_le_bytes());
     }
 
@@ -303,10 +346,19 @@ impl Chunk {
                 | OpCode::Len | OpCode::LoadAttr | OpCode::StoreAttr
                 | OpCode::MakeStruct | OpCode::NewStructInstance
                 | OpCode::StructSetField | OpCode::StructGetField
-                | OpCode::Inc | OpCode::Dec => {
+                | OpCode::Inc | OpCode::Dec
+                | OpCode::IntInc | OpCode::IntDec | OpCode::IntPushConst
+                | OpCode::LoadLocalInt | OpCode::LoadGlobalCached => {
                     let val = u16::from_le_bytes([self.code[i+1], self.code[i+2]]);
                     output.push_str(&format!(" {}", val));
                     i += 3;
+                    continue;
+                }
+                OpCode::IntJumpIfNotLt | OpCode::IntJumpIfNotGt | OpCode::IntAddLocal => {
+                    let a = u16::from_le_bytes([self.code[i+1], self.code[i+2]]);
+                    let b = u16::from_le_bytes([self.code[i+3], self.code[i+4]]);
+                    output.push_str(&format!(" {} {}", a, b));
+                    i += 5;
                     continue;
                 }
                 _ => {

@@ -89,6 +89,10 @@ impl Compiler {
         self.chunk().code[patch..patch + 2].copy_from_slice(&done.to_le_bytes());
         self.chunk().emit(OpCode::Nil);
         self.chunk().emit(OpCode::Return);
+        // Peephole optimizations
+        for chunk in &mut self.chunks {
+            Self::peephole_optimize(chunk);
+        }
         Ok(())
     }
 
@@ -102,10 +106,18 @@ impl Compiler {
 
     pub fn leave_scope(&mut self) {
         let scope = self.scopes.pop().unwrap();
+        let mut close_count = 0;
         for local in &scope.locals {
             if local.captured {
                 self.chunk().emit(OpCode::CloseUpvalue);
+                close_count += 1;
             }
+        }
+        // Pop non-captured locals from stack
+        let pop_count = scope.locals.len() - close_count;
+        if pop_count > 0 {
+            self.chunk().emit(OpCode::PopScope);
+            self.chunk().emit_u16(pop_count as u16);
         }
     }
 
@@ -380,19 +392,21 @@ impl Compiler {
                     };
                     self.loop_stack.push(loop_info);
 
-                    // Compare: i < end (or i > end for negative step)
-                    self.chunk().emit(OpCode::LoadLocal);
-                    self.chunk().emit_u16(var_idx);
-                    self.chunk().emit(OpCode::LoadLocal);
-                    self.chunk().emit_u16(end_idx);
+                    // SPECIALIZED: IntJumpIfNotLt/Gt replaces LoadLocal+LoadLocal+Lt/Gt+JumpIfFalsePop
+                    let jump_exit;
                     if step_val > 0 {
-                        self.chunk().emit(OpCode::Lt);
+                        self.chunk().emit(OpCode::IntJumpIfNotLt);
+                        self.chunk().emit_u16(var_idx);
+                        self.chunk().emit_u16(end_idx);
+                        jump_exit = self.chunk().code.len();
+                        self.chunk().emit_u16(0); // placeholder target
                     } else {
-                        self.chunk().emit(OpCode::Gt);
+                        self.chunk().emit(OpCode::IntJumpIfNotGt);
+                        self.chunk().emit_u16(var_idx);
+                        self.chunk().emit_u16(end_idx);
+                        jump_exit = self.chunk().code.len();
+                        self.chunk().emit_u16(0); // placeholder target
                     }
-                    let jump_exit = self.chunk().code.len();
-                    self.chunk().emit(OpCode::JumpIfFalsePop);
-                    self.chunk().emit_u16(0);
 
                     self.enter_scope();
                     for stmt in body {
@@ -400,25 +414,21 @@ impl Compiler {
                     }
                     self.leave_scope();
 
-                    // Increment/decrement
+                    // SPECIALIZED: IntInc/IntDec/IntAddLocal (no push — fixes stack leak)
                     match step_val {
-                        1 => { self.chunk().emit(OpCode::Inc); self.chunk().emit_u16(var_idx); },
-                        -1 => { self.chunk().emit(OpCode::Dec); self.chunk().emit_u16(var_idx); },
-                        n if n > 0 => {
-                            self.chunk().emit(OpCode::LoadLocal);
+                        1 => {
+                            self.chunk().emit(OpCode::IntInc);
                             self.chunk().emit_u16(var_idx);
-                            self.chunk().emit_const(Value::Int(n));
-                            self.chunk().emit(OpCode::Add);
-                            self.chunk().emit(OpCode::StoreLocal);
+                        },
+                        -1 => {
+                            self.chunk().emit(OpCode::IntDec);
                             self.chunk().emit_u16(var_idx);
                         },
                         n => {
-                            self.chunk().emit(OpCode::LoadLocal);
+                            // IntAddLocal: local += immediate
+                            self.chunk().emit(OpCode::IntAddLocal);
                             self.chunk().emit_u16(var_idx);
-                            self.chunk().emit_const(Value::Int(n));
-                            self.chunk().emit(OpCode::Add);
-                            self.chunk().emit(OpCode::StoreLocal);
-                            self.chunk().emit_u16(var_idx);
+                            self.chunk().emit_i16(n as i16);
                         },
                     }
 
@@ -428,8 +438,7 @@ impl Compiler {
 
                     self.loop_stack.pop().unwrap();
                     let done_pos = self.chunk().code.len() as u16;
-                    let je_pos = jump_exit + 1;
-                    self.chunk().code[je_pos..je_pos + 2]
+                    self.chunk().code[jump_exit..jump_exit + 2]
                         .copy_from_slice(&done_pos.to_le_bytes());
                 } else {
                     self.compile_expr(iterable)?;
@@ -957,7 +966,8 @@ impl Compiler {
                 self.chunk().code[end_jump..end_jump+2].copy_from_slice(&end_pos.to_le_bytes());
             }
             Expr::FString(parts) => {
-                for part in parts {
+                // Build result by concatenating parts
+                for (i, part) in parts.iter().enumerate() {
                     match part {
                         crate::ast::FStringPart::Literal(s) => {
                             let idx = self.chunk().add_string_constant(Value::Nil, s.clone());
@@ -966,8 +976,15 @@ impl Compiler {
                         }
                         crate::ast::FStringPart::Expr(e) => {
                             self.compile_expr(e)?;
+                            // Ensure non-string values are converted to string via Concat with ""
                         }
                     }
+                    if i > 0 {
+                        self.chunk().emit(OpCode::Concat);
+                    }
+                }
+                if parts.is_empty() {
+                    self.chunk().emit(OpCode::Nil);
                 }
             }
             Expr::InterpolatedString(parts) => {
@@ -1027,6 +1044,9 @@ impl Compiler {
             _ => None,
         };
         let (Some(lv), Some(rv)) = (l, r) else { return false; };
+        // Can't fold comparisons on heap types (String, List, etc) - eq() would crash on empty heap
+        let is_heap_type = |v: &Value| matches!(v, Value::String(_) | Value::List(_) | Value::Dict(_) | Value::Set(_) | Value::Tuple(_) | Value::Function(_) | Value::Closure(_) | Value::Error(_) | Value::Range(_) | Value::Matrix(_) | Value::Struct(_) | Value::StructInstance(_) | Value::Image(_));
+        if is_heap_type(&lv) || is_heap_type(&rv) { return false; }
         let result = match (op, &lv, &rv) {
             (Add, Value::Int(a), Value::Int(b)) => Some(Value::Int(a + b)),
             (Add, Value::Float(a), Value::Float(b)) => Some(Value::Float(a + b)),
@@ -1084,5 +1104,119 @@ impl Compiler {
 
     fn intern_string(&mut self, s: &str) -> u16 {
         self.chunk().intern_string(s)
+    }
+
+    fn peephole_optimize(chunk: &mut Chunk) {
+        loop {
+            let mut changed = false;
+            let code = chunk.code.clone();
+            let len = code.len();
+            let mut i = 0;
+            let mut removals: Vec<usize> = Vec::new();
+            let mut patches: Vec<(usize, u8)> = Vec::new();
+
+            while i < len {
+                match code[i] {
+                    op if op == OpCode::Pop as u8 && i + 1 < len && code[i + 1] == OpCode::Pop as u8 => {
+                        removals.push(i);
+                        i += 1;
+                        changed = true;
+                    }
+                    op if op == OpCode::JumpIfNil as u8 => {
+                        let target = u16::from_le_bytes([code[i + 1], code[i + 2]]);
+                        if target == (i + 3) as u16 {
+                            removals.push(i);
+                            removals.push(i + 1);
+                            removals.push(i + 2);
+                            changed = true;
+                        }
+                        i += 3;
+                    }
+                    op if op == OpCode::JumpIfFalsePop as u8 => {
+                        let target = u16::from_le_bytes([code[i + 1], code[i + 2]]);
+                        if target == (i + 3) as u16 {
+                            patches.push((i, OpCode::Pop as u8));
+                            removals.push(i + 1);
+                            removals.push(i + 2);
+                            changed = true;
+                        }
+                        i += 3;
+                    }
+                    op if op == OpCode::JumpIfTruePop as u8 => {
+                        let target = u16::from_le_bytes([code[i + 1], code[i + 2]]);
+                        if target == (i + 3) as u16 {
+                            patches.push((i, OpCode::Pop as u8));
+                            removals.push(i + 1);
+                            removals.push(i + 2);
+                            changed = true;
+                        }
+                        i += 3;
+                    }
+                    op if op == OpCode::Jump as u8 => {
+                        let target = u16::from_le_bytes([code[i + 1], code[i + 2]]);
+                        if target == (i + 3) as u16 {
+                            removals.push(i);
+                            removals.push(i + 1);
+                            removals.push(i + 2);
+                            changed = true;
+                        }
+                        i += 3;
+                    }
+                    _ => {
+                        i += 1;
+                    }
+                }
+            }
+
+            if !removals.is_empty() {
+                for (idx, new_op) in &patches {
+                    chunk.code[*idx] = *new_op;
+                }
+
+                let removal_set: std::collections::HashSet<usize> = removals.into_iter().collect();
+                let mut new_code = Vec::with_capacity(code.len());
+                let mut old_to_new: Vec<u16> = vec![0; code.len()];
+                for (idx, &byte) in chunk.code.iter().enumerate() {
+                    if removal_set.contains(&idx) {
+                        old_to_new[idx] = u16::MAX;
+                    } else {
+                        old_to_new[idx] = new_code.len() as u16;
+                        new_code.push(byte);
+                    }
+                }
+                // Patch jump targets
+                let new_len = new_code.len();
+                let mut j = 0;
+                while j < new_len {
+                    match new_code[j] {
+                        op if op == OpCode::Jump as u8
+                            || op == OpCode::JumpIfTrue as u8
+                            || op == OpCode::JumpIfFalse as u8
+                            || op == OpCode::JumpIfNil as u8
+                            || op == OpCode::JumpIfTruePop as u8
+                            || op == OpCode::JumpIfFalsePop as u8
+                            || op == OpCode::IntJumpIfNotLt as u8
+                            || op == OpCode::IntJumpIfNotGt as u8 =>
+                        {
+                            let old_target = u16::from_le_bytes([new_code[j + 1], new_code[j + 2]]);
+                            if (old_target as usize) < old_to_new.len() {
+                                let new_target = old_to_new[old_target as usize];
+                                new_code[j + 1] = (new_target & 0xFF) as u8;
+                                new_code[j + 2] = ((new_target >> 8) & 0xFF) as u8;
+                            }
+                            j += 3;
+                        }
+                        _ => {
+                            j += 1;
+                        }
+                    }
+                }
+                chunk.code = new_code;
+            }
+
+            if !changed {
+                break;
+            }
+        }
     }
 }

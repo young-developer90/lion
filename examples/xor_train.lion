@@ -1,47 +1,45 @@
-func main() {
-    let sig = func(x) { return 1.0 / (1.0 + math.e ** (-x)) };
+let sig = func(x) { return 1.0 / (1.0 + math.e ** (-x)) };
 
-    let X = [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]];
-    let y = [[0.0], [1.0], [1.0], [0.0]];
-    let N = 4; let lr = 1.0; let h = 8; let epochs = 20000;
+let X = [[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]];
+let y = [[0.0], [1.0], [1.0], [0.0]];
+let N = 4; let lr = 1.0; let h = 8; let epochs = 20000;
 
-    let s = math.sqrt(2.0 / 2);
-    let W1 = [];
-    for i in 0..2 { let row = []; for j in 0..h { row.push(rand.float() * 2.0 * s - s); } W1.push(row); }
-    let W2 = [];
-    for i in 0..h { let row = []; for j in 0..1 { row.push(rand.float() * 2.0 * s - s); } W2.push(row); }
+let s = math.sqrt(2.0 / 2);
+let W1 = [];
+for i in 0..2 { let row = []; for j in 0..h { row.push(rand.float() * 2.0 * s - s); } W1.push(row); }
+let W2 = [];
+for i in 0..h { let row = []; for j in 0..1 { row.push(rand.float() * 2.0 * s - s); } W2.push(row); }
 
-    for ep in 0..epochs {
-        let Z1 = []; let A1 = []; let Z2 = []; let A2 = [];
-        for i in 0..N {
-            let z1row = []; for j in 0..h { let v = 0.0; for k in 0..2 { v = v + X[i][k] * W1[k][j]; } z1row.push(v); } Z1.push(z1row);
-            let a1row = []; for j in 0..h { a1row.push(sig(z1row[j])); } A1.push(a1row);
-            let z2v = 0.0; for k in 0..h { z2v = z2v + a1row[k] * W2[k][0]; } Z2.push([z2v]);
-            A2.push([sig(z2v)]);
-        }
-        let loss = 0.0;
-        for i in 0..N { let d = A2[i][0] - y[i][0]; loss = loss + d * d; }
-        loss = loss / N;
-        if ep % 2000 == 0 { print("epoch", ep, "loss:", loss); }
-
-        let dW2 = [];
-        for j in 0..h { let sum = 0.0; for i in 0..N { let dz = (A2[i][0] - y[i][0]) * A2[i][0] * (1.0 - A2[i][0]); sum = sum + A1[i][j] * dz; } dW2.push([sum / N]); }
-
-        let dW1 = [];
-        for inp in 0..2 { let row = []; for hid in 0..h { let sum = 0.0; for i in 0..N { let dz2 = (A2[i][0] - y[i][0]) * A2[i][0] * (1.0 - A2[i][0]); let dz1 = dz2 * W2[hid][0] * A1[i][hid] * (1.0 - A1[i][hid]); sum = sum + X[i][inp] * dz1; } row.push(sum / N); } dW1.push(row); }
-
-        for i in 0..2 { for j in 0..h { W1[i][j] = W1[i][j] - dW1[i][j] * lr; } }
-        for j in 0..h { W2[j][0] = W2[j][0] - dW2[j][0] * lr; }
-    }
-
-    print(""); print("XOR results:");
-    let correct = 0;
+for ep in 0..epochs {
+    let Z1 = []; let A1 = []; let Z2 = []; let A2 = [];
     for i in 0..N {
-        let a = []; for j in 0..h { let v = 0.0; for k in 0..2 { v = v + X[i][k] * W1[k][j]; } a.push(sig(v)); }
-        let v = 0.0; for j in 0..h { v = v + a[j] * W2[j][0]; }
-        let pred = sig(v);
-        if pred > 0.5 { if y[i][0] == 1.0 { correct = correct + 1; } } else { if y[i][0] == 0.0 { correct = correct + 1; } }
-        print("  ", X[i][0], "^", X[i][1], " = ", pred, " expected:", y[i][0]);
+        let z1row = []; for j in 0..h { let v = 0.0; for k in 0..2 { v = v + X[i][k] * W1[k][j]; } z1row.push(v); } Z1.push(z1row);
+        let a1row = []; for j in 0..h { a1row.push(sig(z1row[j])); } A1.push(a1row);
+        let z2v = 0.0; for k in 0..h { z2v = z2v + a1row[k] * W2[k][0]; } Z2.push([z2v]);
+        A2.push([sig(z2v)]);
     }
-    print("Accuracy: ", correct, "/4");
+    let loss = 0.0;
+    for i in 0..N { let d = A2[i][0] - y[i][0]; loss = loss + d * d; }
+    loss = loss / N;
+    if ep % 2000 == 0 { print(f"epoch {ep} loss: {loss}"); }
+
+    let dW2 = [];
+    for j in 0..h { let sum = 0.0; for i in 0..N { let dz = (A2[i][0] - y[i][0]) * A2[i][0] * (1.0 - A2[i][0]); sum = sum + A1[i][j] * dz; } dW2.push([sum / N]); }
+
+    let dW1 = [];
+    for inp in 0..2 { let row = []; for hid in 0..h { let sum = 0.0; for i in 0..N { let dz2 = (A2[i][0] - y[i][0]) * A2[i][0] * (1.0 - A2[i][0]); let dz1 = dz2 * W2[hid][0] * A1[i][hid] * (1.0 - A1[i][hid]); sum = sum + X[i][inp] * dz1; } row.push(sum / N); } dW1.push(row); }
+
+    for i in 0..2 { for j in 0..h { W1[i][j] = W1[i][j] - dW1[i][j] * lr; } }
+    for j in 0..h { W2[j][0] = W2[j][0] - dW2[j][0] * lr; }
 }
+
+print(""); print("XOR results:");
+let correct = 0;
+for i in 0..N {
+    let a = []; for j in 0..h { let v = 0.0; for k in 0..2 { v = v + X[i][k] * W1[k][j]; } a.push(sig(v)); }
+    let v = 0.0; for j in 0..h { v = v + a[j] * W2[j][0]; }
+    let pred = sig(v);
+    if pred > 0.5 { if y[i][0] == 1.0 { correct = correct + 1; } } else { if y[i][0] == 0.0 { correct = correct + 1; } }
+    print(f"  {X[i][0]}^{X[i][1]} = {pred} expected:{y[i][0]}");
+}
+print(f"Accuracy: {correct}/4");

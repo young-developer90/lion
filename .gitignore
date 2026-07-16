@@ -18,3 +18,7 @@ modules/*.dylib
 
 # Build artifacts
 dist/
+
+# Generated example outputs
+examples/*.png
+examples/*.ppm

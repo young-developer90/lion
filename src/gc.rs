@@ -8,6 +8,97 @@ use std::sync::Mutex;
 
 use crate::bytecode::Chunk;
 
+/// Fast hash-based lookup for dict/set operations.
+/// Stores entries in insertion order Vec for GC tracing, but uses a HashMap
+/// from hash values to indices for O(1)-average lookups.
+#[derive(Debug, Clone)]
+pub struct DictMap {
+    pub entries: Vec<(Value, Value)>,
+    hash_index: HashMap<u64, Vec<usize>>,
+}
+
+impl DictMap {
+    pub fn new() -> Self {
+        DictMap { entries: Vec::new(), hash_index: HashMap::new() }
+    }
+    pub fn with_capacity(cap: usize) -> Self {
+        DictMap { entries: Vec::with_capacity(cap), hash_index: HashMap::with_capacity(cap) }
+    }
+    pub fn len(&self) -> usize { self.entries.len() }
+    pub fn is_empty(&self) -> bool { self.entries.is_empty() }
+    pub fn iter(&self) -> impl Iterator<Item = &(Value, Value)> { self.entries.iter() }
+    pub fn clear(&mut self) { self.entries.clear(); self.hash_index.clear(); }
+    pub fn get(&self, key: &Value, heap: &GcHeap) -> Option<&Value> {
+        let h = key.hash(heap);
+        if let Some(indices) = self.hash_index.get(&h) {
+            for &idx in indices {
+                if self.entries[idx].0.eq(key, heap) {
+                    return Some(&self.entries[idx].1);
+                }
+            }
+        }
+        None
+    }
+    pub fn contains(&self, key: &Value, heap: &GcHeap) -> bool {
+        let h = key.hash(heap);
+        if let Some(indices) = self.hash_index.get(&h) {
+            indices.iter().any(|&idx| self.entries[idx].0.eq(key, heap))
+        } else {
+            false
+        }
+    }
+    pub fn insert(&mut self, key: Value, val: Value, heap: &GcHeap) {
+        let h = key.hash(heap);
+        // Remove existing entry with same key
+        if let Some(indices) = self.hash_index.get(&h).map(|v| v.clone()) {
+            for idx in indices.iter().rev() {
+                if self.entries[*idx].0.eq(&key, heap) {
+                    self.entries[*idx].1 = val;
+                    return;
+                }
+            }
+        }
+        let idx = self.entries.len();
+        self.entries.push((key, val));
+        self.hash_index.entry(h).or_default().push(idx);
+    }
+    pub fn remove(&mut self, key: &Value, heap: &GcHeap) {
+        let h = key.hash(heap);
+        let indices = match self.hash_index.get(&h).map(|v| v.clone()) {
+            Some(v) => v,
+            None => return,
+        };
+        for idx in indices.iter().rev() {
+            if self.entries[*idx].0.eq(key, heap) {
+                self.hash_index.entry(h).or_default().retain(|&i| i != *idx);
+                self.entries.remove(*idx);
+                // Update hash_index for shifted entries
+                for (_, indices) in self.hash_index.iter_mut() {
+                    for i in indices.iter_mut() {
+                        if *i > *idx { *i -= 1; }
+                    }
+                }
+                return;
+            }
+        }
+    }
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = &mut (Value, Value)> {
+        self.entries.iter_mut()
+    }
+}
+
+impl From<Vec<(Value, Value)>> for DictMap {
+    fn from(entries: Vec<(Value, Value)>) -> Self {
+        let cap = entries.len();
+        let mut map = DictMap { entries, hash_index: HashMap::with_capacity(cap) };
+        for (i, (k, _)) in map.entries.iter().enumerate() {
+            let h = k.hash_raw();
+            map.hash_index.entry(h).or_default().push(i);
+        }
+        map
+    }
+}
+
 type ResourceDropper = fn(i64);
 static RESOURCE_DROPPER: Mutex<Option<ResourceDropper>> = Mutex::new(None);
 
@@ -193,6 +284,11 @@ impl GcHeap {
             } else {
                 self.marks[i] = false;
             }
+        }
+        // Compact free list - trim trailing Nones from objects
+        while let Some(None) = self.objects.last() {
+            self.objects.pop();
+            self.marks.pop();
         }
     }
 
@@ -453,6 +549,20 @@ impl Value {
             Value::String(r) => {
                 if let GcObj::String(s) = heap.get(*r) { s.hash(&mut h); }
             }
+            _ => {}
+        }
+        h.finish()
+    }
+
+    /// Hash without heap access (for scalars only, returns 0 for heap types)
+    pub fn hash_raw(&self) -> u64 {
+        let mut h = std::collections::hash_map::DefaultHasher::new();
+        match self {
+            Value::Int(n) => n.hash(&mut h),
+            Value::UInt(n) => n.hash(&mut h),
+            Value::Float(n) => n.to_bits().hash(&mut h),
+            Value::Bool(b) => b.hash(&mut h),
+            Value::Nil => 0u64.hash(&mut h),
             _ => {}
         }
         h.finish()
