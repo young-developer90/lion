@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="fa" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Playground - Zamin Programming Language</title>
-  <meta name="description" content="Write, run, and share Zamin code in your browser.">
-  <meta property="og:title" content="Playground - Zamin">
-  <meta property="og:description" content="Write, run, and share Zamin code in your browser.">
+  <title>محیط آزمایش - زبان برنامه‌نویسی زمین</title>
+  <meta name="description" content="کد زمین را در مرورگر خود بنویسید، اجرا کنید و به اشتراک بگذارید.">
+  <meta property="og:title" content="محیط آزمایش - زمین">
+  <meta property="og:description" content="کد زمین را در مرورگر خود بنویسید، اجرا کنید و به اشتراک بگذارید.">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="assets/style.css">
   <style>
@@ -364,17 +364,17 @@
   <header class="header">
     <div class="header-brand">
       <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
-      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin Docs</a>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> مستندات زمین</a>
     </div>
     <div class="header-search">
       <span class="search-icon">&#128269;</span>
-      <input type="text" id="search-input" placeholder="Search docs... (Ctrl+K)" autocomplete="off">
+      <input type="text" id="search-input" placeholder="جستجوی مستندات... (Ctrl+K)" autocomplete="off">
       <div class="search-results" id="search-results"></div>
     </div>
     <div class="header-actions">
-      <button id="theme-toggle" title="Toggle theme">&#9790;</button>
+      <button id="theme-toggle" title="تغییر تم">&#9790;</button>
       <div class="lang-dropdown">
-        <button class="lang-btn" id="lang-btn" title="Select language">🌐 EN</button>
+        <button class="lang-btn" id="lang-btn" title="انتخاب زبان">🌐 EN</button>
         <div class="lang-menu" id="lang-menu">
           <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
           <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
@@ -391,31 +391,31 @@
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-inner">
         <div class="sidebar-section">
-          <div class="sidebar-section-title">Getting Started</div>
-          <a href="index.html" class="sidebar-link">Overview</a>
-          <a href="getting-started.html" class="sidebar-link">Installation</a>
-          <a href="playground.html" class="sidebar-link active">Playground</a>
+          <div class="sidebar-section-title">شروع کار</div>
+          <a href="index.html" class="sidebar-link">نمای کلی</a>
+          <a href="getting-started.html" class="sidebar-link">نصب</a>
+          <a href="playground.html" class="sidebar-link active">محیط آزمایش</a>
         </div>
         <div class="sidebar-section">
-          <div class="sidebar-section-title">Language</div>
-          <a href="language-guide.html" class="sidebar-link">Language Guide</a>
-          <a href="standard-library.html" class="sidebar-link">Standard Library</a>
+          <div class="sidebar-section-title">زبان</div>
+          <a href="language-guide.html" class="sidebar-link">راهنمای زبان</a>
+          <a href="standard-library.html" class="sidebar-link">کتابخانه استاندارد</a>
         </div>
         <div class="sidebar-section">
-          <div class="sidebar-section-title">Features</div>
-          <a href="gui-guide.html" class="sidebar-link">GUI Toolkit</a>
+          <div class="sidebar-section-title">قابلیت‌ها</div>
+          <a href="gui-guide.html" class="sidebar-link">ابزارهای GUI</a>
           <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
-          <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+          <a href="advanced-guide.html" class="sidebar-link">پیشرفته</a>
         </div>
         <div class="sidebar-section">
-          <div class="sidebar-section-title">Reference</div>
-          <a href="project-management.html" class="sidebar-link">Project CLI</a>
-          <a href="performance.html" class="sidebar-link">Performance</a>
-          <a href="faq.html" class="sidebar-link">FAQ</a>
+          <div class="sidebar-section-title">مرجع</div>
+          <a href="project-management.html" class="sidebar-link">CLI پروژه</a>
+          <a href="performance.html" class="sidebar-link">عملکرد</a>
+          <a href="faq.html" class="sidebar-link">سوالات متداول</a>
         </div>
       </div>
       <div class="sidebar-grip" id="sidebar-grip"></div>
-      <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">
+      <button class="sidebar-toggle" id="sidebar-toggle" title="تغییر نوار کناری">
         <span class="toggle-icon">&#9654;</span>
       </button>
     </nav>
@@ -426,11 +426,11 @@
 
         <!-- Breadcrumb -->
         <nav class="breadcrumb">
-          <a href="index.html">Home</a> &gt; <span>Playground</span>
+          <a href="index.html">خانه</a> &gt; <span>محیط آزمایش</span>
         </nav>
 
-        <h1>Playground</h1>
-        <p class="subtitle">Write, run, and share Zamin code in your browser.</p>
+        <h1>محیط آزمایش</h1>
+        <p class="subtitle">کد زمین را در مرورگر خود بنویسید، اجرا کنید و به اشتراک بگذارید.</p>
 
         <!-- Playground Layout -->
         <div class="playground-layout">
@@ -438,9 +438,9 @@
           <!-- Left: Editor -->
           <div class="playground-left" id="playground-left">
             <div class="playground-toolbar">
-              <button class="btn btn-primary" id="run-btn">&#9654; <span>Run</span></button>
+              <button class="btn btn-primary" id="run-btn">&#9654; <span>اجرا</span></button>
               <select class="examples-select" id="examples-select">
-                <option value="">Load example...</option>
+                <option value="">بارگذاری مثال...</option>
                 <option value="hello">Hello World</option>
                 <option value="random">Random</option>
                 <option value="http">HTTP</option>
@@ -448,13 +448,13 @@
                 <option value="matrix">Matrix</option>
               </select>
               <span class="spacer"></span>
-              <button class="btn btn-secondary" id="share-btn">&#128279; <span>Share</span></button>
+              <button class="btn btn-secondary" id="share-btn">&#128279; <span>اشتراک</span></button>
             </div>
             <div class="editor-container" id="editor-container">
               <div class="editor-gutter" id="editor-gutter"></div>
               <div class="editor-highlight" id="editor-highlight"></div>
               <textarea class="editor-textarea" id="editor-textarea" spellcheck="false"
-                placeholder="Write Zamin code here..." autofocus>println("Hello, World!");</textarea>
+                placeholder="کد زمین را اینجا بنویسید..." autofocus>println("Hello, World!");</textarea>
             </div>
           </div>
 
@@ -464,17 +464,17 @@
           <!-- Right: Output -->
           <div class="playground-right" id="playground-right">
             <div class="playground-toolbar" style="padding-bottom:0.75rem;">
-              <span style="font-weight:600;font-size:var(--font-size-sm);color:var(--text-secondary);">Output</span>
+              <span style="font-weight:600;font-size:var(--font-size-sm);color:var(--text-secondary);">خروجی</span>
               <span class="spacer"></span>
-              <button class="btn btn-secondary" id="clear-btn" style="padding:0.375rem 0.75rem;font-size:0.75rem;">Clear</button>
+              <button class="btn btn-secondary" id="clear-btn" style="padding:0.375rem 0.75rem;font-size:0.75rem;">پاک کردن</button>
             </div>
             <div class="output-container" id="output-container">
               <div class="output-header">
-                <span>Terminal</span>
-                <span class="output-status" id="output-status">Ready</span>
+                <span>ترمینال</span>
+                <span class="output-status" id="output-status">آماده</span>
               </div>
               <div class="output-content" id="output-content">
-                <div class="output-empty">Press &#9654; Run or Ctrl+Enter to execute</div>
+                <div class="output-empty">دکمه &#9654; Run یا Ctrl+Enter را فشار دهید</div>
               </div>
             </div>
           </div>
@@ -483,8 +483,8 @@
 
         <!-- Page Meta -->
         <div class="page-meta">
-          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/playground.html" target="_blank">Edit this page on GitHub</a>
-          <span>Last updated: July 2026</span>
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/playground.html" target="_blank">ویرایش این صفحه در گیت‌هاب</a>
+          <span>آخرین به‌روزرسانی: جولای ۲۰۲۶</span>
         </div>
 
       </div>
@@ -815,15 +815,15 @@
     }
 
     function clearOutput() {
-      outputContent.innerHTML = '<div class="output-empty">Press &#9654; Run or Ctrl+Enter to execute</div>';
-      outputStatus.textContent = 'Ready';
+      outputContent.innerHTML = '<div class="output-empty">دکمه &#9654; اجرا یا Ctrl+Enter را فشار دهید</div>';
+      outputStatus.textContent = 'آماده';
       outputStatus.style.color = '';
     }
 
     function setOutputBusy(busy) {
       runBtn.disabled = busy;
       if (busy) {
-        outputStatus.textContent = 'Running...';
+        outputStatus.textContent = 'در حال اجرا...';
         outputStatus.style.color = 'var(--warning)';
       }
     }
@@ -841,16 +841,16 @@
         var result = await executeZamin(code);
         if (result.success) {
           writeOutput(result.output, 'out-success');
-          outputStatus.textContent = 'Completed';
+          outputStatus.textContent = 'تکمیل شد';
           outputStatus.style.color = 'var(--success)';
         } else {
           writeOutput(result.output, 'out-error');
-          outputStatus.textContent = 'Error';
+          outputStatus.textContent = 'خطا';
           outputStatus.style.color = 'var(--danger)';
         }
       } catch (err) {
         writeOutput(err.message || String(err), 'out-error');
-        outputStatus.textContent = 'Error';
+        outputStatus.textContent = 'خطا';
         outputStatus.style.color = 'var(--danger)';
       }
 
@@ -904,7 +904,7 @@
     shareBtn.addEventListener('click', function() {
       var code = getCode().trim();
       if (!code) {
-        showNotification('Nothing to share — editor is empty.', 'error');
+        showNotification('چیزی برای اشتراک‌گذاری وجود ندارد — ویرایشگر خالی است.', 'error');
         return;
       }
       var url = window.location.origin + window.location.pathname +
@@ -912,7 +912,7 @@
 
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(url).then(function() {
-          showNotification('Link copied to clipboard!', 'success');
+          showNotification('لینک در کلیپ‌بورد کپی شد!', 'success');
         }).catch(function() {
           fallbackCopy(url);
         });
@@ -930,9 +930,9 @@
       ta.select();
       try {
         document.execCommand('copy');
-        showNotification('Link copied to clipboard!', 'success');
+        showNotification('لینک در کلیپ‌بورد کپی شد!', 'success');
       } catch (e) {
-        showNotification('Could not copy. Select the URL manually.', 'error');
+        showNotification('کپی انجام نشد. لطفاً URL را به صورت دستی کپی کنید.', 'error');
       }
       document.body.removeChild(ta);
     }

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="fa" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Standard Library - Zamin Programming Language</title>
-  <meta name="description" content="Complete reference for all Zamin standard library modules">
-  <meta property="og:title" content="Standard Library - Zamin">
-  <meta property="og:description" content="Complete reference for all Zamin standard library modules: math, fs, json, http, regex, and more.">
+  <title>کتابخانه استاندارد - زبان برنامه‌نویسی زمین</title>
+  <meta name="description" content="مرجع کامل تمام ماژول‌های کتابخانه استاندارد Zamin">
+  <meta property="og:title" content="کتابخانه استاندارد - Zamin">
+  <meta property="og:description" content="مرجع کامل تمام ماژول‌های کتابخانه استاندارد Zamin: math, fs, json, http, regex و موارد دیگر.">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="assets/style.css">
 </head>
@@ -25,7 +25,7 @@
       <button id="theme-toggle" title="Toggle theme">&#9790;</button>
       <button id="print-btn" title="Print">&#128424;</button>
       <div class="lang-dropdown">
-        <button class="lang-btn" id="lang-btn" title="Select language">🌐 EN</button>
+        <button class="lang-btn" id="lang-btn" title="انتخاب زبان">🌐 EN</button>
         <div class="lang-menu" id="lang-menu">
           <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
           <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
@@ -38,84 +38,84 @@
   <div class="main-layout">
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Getting Started</div>
-        <a href="index.html" class="sidebar-link">Overview</a>
-        <a href="getting-started.html" class="sidebar-link">Installation</a>
-        <a href="playground.html" class="sidebar-link">Playground</a>
+        <div class="sidebar-section-title">شروع</div>
+        <a href="index.html" class="sidebar-link">مرور کلی</a>
+        <a href="getting-started.html" class="sidebar-link">نصب</a>
+        <a href="playground.html" class="sidebar-link">محیط آزمایشی</a>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Language</div>
-        <a href="language-guide.html" class="sidebar-link">Language Guide</a>
-        <a href="standard-library.html" class="sidebar-link active">Standard Library</a>
+        <div class="sidebar-section-title">زبان</div>
+        <a href="language-guide.html" class="sidebar-link">راهنمای زبان</a>
+        <a href="standard-library.html" class="sidebar-link active">کتابخانه استاندارد</a>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Features</div>
-        <a href="gui-guide.html" class="sidebar-link">GUI Toolkit</a>
+        <div class="sidebar-section-title">ویژگی‌ها</div>
+        <a href="gui-guide.html" class="sidebar-link">ابزار GUI</a>
         <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
-        <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+        <a href="advanced-guide.html" class="sidebar-link">پیشرفته</a>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Reference</div>
-        <a href="project-management.html" class="sidebar-link">Project CLI</a>
-        <a href="performance.html" class="sidebar-link">Performance</a>
-        <a href="faq.html" class="sidebar-link">FAQ</a>
+        <div class="sidebar-section-title">مرجع</div>
+        <a href="project-management.html" class="sidebar-link">CLI پروژه</a>
+        <a href="performance.html" class="sidebar-link">عملکرد</a>
+        <a href="faq.html" class="sidebar-link">سوالات متداول</a>
       </div>
     </nav>
     <main class="content">
       <div class="content-inner">
         <div class="breadcrumb">
-          <a href="index.html">Home</a><span class="sep">/</span><span>Standard Library</span>
+          <a href="index.html">خانه</a><span class="sep">/</span><span>کتابخانه استاندارد</span>
         </div>
 
-        <h1>Standard Library Reference</h1>
-        <p>Zamin ships with a comprehensive standard library. Built-in functions are available globally, and all other modules are available without import. This page covers every module and every function in the standard library.</p>
+        <h1>مرجع کتابخانه استاندارد</h1>
+        <p>Zamin با یک کتابخانه استاندارد جامع عرضه می‌شود. توابع داخلی به صورت سراسری در دسترس هستند و تمام ماژول‌های دیگر بدون نیاز به import در دسترس هستند. این صفحه هر ماژول و هر تابع در کتابخانه استاندارد را پوشش می‌دهد.</p>
 
         <!-- ============================================================ -->
         <!-- TABLE OF CONTENTS -->
         <!-- ============================================================ -->
         <div class="toc">
-          <div class="toc-title">On this page</div>
-          <a href="#built-in-functions">Built-in Functions</a>
-          <a href="#math-module"><code>math</code> Module</a>
-          <a href="#string-module"><code>string</code> Module</a>
-          <a href="#fs-module"><code>fs</code> Module</a>
-          <a href="#os-module"><code>os</code> Module</a>
-          <a href="#json-module"><code>json</code> Module</a>
-          <a href="#re-module"><code>re</code> Module</a>
-          <a href="#http-module"><code>http</code> Module</a>
-          <a href="#url-module"><code>url</code> Module</a>
-          <a href="#csv-module"><code>csv</code> Module</a>
-          <a href="#datetime-module"><code>datetime</code> Module</a>
-          <a href="#stats-module"><code>stats</code> Module</a>
-          <a href="#hashlib-module"><code>hashlib</code> Module</a>
-          <a href="#logging-module"><code>logging</code> Module</a>
-          <a href="#subprocess-module"><code>subprocess</code> Module</a>
-          <a href="#path-module"><code>path</code> Module</a>
-          <a href="#collections-module"><code>collections</code> Module</a>
-          <a href="#itertools-module"><code>itertools</code> Module</a>
-          <a href="#test-module"><code>test</code> Module</a>
-          <a href="#time-module"><code>time</code> Module</a>
-          <a href="#rand-module"><code>rand</code> Module</a>
-          <a href="#matrix-module"><code>matrix</code> Module</a>
+          <div class="toc-title">در این صفحه</div>
+          <a href="#built-in-functions">توابع داخلی</a>
+          <a href="#math-module">ماژول <code>math</code></a>
+          <a href="#string-module">ماژول <code>string</code></a>
+          <a href="#fs-module">ماژول <code>fs</code></a>
+          <a href="#os-module">ماژول <code>os</code></a>
+          <a href="#json-module">ماژول <code>json</code></a>
+          <a href="#re-module">ماژول <code>re</code></a>
+          <a href="#http-module">ماژول <code>http</code></a>
+          <a href="#url-module">ماژول <code>url</code></a>
+          <a href="#csv-module">ماژول <code>csv</code></a>
+          <a href="#datetime-module">ماژول <code>datetime</code></a>
+          <a href="#stats-module">ماژول <code>stats</code></a>
+          <a href="#hashlib-module">ماژول <code>hashlib</code></a>
+          <a href="#logging-module">ماژول <code>logging</code></a>
+          <a href="#subprocess-module">ماژول <code>subprocess</code></a>
+          <a href="#path-module">ماژول <code>path</code></a>
+          <a href="#collections-module">ماژول <code>collections</code></a>
+          <a href="#itertools-module">ماژول <code>itertools</code></a>
+          <a href="#test-module">ماژول <code>test</code></a>
+          <a href="#time-module">ماژول <code>time</code></a>
+          <a href="#rand-module">ماژول <code>rand</code></a>
+          <a href="#matrix-module">ماژول <code>matrix</code></a>
         </div>
 
         <!-- ============================================================ -->
         <!-- BUILT-IN FUNCTIONS -->
         <!-- ============================================================ -->
-        <h2 id="built-in-functions">Built-in Functions</h2>
-        <p>These functions are available globally in every Zamin script without any import.</p>
-        <h3>Functions</h3>
+        <h2 id="built-in-functions">توابع داخلی</h2>
+        <p>این توابع بدون نیاز به هیچ importای در هر اسکریپت Zamin به صورت سراسری در دسترس هستند.</p>
+        <h3>توابع</h3>
         <table>
-          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <thead><tr><th>تابع</th><th>امضا</th><th>توضیح</th></tr></thead>
           <tbody>
-            <tr><td><code>print</code></td><td><code>print(*args)</code></td><td>Prints all arguments to stdout with no trailing newline. Multiple arguments are printed consecutively.</td></tr>
-            <tr><td><code>println</code></td><td><code>println(*args)</code></td><td>Same as <code>print</code> but appends a newline after all arguments.</td></tr>
-            <tr><td><code>input</code></td><td><code>input(prompt?)</code></td><td>Prints the optional prompt, reads a line from stdin, and returns it as a string (trimmed).</td></tr>
-            <tr><td><code>type</code></td><td><code>type(val)</code></td><td>Returns the type name of <code>val</code> as a string (e.g. <code>"int"</code>, <code>"string"</code>, <code>"list"</code>).</td></tr>
-            <tr><td><code>len</code></td><td><code>len(val)</code></td><td>Returns the length of a string, list, dict, or set.</td></tr>
+            <tr><td><code>print</code></td><td><code>print(*args)</code></td><td>تمام آرگومان‌ها را به stdout بدون خط جدید انتهایی چاپ می‌کند. آرگومان‌های متعدد به صورت پشت سر هم چاپ می‌شوند.</td></tr>
+            <tr><td><code>println</code></td><td><code>println(*args)</code></td><td>مشابه <code>print</code> است اما بعد از تمام آرگومان‌ها یک خط جدید اضافه می‌کند.</td></tr>
+            <tr><td><code>input</code></td><td><code>input(prompt?)</code></td><td>راهنمای اختیاری را چاپ می‌کند، یک خط از stdin می‌خواند و آن را به صورت رشته (تراشیده شده) برمی‌گرداند.</td></tr>
+            <tr><td><code>type</code></td><td><code>type(val)</code></td><td>نام نوع <code>val</code> را به صورت رشته برمی‌گرداند (مثلاً <code>"int"</code>، <code>"string"</code>، <code>"list"</code>).</td></tr>
+            <tr><td><code>len</code></td><td><code>len(val)</code></td><td>طول یک رشته، لیست، دیکت یا مجموعه را برمی‌گرداند.</td></tr>
           </tbody>
         </table>
-        <h3>Examples</h3>
+        <h3>مثال‌ها</h3>
         <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
         <pre><code>print("Hello, Zamin!");
 print("the answer is", 42);
@@ -135,23 +135,23 @@ print(len([1, 2, 3]));    // 3</code></pre>
         <!-- ============================================================ -->
         <!-- MATH MODULE -->
         <!-- ============================================================ -->
-        <h2 id="math-module"><code>math</code> Module</h2>
-        <p>Mathematical functions and constants. All trigonometric functions use radians.</p>
-        <h3>Functions</h3>
+        <h2 id="math-module">ماژول <code>math</code></h2>
+        <p>توابع و ثابت‌های ریاضی. تمام توابع مثلثاتی از رادیان استفاده می‌کنند.</p>
+        <h3>توابع</h3>
         <table>
-          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <thead><tr><th>تابع</th><th>امضا</th><th>توضیح</th></tr></thead>
           <tbody>
-            <tr><td><code>sqrt</code></td><td><code>math.sqrt(x)</code></td><td>Returns the square root of <code>x</code>.</td></tr>
-            <tr><td><code>pow</code></td><td><code>math.pow(x, y)</code></td><td>Returns <code>x</code> raised to the power <code>y</code>.</td></tr>
-            <tr><td><code>abs</code></td><td><code>math.abs(x)</code></td><td>Returns the absolute value of <code>x</code>.</td></tr>
-            <tr><td><code>sin</code></td><td><code>math.sin(x)</code></td><td>Returns the sine of <code>x</code> (radians).</td></tr>
-            <tr><td><code>cos</code></td><td><code>math.cos(x)</code></td><td>Returns the cosine of <code>x</code> (radians).</td></tr>
-            <tr><td><code>tan</code></td><td><code>math.tan(x)</code></td><td>Returns the tangent of <code>x</code> (radians).</td></tr>
-            <tr><td><code>pi</code></td><td><code>math.pi</code></td><td>The constant pi (3.14159...).</td></tr>
-            <tr><td><code>e</code></td><td><code>math.e</code></td><td>Euler's number e (2.71828...).</td></tr>
+            <tr><td><code>sqrt</code></td><td><code>math.sqrt(x)</code></td><td>جذر <code>x</code> را برمی‌گرداند.</td></tr>
+            <tr><td><code>pow</code></td><td><code>math.pow(x, y)</code></td><td><code>x</code> را به توان <code>y</code> می‌رساند.</td></tr>
+            <tr><td><code>abs</code></td><td><code>math.abs(x)</code></td><td>قدر مطلق <code>x</code> را برمی‌گرداند.</td></tr>
+            <tr><td><code>sin</code></td><td><code>math.sin(x)</code></td><td>سینوس <code>x</code> (رادیان) را برمی‌گرداند.</td></tr>
+            <tr><td><code>cos</code></td><td><code>math.cos(x)</code></td><td>کسینوس <code>x</code> (رادیان) را برمی‌گرداند.</td></tr>
+            <tr><td><code>tan</code></td><td><code>math.tan(x)</code></td><td>تانژانت <code>x</code> (رادیان) را برمی‌گرداند.</td></tr>
+            <tr><td><code>pi</code></td><td><code>math.pi</code></td><td>ثابت پی (۳٫۱۴۱۵۹...).</td></tr>
+            <tr><td><code>e</code></td><td><code>math.e</code></td><td>عدد اویلر e (۲٫۷۱۸۲۸...).</td></tr>
           </tbody>
         </table>
-        <h3>Examples</h3>
+        <h3>مثال‌ها</h3>
         <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
         <pre><code>print(math.sqrt(25));            // 5.0
 print(math.pow(2, 10));          // 1024.0
@@ -167,32 +167,32 @@ print(math.e);                   // 2.718281828459045</code></pre>
         <!-- ============================================================ -->
         <!-- STRING MODULE -->
         <!-- ============================================================ -->
-        <h2 id="string-module"><code>string</code> Module</h2>
-        <p>Functions for string manipulation. All functions take a string as the first argument.</p>
-        <h3>Functions</h3>
+        <h2 id="string-module">ماژول <code>string</code></h2>
+        <p>توابعی برای دستکاری رشته. تمام توابع یک رشته را به عنوان اولین آرگومان می‌گیرند.</p>
+        <h3>توابع</h3>
         <table>
-          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <thead><tr><th>تابع</th><th>امضا</th><th>توضیح</th></tr></thead>
           <tbody>
-            <tr><td><code>len</code></td><td><code>string.len(s)</code></td><td>Returns the byte length of <code>s</code>.</td></tr>
-            <tr><td><code>upper</code></td><td><code>string.upper(s)</code></td><td>Returns an uppercase copy of <code>s</code>.</td></tr>
-            <tr><td><code>lower</code></td><td><code>string.lower(s)</code></td><td>Returns a lowercase copy of <code>s</code>.</td></tr>
-            <tr><td><code>trim</code></td><td><code>string.trim(s)</code></td><td>Removes leading and trailing whitespace from <code>s</code>.</td></tr>
-            <tr><td><code>trim_start</code></td><td><code>string.trim_start(s)</code></td><td>Removes leading whitespace from <code>s</code>.</td></tr>
-            <tr><td><code>trim_end</code></td><td><code>string.trim_end(s)</code></td><td>Removes trailing whitespace from <code>s</code>.</td></tr>
-            <tr><td><code>split</code></td><td><code>string.split(s, delim?)</code></td><td>Splits <code>s</code> on <code>delim</code> (default: space). Returns a list.</td></tr>
-            <tr><td><code>join</code></td><td><code>string.join(list, sep?)</code></td><td>Joins list items into a string with optional separator.</td></tr>
-            <tr><td><code>contains</code></td><td><code>string.contains(s, sub)</code></td><td>Returns <code>true</code> if <code>s</code> contains <code>sub</code>.</td></tr>
-            <tr><td><code>starts_with</code></td><td><code>string.starts_with(s, prefix)</code></td><td>Returns <code>true</code> if <code>s</code> starts with <code>prefix</code>.</td></tr>
-            <tr><td><code>ends_with</code></td><td><code>string.ends_with(s, suffix)</code></td><td>Returns <code>true</code> if <code>s</code> ends with <code>suffix</code>.</td></tr>
-            <tr><td><code>replace</code></td><td><code>string.replace(s, from, to)</code></td><td>Replaces all occurrences of <code>from</code> with <code>to</code> in <code>s</code>.</td></tr>
-            <tr><td><code>reverse</code></td><td><code>string.reverse(s)</code></td><td>Returns a reversed copy of <code>s</code>.</td></tr>
-            <tr><td><code>repeat</code></td><td><code>string.repeat(s, n)</code></td><td>Returns <code>s</code> repeated <code>n</code> times.</td></tr>
-            <tr><td><code>substring</code></td><td><code>string.substring(s, start, end?)</code></td><td>Returns the substring from <code>start</code> to <code>end</code> (or end of string).</td></tr>
-            <tr><td><code>bytes</code></td><td><code>string.bytes(s)</code></td><td>Returns a list of integer byte values for <code>s</code>.</td></tr>
-            <tr><td><code>from_bytes</code></td><td><code>string.from_bytes(list)</code></td><td>Converts a list of integers to a string.</td></tr>
+            <tr><td><code>len</code></td><td><code>string.len(s)</code></td><td>طول بایت <code>s</code> را برمی‌گرداند.</td></tr>
+            <tr><td><code>upper</code></td><td><code>string.upper(s)</code></td><td>یک کپی با حروف بزرگ از <code>s</code> برمی‌گرداند.</td></tr>
+            <tr><td><code>lower</code></td><td><code>string.lower(s)</code></td><td>یک کپی با حروف کوچک از <code>s</code> برمی‌گرداند.</td></tr>
+            <tr><td><code>trim</code></td><td><code>string.trim(s)</code></td><td>فضای خالی ابتدا و انتهای <code>s</code> را حذف می‌کند.</td></tr>
+            <tr><td><code>trim_start</code></td><td><code>string.trim_start(s)</code></td><td>فضای خالی ابتدای <code>s</code> را حذف می‌کند.</td></tr>
+            <tr><td><code>trim_end</code></td><td><code>string.trim_end(s)</code></td><td>فضای خالی انتهای <code>s</code> را حذف می‌کند.</td></tr>
+            <tr><td><code>split</code></td><td><code>string.split(s, delim?)</code></td><td><code>s</code> را بر اساس <code>delim</code> (پیش‌فرض: فاصله) تقسیم می‌کند. یک لیست برمی‌گرداند.</td></tr>
+            <tr><td><code>join</code></td><td><code>string.join(list, sep?)</code></td><td>موارد لیست را با جداکننده اختیاری به یک رشته متصل می‌کند.</td></tr>
+            <tr><td><code>contains</code></td><td><code>string.contains(s, sub)</code></td><td>اگر <code>s</code> شامل <code>sub</code> باشد <code>true</code> برمی‌گرداند.</td></tr>
+            <tr><td><code>starts_with</code></td><td><code>string.starts_with(s, prefix)</code></td><td>اگر <code>s</code> با <code>prefix</code> شروع شود <code>true</code> برمی‌گرداند.</td></tr>
+            <tr><td><code>ends_with</code></td><td><code>string.ends_with(s, suffix)</code></td><td>اگر <code>s</code> با <code>suffix</code> خاتمه یابد <code>true</code> برمی‌گرداند.</td></tr>
+            <tr><td><code>replace</code></td><td><code>string.replace(s, from, to)</code></td><td>تمام وقوع <code>from</code> را با <code>to</code> در <code>s</code> جایگزین می‌کند.</td></tr>
+            <tr><td><code>reverse</code></td><td><code>string.reverse(s)</code></td><td>یک کپی معکوس از <code>s</code> برمی‌گرداند.</td></tr>
+            <tr><td><code>repeat</code></td><td><code>string.repeat(s, n)</code></td><td><code>s</code> را <code>n</code> بار تکرار شده برمی‌گرداند.</td></tr>
+            <tr><td><code>substring</code></td><td><code>string.substring(s, start, end?)</code></td><td>زیررشته از <code>start</code> تا <code>end</code> (یا انتهای رشته) را برمی‌گرداند.</td></tr>
+            <tr><td><code>bytes</code></td><td><code>string.bytes(s)</code></td><td>یک لیست از مقادیر بایت صحیح برای <code>s</code> برمی‌گرداند.</td></tr>
+            <tr><td><code>from_bytes</code></td><td><code>string.from_bytes(list)</code></td><td>یک لیست از اعداد صحیح را به رشته تبدیل می‌کند.</td></tr>
           </tbody>
         </table>
-        <h3>Examples</h3>
+        <h3>مثال‌ها</h3>
         <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
         <pre><code>print(string.len("hello"));                          // 5
 print(string.upper("hello"));                        // "HELLO"
@@ -220,19 +220,19 @@ print(string.from_bytes(bytes));                     // "ABC"</code></pre>
         <!-- ============================================================ -->
         <!-- FS MODULE -->
         <!-- ============================================================ -->
-        <h2 id="fs-module"><code>fs</code> Module</h2>
-        <p>File system operations for reading and writing files.</p>
-        <h3>Functions</h3>
+        <h2 id="fs-module">ماژول <code>fs</code></h2>
+        <p>عملیات سیستم فایل برای خواندن و نوشتن فایل‌ها.</p>
+        <h3>توابع</h3>
         <table>
-          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <thead><tr><th>تابع</th><th>امضا</th><th>توضیح</th></tr></thead>
           <tbody>
-            <tr><td><code>read</code></td><td><code>fs.read(path)</code></td><td>Reads the entire file at <code>path</code> and returns its contents as a string.</td></tr>
-            <tr><td><code>write</code></td><td><code>fs.write(path, content)</code></td><td>Writes <code>content</code> to the file at <code>path</code>, overwriting existing content. Returns <code>true</code>.</td></tr>
-            <tr><td><code>exists</code></td><td><code>fs.exists(path)</code></td><td>Returns <code>true</code> if <code>path</code> exists on disk.</td></tr>
-            <tr><td><code>mkdir</code></td><td><code>fs.mkdir(path)</code></td><td>Creates a directory (and parents) at <code>path</code>. Returns <code>true</code>.</td></tr>
+            <tr><td><code>read</code></td><td><code>fs.read(path)</code></td><td>کل فایل در <code>path</code> را می‌خواند و محتویات آن را به صورت رشته برمی‌گرداند.</td></tr>
+            <tr><td><code>write</code></td><td><code>fs.write(path, content)</code></td><td><code>content</code> را در فایل در <code>path</code> می‌نویسد و محتوای قبلی را بازنویسی می‌کند. <code>true</code> برمی‌گرداند.</td></tr>
+            <tr><td><code>exists</code></td><td><code>fs.exists(path)</code></td><td>اگر <code>path</code> روی دیسک وجود داشته باشد <code>true</code> برمی‌گرداند.</td></tr>
+            <tr><td><code>mkdir</code></td><td><code>fs.mkdir(path)</code></td><td>یک دایرکتوری (و والدین) در <code>path</code> ایجاد می‌کند. <code>true</code> برمی‌گرداند.</td></tr>
           </tbody>
         </table>
-        <h3>Examples</h3>
+        <h3>مثال‌ها</h3>
         <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
         <pre><code>fs.write("hello.txt", "Hello, Zamin!");
 let content = fs.read("hello.txt");
@@ -247,20 +247,20 @@ fs.write("output/data/result.txt", "done");</code></pre>
         <!-- ============================================================ -->
         <!-- OS MODULE -->
         <!-- ============================================================ -->
-        <h2 id="os-module"><code>os</code> Module</h2>
-        <p>Operating system interaction: environment variables, arguments, and shell commands.</p>
-        <h3>Functions</h3>
+        <h2 id="os-module">ماژول <code>os</code></h2>
+        <p>تعامل با سیستم عامل: متغیرهای محیطی، آرگومان‌ها و دستورات شل.</p>
+        <h3>توابع</h3>
         <table>
-          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <thead><tr><th>تابع</th><th>امضا</th><th>توضیح</th></tr></thead>
           <tbody>
-            <tr><td><code>cwd</code></td><td><code>os.cwd()</code></td><td>Returns the current working directory as a string.</td></tr>
-            <tr><td><code>args</code></td><td><code>os.args()</code></td><td>Returns a list of command-line arguments.</td></tr>
-            <tr><td><code>getenv</code></td><td><code>os.getenv(name)</code></td><td>Returns the value of the environment variable <code>name</code>, or <code>nil</code> if not set.</td></tr>
-            <tr><td><code>name</code></td><td><code>os.name()</code></td><td>Returns the OS name (e.g. <code>"linux"</code>, <code>"windows"</code>).</td></tr>
-            <tr><td><code>system</code></td><td><code>os.system(cmd)</code></td><td>Runs <code>cmd</code> via the system shell. Returns the exit code.</td></tr>
+            <tr><td><code>cwd</code></td><td><code>os.cwd()</code></td><td>دایرکتوری کاری جاری را به صورت رشته برمی‌گرداند.</td></tr>
+            <tr><td><code>args</code></td><td><code>os.args()</code></td><td>یک لیست از آرگومان‌های خط فرمان را برمی‌گرداند.</td></tr>
+            <tr><td><code>getenv</code></td><td><code>os.getenv(name)</code></td><td>مقدار متغیر محیطی <code>name</code> را برمی‌گرداند، یا در صورت عدم تنظیم <code>nil</code>.</td></tr>
+            <tr><td><code>name</code></td><td><code>os.name()</code></td><td>نام سیستم عامل را برمی‌گرداند (مثلاً <code>"linux"</code>، <code>"windows"</code>).</td></tr>
+            <tr><td><code>system</code></td><td><code>os.system(cmd)</code></td><td><code>cmd</code> را از طریق شل سیستم اجرا می‌کند. کد خروج را برمی‌گرداند.</td></tr>
           </tbody>
         </table>
-        <h3>Examples</h3>
+        <h3>مثال‌ها</h3>
         <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
         <pre><code>print(os.cwd());                        // /home/user/project
 print(os.name());                       // "linux"
@@ -277,22 +277,22 @@ print(f"Exit code: {status}");           // 0</code></pre>
         <!-- ============================================================ -->
         <!-- JSON MODULE -->
         <!-- ============================================================ -->
-        <h2 id="json-module"><code>json</code> Module</h2>
-        <p>JSON parsing and serialization. Supports strings, numbers, booleans, null, arrays, and objects.</p>
-        <h3>Functions</h3>
+        <h2 id="json-module">ماژول <code>json</code></h2>
+        <p>تجزیه و سریال‌سازی JSON. از رشته‌ها، اعداد، مقادیر بولی، null، آرایه‌ها و اشیاء پشتیبانی می‌کند.</p>
+        <h3>توابع</h3>
         <table>
-          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <thead><tr><th>تابع</th><th>امضا</th><th>توضیح</th></tr></thead>
           <tbody>
-            <tr><td><code>parse</code></td><td><code>json.parse(s)</code></td><td>Parses a JSON string into a Zamin value (dict, list, etc.).</td></tr>
-            <tr><td><code>loads</code></td><td><code>json.loads(s)</code></td><td>Alias for <code>json.parse</code>.</td></tr>
-            <tr><td><code>stringify</code></td><td><code>json.stringify(val)</code></td><td>Converts a Zamin value to a JSON string.</td></tr>
-            <tr><td><code>dumps</code></td><td><code>json.dumps(val)</code></td><td>Alias for <code>json.stringify</code>.</td></tr>
-            <tr><td><code>dump</code></td><td><code>json.dump(val, path)</code></td><td>Writes <code>val</code> as JSON to the file at <code>path</code>.</td></tr>
-            <tr><td><code>load</code></td><td><code>json.load(path)</code></td><td>Reads and parses a JSON file at <code>path</code>.</td></tr>
-            <tr><td><code>pretty</code></td><td><code>json.pretty(val, indent?)</code></td><td>Returns a pretty-printed JSON string with configurable indentation (default: 2 spaces).</td></tr>
+            <tr><td><code>parse</code></td><td><code>json.parse(s)</code></td><td>یک رشته JSON را به یک مقدار Zamin (dict، list و غیره) تجزیه می‌کند.</td></tr>
+            <tr><td><code>loads</code></td><td><code>json.loads(s)</code></td><td>نام مستعار برای <code>json.parse</code>.</td></tr>
+            <tr><td><code>stringify</code></td><td><code>json.stringify(val)</code></td><td>یک مقدار Zamin را به رشته JSON تبدیل می‌کند.</td></tr>
+            <tr><td><code>dumps</code></td><td><code>json.dumps(val)</code></td><td>نام مستعار برای <code>json.stringify</code>.</td></tr>
+            <tr><td><code>dump</code></td><td><code>json.dump(val, path)</code></td><td><code>val</code> را به صورت JSON در فایل در <code>path</code> می‌نویسد.</td></tr>
+            <tr><td><code>load</code></td><td><code>json.load(path)</code></td><td>یک فایل JSON در <code>path</code> را می‌خواند و تجزیه می‌کند.</td></tr>
+            <tr><td><code>pretty</code></td><td><code>json.pretty(val, indent?)</code></td><td>یک رشته JSON زیباچاپ‌شده با تورفتگی قابل تنظیم (پیش‌فرض: ۲ فاصله) برمی‌گرداند.</td></tr>
           </tbody>
         </table>
-        <h3>Examples</h3>
+        <h3>مثال‌ها</h3>
         <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
         <pre><code>let data = json.parse('{"name": "Zamin", "version": 1.0}');
 print(data["name"]);                    // Zamin
@@ -313,22 +313,22 @@ let loaded = json.load("config.json");</code></pre>
         <!-- ============================================================ -->
         <!-- RE MODULE -->
         <!-- ============================================================ -->
-        <h2 id="re-module"><code>re</code> Module</h2>
-        <p>Regular expression support using Rust's regex syntax. Patterns are cached for repeated use.</p>
-        <h3>Functions</h3>
+        <h2 id="re-module">ماژول <code>re</code></h2>
+        <p>پشتیبانی از عبارت باقاعده با استفاده از نحو regex راست. الگوها برای استفاده مکرر کش می‌شوند.</p>
+        <h3>توابع</h3>
         <table>
-          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <thead><tr><th>تابع</th><th>امضا</th><th>توضیح</th></tr></thead>
           <tbody>
-            <tr><td><code>find</code></td><td><code>re.find(pattern, text)</code></td><td>Returns the first match of <code>pattern</code> in <code>text</code>, or <code>nil</code>.</td></tr>
-            <tr><td><code>is_match</code></td><td><code>re.is_match(pattern, text)</code></td><td>Returns <code>true</code> if <code>pattern</code> matches somewhere in <code>text</code>.</td></tr>
-            <tr><td><code>split</code></td><td><code>re.split(pattern, text)</code></td><td>Splits <code>text</code> on the regex <code>pattern</code>. Returns a list.</td></tr>
-            <tr><td><code>sub</code></td><td><code>re.sub(pattern, replacement, text)</code></td><td>Replaces the first match of <code>pattern</code> with <code>replacement</code>.</td></tr>
-            <tr><td><code>sub_all</code></td><td><code>re.sub_all(pattern, replacement, text)</code></td><td>Replaces all matches of <code>pattern</code> with <code>replacement</code>.</td></tr>
-            <tr><td><code>find_all</code></td><td><code>re.find_all(pattern, text)</code></td><td>Returns a list of all matches of <code>pattern</code> in <code>text</code>.</td></tr>
-            <tr><td><code>captures</code></td><td><code>re.captures(pattern, text)</code></td><td>Returns a list of capture groups (including group 0), or <code>nil</code>.</td></tr>
+            <tr><td><code>find</code></td><td><code>re.find(pattern, text)</code></td><td>اولین تطابق <code>pattern</code> در <code>text</code> را برمی‌گرداند، یا <code>nil</code>.</td></tr>
+            <tr><td><code>is_match</code></td><td><code>re.is_match(pattern, text)</code></td><td>اگر <code>pattern</code> در جایی از <code>text</code> مطابقت داشته باشد <code>true</code> برمی‌گرداند.</td></tr>
+            <tr><td><code>split</code></td><td><code>re.split(pattern, text)</code></td><td><code>text</code> را بر اساس الگوی regex <code>pattern</code> تقسیم می‌کند. یک لیست برمی‌گرداند.</td></tr>
+            <tr><td><code>sub</code></td><td><code>re.sub(pattern, replacement, text)</code></td><td>اولین تطابق <code>pattern</code> را با <code>replacement</code> جایگزین می‌کند.</td></tr>
+            <tr><td><code>sub_all</code></td><td><code>re.sub_all(pattern, replacement, text)</code></td><td>تمام تطابق‌های <code>pattern</code> را با <code>replacement</code> جایگزین می‌کند.</td></tr>
+            <tr><td><code>find_all</code></td><td><code>re.find_all(pattern, text)</code></td><td>یک لیست از تمام تطابق‌های <code>pattern</code> در <code>text</code> برمی‌گرداند.</td></tr>
+            <tr><td><code>captures</code></td><td><code>re.captures(pattern, text)</code></td><td>یک لیست از گروه‌های ضبط (شامل گروه ۰) را برمی‌گرداند، یا <code>nil</code>.</td></tr>
           </tbody>
         </table>
-        <h3>Examples</h3>
+        <h3>مثال‌ها</h3>
         <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
         <pre><code>let text = "Contact: user@example.com, admin@test.com";
 
@@ -355,27 +355,27 @@ print(caps);                           // ["user@example.com", "user", "example.
         <!-- ============================================================ -->
         <!-- HTTP MODULE -->
         <!-- ============================================================ -->
-        <h2 id="http-module"><code>http</code> Module</h2>
-        <p>HTTP client for making requests. All functions return a response dict with keys <code>status</code> (int), <code>headers</code> (dict), and <code>body</code> (string).</p>
-        <h3>Functions</h3>
+        <h2 id="http-module">ماژول <code>http</code></h2>
+        <p>کلاینت HTTP برای ارسال درخواست‌ها. تمام توابع یک دیکت پاسخ با کلیدهای <code>status</code> (int)، <code>headers</code> (dict) و <code>body</code> (string) برمی‌گردانند.</p>
+        <h3>توابع</h3>
         <table>
-          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <thead><tr><th>تابع</th><th>امضا</th><th>توضیح</th></tr></thead>
           <tbody>
-            <tr><td><code>get</code></td><td><code>http.get(url)</code></td><td>Sends a GET request to <code>url</code>. Returns a response dict.</td></tr>
-            <tr><td><code>post</code></td><td><code>http.post(url, body)</code></td><td>Sends a POST request with <code>body</code> (string) to <code>url</code>. Returns a response dict.</td></tr>
-            <tr><td><code>request</code></td><td><code>http.request(method, url, headers?, body?)</code></td><td>Sends a request with any HTTP method. <code>headers</code> is a dict, <code>body</code> is a string.</td></tr>
+            <tr><td><code>get</code></td><td><code>http.get(url)</code></td><td>یک درخواست GET به <code>url</code> ارسال می‌کند. یک دیکت پاسخ برمی‌گرداند.</td></tr>
+            <tr><td><code>post</code></td><td><code>http.post(url, body)</code></td><td>یک درخواست POST با <code>body</code> (string) به <code>url</code> ارسال می‌کند. یک دیکت پاسخ برمی‌گرداند.</td></tr>
+            <tr><td><code>request</code></td><td><code>http.request(method, url, headers?, body?)</code></td><td>یک درخواست با هر متد HTTP ارسال می‌کند. <code>headers</code> یک dict، <code>body</code> یک string است.</td></tr>
           </tbody>
         </table>
-        <h3>Response Dict</h3>
+        <h3>دیکت پاسخ</h3>
         <table>
-          <thead><tr><th>Key</th><th>Type</th><th>Description</th></tr></thead>
+          <thead><tr><th>کلید</th><th>نوع</th><th>توضیح</th></tr></thead>
           <tbody>
-            <tr><td><code>status</code></td><td><code>int</code></td><td>HTTP status code (e.g. 200, 404).</td></tr>
-            <tr><td><code>headers</code></td><td><code>dict</code></td><td>Response headers as key-value pairs.</td></tr>
-            <tr><td><code>body</code></td><td><code>string</code></td><td>The response body as a string.</td></tr>
+            <tr><td><code>status</code></td><td><code>int</code></td><td>کد وضعیت HTTP (مثلاً ۲۰۰، ۴۰۴).</td></tr>
+            <tr><td><code>headers</code></td><td><code>dict</code></td><td>سرآیندهای پاسخ به صورت جفت کلید-مقدار.</td></tr>
+            <tr><td><code>body</code></td><td><code>string</code></td><td>بدنه پاسخ به صورت رشته.</td></tr>
           </tbody>
         </table>
-        <h3>Examples</h3>
+        <h3>مثال‌ها</h3>
         <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
         <pre><code>let resp = http.get("https://api.github.com/repos/young-developer90/zamin");
 print(resp.status);                     // 200
@@ -394,19 +394,19 @@ print(resp3.headers["content-type"]);</code></pre>
         <!-- ============================================================ -->
         <!-- URL MODULE -->
         <!-- ============================================================ -->
-        <h2 id="url-module"><code>url</code> Module</h2>
-        <p>URL parsing, encoding, decoding, and joining.</p>
-        <h3>Functions</h3>
+        <h2 id="url-module">ماژول <code>url</code></h2>
+        <p>تجزیه URL، کدگذاری، کدگشایی و الحاق.</p>
+        <h3>توابع</h3>
         <table>
-          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <thead><tr><th>تابع</th><th>امضا</th><th>توضیح</th></tr></thead>
           <tbody>
-            <tr><td><code>parse</code></td><td><code>url.parse(url_string)</code></td><td>Parses a URL string into a dict with keys: <code>scheme</code>, <code>host</code>, <code>path</code>, <code>query</code>, <code>fragment</code>, <code>port</code>, <code>query_params</code>.</td></tr>
-            <tr><td><code>encode</code></td><td><code>url.encode(text)</code></td><td>URL-encodes the given text (percent encoding).</td></tr>
-            <tr><td><code>decode</code></td><td><code>url.decode(text)</code></td><td>URL-decodes the given percent-encoded text.</td></tr>
-            <tr><td><code>join</code></td><td><code>url.join(base, relative)</code></td><td>Resolves a relative URL against a base URL. Returns the joined URL string.</td></tr>
+            <tr><td><code>parse</code></td><td><code>url.parse(url_string)</code></td><td>یک رشته URL را به یک دیکت با کلیدهای <code>scheme</code>، <code>host</code>، <code>path</code>، <code>query</code>، <code>fragment</code>، <code>port</code>، <code>query_params</code> تجزیه می‌کند.</td></tr>
+            <tr><td><code>encode</code></td><td><code>url.encode(text)</code></td><td>متن داده شده را URL-کدگذاری می‌کند (percent encoding).</td></tr>
+            <tr><td><code>decode</code></td><td><code>url.decode(text)</code></td><td>متن percent-کدگذاری شده داده شده را URL-کدگشایی می‌کند.</td></tr>
+            <tr><td><code>join</code></td><td><code>url.join(base, relative)</code></td><td>یک URL نسبی را در برابر یک URL پایه حل می‌کند. رشته URL الحاق‌شده را برمی‌گرداند.</td></tr>
           </tbody>
         </table>
-        <h3>Examples</h3>
+        <h3>مثال‌ها</h3>
         <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
         <pre><code>let parsed = url.parse("https://example.com:8080/path?q=1#section");
 print(parsed["scheme"]);                // "https"
@@ -424,20 +424,20 @@ print(joined);                          // "https://example.com/api/users/1"</co
         <!-- ============================================================ -->
         <!-- CSV MODULE -->
         <!-- ============================================================ -->
-        <h2 id="csv-module"><code>csv</code> Module</h2>
-        <p>CSV parsing and serialization. Supports quoted fields and escaped commas.</p>
-        <h3>Functions</h3>
+        <h2 id="csv-module">ماژول <code>csv</code></h2>
+        <p>تجزیه و سریال‌سازی CSV. از فیلدهای نقل‌قول‌شده و کاماهای فراری پشتیبانی می‌کند.</p>
+        <h3>توابع</h3>
         <table>
-          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <thead><tr><th>تابع</th><th>امضا</th><th>توضیح</th></tr></thead>
           <tbody>
-            <tr><td><code>parse</code></td><td><code>csv.parse(text)</code></td><td>Parses CSV text into a list of rows (each row is a list of strings).</td></tr>
-            <tr><td><code>parse_header</code></td><td><code>csv.parse_header(text)</code></td><td>Parses CSV text using the first row as headers. Returns a list of dicts.</td></tr>
-            <tr><td><code>stringify</code></td><td><code>csv.stringify(rows)</code></td><td>Converts a list of rows (lists or dicts) to CSV text.</td></tr>
-            <tr><td><code>load</code></td><td><code>csv.load(path)</code></td><td>Reads and parses a CSV file at <code>path</code>.</td></tr>
-            <tr><td><code>save</code></td><td><code>csv.save(path, rows)</code></td><td>Saves a list of rows to a CSV file at <code>path</code>.</td></tr>
+            <tr><td><code>parse</code></td><td><code>csv.parse(text)</code></td><td>متن CSV را به یک لیست از سطرها (هر سطر یک لیست از رشته‌ها است) تجزیه می‌کند.</td></tr>
+            <tr><td><code>parse_header</code></td><td><code>csv.parse_header(text)</code></td><td>متن CSV را با استفاده از اولین سطر به عنوان سرآیند تجزیه می‌کند. یک لیست از دیکت‌ها برمی‌گرداند.</td></tr>
+            <tr><td><code>stringify</code></td><td><code>csv.stringify(rows)</code></td><td>یک لیست از سطرها (لیست‌ها یا دیکت‌ها) را به متن CSV تبدیل می‌کند.</td></tr>
+            <tr><td><code>load</code></td><td><code>csv.load(path)</code></td><td>یک فایل CSV در <code>path</code> را می‌خواند و تجزیه می‌کند.</td></tr>
+            <tr><td><code>save</code></td><td><code>csv.save(path, rows)</code></td><td>یک لیست از سطرها را در یک فایل CSV در <code>path</code> ذخیره می‌کند.</td></tr>
           </tbody>
         </table>
-        <h3>Examples</h3>
+        <h3>مثال‌ها</h3>
         <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
         <pre><code>let csv_text = "name,age\nAlice,30\nBob,25";
 let rows = csv.parse(csv_text);
@@ -456,33 +456,33 @@ let data = csv.load("output.csv");</code></pre>
         <!-- ============================================================ -->
         <!-- DATETIME MODULE -->
         <!-- ============================================================ -->
-        <h2 id="datetime-module"><code>datetime</code> Module</h2>
-        <p>Date and time functions. Datetime values are represented as dicts with keys: <code>year</code>, <code>month</code>, <code>day</code>, <code>hour</code>, <code>minute</code>, <code>second</code>, <code>unix</code>.</p>
-        <h3>Functions</h3>
+        <h2 id="datetime-module">ماژول <code>datetime</code></h2>
+        <p>توابع تاریخ و زمان. مقادیر Datetime به صورت دیکت با کلیدهای <code>year</code>، <code>month</code>، <code>day</code>، <code>hour</code>، <code>minute</code>، <code>second</code>، <code>unix</code> نمایش داده می‌شوند.</p>
+        <h3>توابع</h3>
         <table>
-          <thead><tr><th>Function</th><th>Signature</th><th>Description</th></tr></thead>
+          <thead><tr><th>تابع</th><th>امضا</th><th>توضیح</th></tr></thead>
           <tbody>
-            <tr><td><code>now</code></td><td><code>datetime.now()</code></td><td>Returns the current date/time as a datetime dict.</td></tr>
-            <tr><td><code>from_unix</code></td><td><code>datetime.from_unix(timestamp)</code></td><td>Converts a Unix timestamp (seconds) to a datetime dict.</td></tr>
-            <tr><td><code>format</code></td><td><code>datetime.format(dt, fmt)</code></td><td>Formats a datetime dict using format specifiers. Returns a string.</td></tr>
-            <tr><td><code>parse</code></td><td><code>datetime.parse(s, fmt)</code></td><td>Parses a date string using format specifiers. Returns a datetime dict.</td></tr>
-            <tr><td><code>unix</code></td><td><code>datetime.unix(dt)</code></td><td>Returns the Unix timestamp from a datetime dict.</td></tr>
+            <tr><td><code>now</code></td><td><code>datetime.now()</code></td><td>تاریخ/ساعت جاری را به صورت یک دیکت datetime برمی‌گرداند.</td></tr>
+            <tr><td><code>from_unix</code></td><td><code>datetime.from_unix(timestamp)</code></td><td>یک timestamp Unix (ثانیه) را به یک دیکت datetime تبدیل می‌کند.</td></tr>
+            <tr><td><code>format</code></td><td><code>datetime.format(dt, fmt)</code></td><td>یک دیکت datetime را با استفاده از مشخص‌کننده‌های قالب فرمت می‌کند. یک رشته برمی‌گرداند.</td></tr>
+            <tr><td><code>parse</code></td><td><code>datetime.parse(s, fmt)</code></td><td>یک رشته تاریخ را با استفاده از مشخص‌کننده‌های قالب تجزیه می‌کند. یک دیکت datetime برمی‌گرداند.</td></tr>
+            <tr><td><code>unix</code></td><td><code>datetime.unix(dt)</code></td><td>timestamp Unix را از یک دیکت datetime برمی‌گرداند.</td></tr>
           </tbody>
         </table>
-        <h3>Format Specifiers</h3>
+        <h3>مشخص‌کننده‌های قالب</h3>
         <table>
-          <thead><tr><th>Spec</th><th>Meaning</th><th>Example</th></tr></thead>
+          <thead><tr><th>مشخص‌کننده</th><th>معنی</th><th>مثال</th></tr></thead>
           <tbody>
-            <tr><td><code>%Y</code></td><td>4-digit year</td><td><code>2026</code></td></tr>
-            <tr><td><code>%y</code></td><td>2-digit year</td><td><code>26</code></td></tr>
-            <tr><td><code>%m</code></td><td>Month (01-12)</td><td><code>07</code></td></tr>
-            <tr><td><code>%d</code></td><td>Day (01-31)</td><td><code>16</code></td></tr>
-            <tr><td><code>%H</code></td><td>Hour (00-23)</td><td><code>14</code></td></tr>
-            <tr><td><code>%M</code></td><td>Minute (00-59)</td><td><code>30</code></td></tr>
-            <tr><td><code>%S</code></td><td>Second (00-59)</td><td><code>05</code></td></tr>
+            <tr><td><code>%Y</code></td><td>سال ۴ رقمی</td><td><code>2026</code></td></tr>
+            <tr><td><code>%y</code></td><td>سال ۲ رقمی</td><td><code>26</code></td></tr>
+            <tr><td><code>%m</code></td><td>ماه (۱۲-۰۱)</td><td><code>07</code></td></tr>
+            <tr><td><code>%d</code></td><td>روز (۳۱-۰۱)</td><td><code>16</code></td></tr>
+            <tr><td><code>%H</code></td><td>ساعت (۲۳-۰۰)</td><td><code>14</code></td></tr>
+            <tr><td><code>%M</code></td><td>دقیقه (۵۹-۰۰)</td><td><code>30</code></td></tr>
+            <tr><td><code>%S</code></td><td>ثانیه (۵۹-۰۰)</td><td><code>05</code></td></tr>
           </tbody>
         </table>
-        <h3>Examples</h3>
+        <h3>مثال‌ها</h3>
         <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
         <pre><code>let now = datetime.now();
 print(now["year"]);                     // 2026

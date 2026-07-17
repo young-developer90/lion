@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>よくある質問 - Zamin プログラミング言語</title>
+  <meta name="description" content="Zamin プログラミング言語に関するよくある質問。インストール、構文、標準ライブラリ、パフォーマンス、ツールについて。">
+  <meta property="og:title" content="よくある質問 - Zamin">
+  <meta property="og:description" content="Zamin プログラミング言語に関するよくある質問。インストール、構文、標準ライブラリ、パフォーマンス、ツールについて。">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin ドキュメント</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="ドキュメントを検索... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="テーマ切替">&#9790;</button>
+      <button id="print-btn" title="印刷">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="言語を選択">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">はじめに</div>
+        <a href="index.html" class="sidebar-link">概要</a>
+        <a href="getting-started.html" class="sidebar-link">インストール</a>
+        <a href="playground.html" class="sidebar-link">プレイグラウンド</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">言語</div>
+        <a href="language-guide.html" class="sidebar-link">言語ガイド</a>
+        <a href="standard-library.html" class="sidebar-link">標準ライブラリ</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">機能</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI ツールキット</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">高度な機能</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">リファレンス</div>
+        <a href="project-management.html" class="sidebar-link">プロジェクト CLI</a>
+        <a href="performance.html" class="sidebar-link">パフォーマンス</a>
+        <a href="faq.html" class="sidebar-link active">よくある質問</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">ホーム</a><span class="sep">/</span><span>よくある質問</span>
+        </div>
+
+        <h1>よくある質問</h1>
+        <p>Zamin プログラミング言語に関するよくある質問と回答です。</p>
+
+        <h2 id="install">Zamin をインストールするには？</h2>
+        <p>Zamin はソースからビルドします（唯一のインストール方法です）：</p>
+        <pre><code>git clone https://github.com/young-developer90/zamin.git
+cd zamin
+cargo build --release</code></pre>
+        <p>バイナリは <code>target/release/zamin</code> にあります。<code>PATH</code> に追加してください。</p>
+
+        <h2 id="concat-strings">文字列を連結するには？</h2>
+        <p><code>+</code> 演算子（両方のオペランドが文字列である必要があります）または <code>..</code> 演算子（文字列以外を自動変換）を使用します。</p>
+        <pre><code>let greeting = "Hello" + " " + "World";
+print(greeting);  // "Hello World"
+
+// Use .. to coerce non-strings to strings
+let n = 42;
+print("The answer is " .. n);  // "The answer is 42"
+
+// f-strings are preferred for interpolation
+let name = "Alice";
+print("Hello {name}");</code></pre>
+
+        <h2 id="let-vs-const">let と const の違いは？</h2>
+        <p><code>let</code> は可変の変数を宣言します。<code>const</code> はコンパイル時に代入する必要がある不変の定数を宣言します。</p>
+        <pre><code>let x = 10
+x = 20  // OK
+
+const PI = 3.14159
+PI = 3.0  // Error: cannot reassign constant</code></pre>
+
+        <h2 id="read-files">ファイルを読み込むには？</h2>
+        <p><code>fs</code> 標準ライブラリモジュールを使用します：</p>
+        <pre><code>let content = fs.read("data.txt");
+print(content);
+
+// Write to a file
+fs.write("output.txt", "Hello, Zamin!");</code></pre>
+
+        <h2 id="http-requests">HTTP リクエストを行うには？</h2>
+        <p><code>http</code> モジュールを使用します：</p>
+        <pre><code>let resp = http.get("https://api.example.com/data");
+print(resp.status);    // 200
+print(resp.body);      // response body string
+
+// POST with JSON body
+let resp2 = http.post("https://api.example.com/submit",
+    json.stringify({"name": "Alice", "email": "alice@example.com"})
+);
+print(resp2.status);</code></pre>
+
+        <h2 id="error-handling">エラー処理はどうするの？</h2>
+        <p>Zamin はエラー処理に <code>try</code>/<code>catch</code> を使用し、エラーを発生させるには <code>throw</code> を使用します：</p>
+        <pre><code>try {
+    let content = fs.read("nonexistent.txt");
+} catch (e) {
+    print(f"Error: {e}");
+}
+
+// Throw errors explicitly
+func validate(n) {
+    if n &lt; 0 {
+        throw Error("negative value not allowed");
+    }
+    return n;
+}
+
+try {
+    validate(-1);
+} catch (e) {
+    print(f"Caught: {e}");
+}</code></pre>
+
+        <h2 id="regex">正規表現を使用するには？</h2>
+        <p><code>re</code> モジュールを使用します：</p>
+        <pre><code>let text = "Contact: user@example.com, admin@test.com";
+
+let first = re.find(r"[\w.]+@[\w.]+", text);
+print(first);                          // "user@example.com"
+
+let all = re.find_all(r"[\w.]+@[\w.]+", text);
+print(all);                            // ["user@example.com", "admin@test.com"]
+
+// Check if pattern matches
+print(re.is_match(r"\d+", "abc 123"));  // true
+
+// Replace matches
+let cleaned = re.sub(r"\d+", "#", "abc 123 def 456");
+print(cleaned);                         // "abc # def 456"
+
+// Extract capture groups
+let caps = re.captures(r"(\w+)@(\w+)", "user@example.com");
+print(caps);                            // ["user@example.com", "user", "example.com"]</code></pre>
+
+        <h2 id="json-parse">JSON をパースするには？</h2>
+        <p><code>json</code> モジュールを使用します：</p>
+        <pre><code>let data = json.parse('{"name": "Alice", "age": 30}');
+print(data["name"]);   // "Alice"
+print(data["age"]);    // 30
+
+// Serialize to JSON string
+let obj = {"name": "Bob", "age": 25};
+let str = json.stringify(obj);
+print(str);             // {"name":"Bob","age":25}
+
+// Pretty-print with indentation
+print(json.pretty(obj));</code></pre>
+
+        <h2 id="create-project">プロジェクトを作成するには？</h2>
+        <p><code>zamin new</code> コマンドを使用します：</p>
+        <pre><code>zamin new my_project
+cd my_project
+zamin run src/main.zamin</code></pre>
+        <p>これにより、<code>zamin.json</code>、<code>src/main.zamin</code>、<code>tests/</code>、<code>modules/</code> ディレクトリを含む標準のプロジェクトレイアウトが作成されます。</p>
+
+        <h2 id="run-tests">テストを実行するには？</h2>
+        <p><code>test</code> モジュールを使ってテスト関数を記述し、<code>zamin test</code> を実行します：</p>
+        <pre><code>use test
+
+func test_addition() {
+    test.assert_eq(1 + 1, 2);
+}
+
+func test_string_upper() {
+    test.assert_eq("hello".upper(), "HELLO");
+}</code></pre>
+        <pre><code>zamin test</code></pre>
+        <p>名前でテストをフィルタリング：<code>zamin test addition</code>。</p>
+
+        <h2 id="multithreading">Zamin はマルチスレッドをサポートしていますか？</h2>
+        <p>Zamin はシングルスレッドの VM で、ファイバー（軽量コルーチン）による協調的並行処理を採用しています。各ファイバーは同じスレッド内で実行され、明示的に制御を譲るため、共有状態の同期問題なしに並行タスクスケジューリングが可能です。</p>
+        <p>CPU 負荷の高い処理には、<code>subprocess</code> モジュールを介して独立したプロセスを起動できます。マルチスレッドの Rust アプリケーションから Zamin を呼び出す場合は、Rust の埋め込み API を通じて真の並列処理が利用可能です。</p>
+
+        <h2 id="gui-linux">Linux で GUI を使用するには？</h2>
+        <p>Zamin には GTK4 を介して Linux で動作する組み込み GUI ツールキットが含まれています。必要なシステム依存関係をインストールしてください：</p>
+        <pre><code># Ubuntu/Debian
+sudo apt install libgtk-4-dev
+
+# Fedora
+sudo dnf install gtk4-devel</code></pre>
+        <p>その後、<code>luna</code> モジュールを使用します（<code>--features luna</code> 付きでビルド）：</p>
+        <pre><code>let win = luna.Leo("My App", 800, 600);
+let label = luna.Label(win, "Hello, Linux!");
+luna.pack(label);
+luna.mainloop(win);</code></pre>
+        <p>詳細は <a href="gui-guide.html">GUI ガイド</a> を参照してください。</p>
+
+        <h2 id="opencv-usage">OpenCV を使用するには？</h2>
+        <p>Zamin は <code>cv</code> モジュールを通じて OpenCV をラップします。まず OpenCV をシステムにインストールし、次に：</p>
+        <pre><code>use cv
+
+let img = cv.imread("photo.jpg")
+let gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+let edges = cv.canny(gray, 50, 150)
+cv.imwrite("edges.jpg", edges)
+print("Saved edges.jpg")</code></pre>
+        <p>詳細は <a href="opencv-guide.html">OpenCV ガイド</a> を参照してください。</p>
+
+        <h2 id="slow-program">プログラムが遅いのはなぜ？</h2>
+        <p>一般的な原因と修正方法：</p>
+        <ul>
+          <li><strong>ループ内での文字列結合</strong> &mdash; 文字列への繰り返しの <code>+</code> の代わりに、f-文字列または <code>list.join()</code> を使用してください。</li>
+          <li><strong>グローバル変数へのアクセス</strong> &mdash; ローカル変数は約10倍高速です。タイトなループでグローバル変数にアクセスする場合は、ローカル変数にキャッシュしてください。</li>
+          <li><strong>繰り返しのリスト割り当て</strong> &mdash; <code>list.new(capacity)</code> を使用して事前に割り当ててください。</li>
+          <li><strong>最適化されていないビルド</strong> &mdash; AOT 最適化を適用したリリースビルドには <code>zamin build</code> を使用してください。</li>
+          <li><strong>最適でないアルゴリズム</strong> &mdash; 最初に <code>zamin run --disassemble</code> でプロファイリングしてバイトコードを確認し、アルゴリズムの改善を検討してください。</li>
+        </ul>
+        <p>詳細なベンチマークと最適化テクニックについては、<a href="performance.html">パフォーマンス</a> のページを参照してください。</p>
+
+        <h2 id="contribute">Zamin に貢献するには？</h2>
+        <p>Zamin は MIT ライセンスのオープンソースです。貢献するには：</p>
+        <ul>
+          <li><strong>バグ報告</strong> &mdash; <a href="https://github.com/young-developer90/zamin/issues">github.com/young-developer90/zamin/issues</a> で Issue を開いてください</li>
+          <li><strong>コードの提出</strong> &mdash; リポジトリをフォークし、フィーチャーブランチを作成し、プルリクエストを開いてください</li>
+          <li><strong>ドキュメントの改善</strong> &mdash; すべてのドキュメントは <code>docs/</code> ディレクトリに HTML ファイルとしてあります</li>
+          <li><strong>フィードバックの共有</strong> &mdash; 機能リクエストや提案は Issue トラッカーで歓迎します</li>
+        </ul>
+        <p>ビルド手順とプロジェクト構造については <a href="https://github.com/young-developer90/zamin">README</a> を参照してください。</p>
+
+        <h2 id="embed-rust">Rust アプリケーションに Zamin を埋め込むには？</h2>
+        <p>Zamin は <a href="https://crates.io/crates/zamin">crates.io</a> で公開されています。依存関係として追加し、埋め込み API を使用します：</p>
+        <pre><code>// Cargo.toml
+[dependencies]
+zamin = "1.7.3"</code></pre>
+        <pre><code>// main.rs
+func main() {
+    zamin::execute_source(r#"
+        print("Hello from embedded Zamin!");
+    "#).unwrap();
+
+    zamin::execute_file("scripts/plugin.zamin").unwrap();
+}</code></pre>
+        <p>完全な API リファレンスについては、<a href="advanced-guide.html#embedding-in-rust">Rust への埋め込み</a> のセクションを参照してください。</p>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/faq.html">GitHub でこのページを編集</a>
+          <span>最終更新日: 2026年7月</span>
+        </div>
+        <div class="feedback">
+          <span>役に立ちましたか？</span>
+          <button>&#128077; はい</button>
+          <button>&#128078; いいえ</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

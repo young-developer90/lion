@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>言語ガイド - Zamin プログラミング言語</title>
+  <meta name="description" content="Zamin プログラミング言語の完全な言語リファレンス">
+  <meta property="og:title" content="言語ガイド - Zamin">
+  <meta property="og:description" content="Zamin プログラミング言語の完全なリファレンス：型、関数、制御フロー、構造体、モジュールなど。">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin ドキュメント</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="ドキュメントを検索... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="テーマ切替">&#9790;</button>
+      <button id="print-btn" title="印刷">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="Select language">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">はじめに</div>
+        <a href="index.html" class="sidebar-link">概要</a>
+        <a href="getting-started.html" class="sidebar-link">インストール</a>
+        <a href="playground.html" class="sidebar-link">プレイグラウンド</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">言語</div>
+        <a href="language-guide.html" class="sidebar-link active">言語ガイド</a>
+        <a href="standard-library.html" class="sidebar-link">標準ライブラリ</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">機能</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI ツールキット</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">高度な機能</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">リファレンス</div>
+        <a href="project-management.html" class="sidebar-link">Project CLI</a>
+        <a href="performance.html" class="sidebar-link">パフォーマンス</a>
+        <a href="faq.html" class="sidebar-link">よくある質問</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+
+        <nav class="breadcrumb">
+          <a href="index.html">ホーム</a> / <span>言語ガイド</span>
+        </nav>
+
+        <h1>言語ガイド</h1>
+        <p>Zamin プログラミング言語の完全なリファレンスです。このガイドでは、変数や型から構造体、パターンマッチング、モジュールに至るまで、すべてのコア機能を網羅しています。各セクションには説明と実行可能なコード例が含まれています。</p>
+
+        <!-- ========== Variables and Types ========== -->
+        <h2 id="variables-and-types">変数と型</h2>
+        <p>Zamin では可変変数に <code>let</code>、定数に <code>const</code> を使用します。明示的な型注釈を書く必要はありません — コンパイラが代入された値から型を推論します。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let x = 42;
+let name = "Zamin";
+let pi = 3.14159;
+let active = true;
+
+const MAX_SIZE = 1024;
+const GREETING = "hello";</code></pre>
+
+        <h3>基本型</h3>
+        <p>Zamin には以下の組み込み型があります：</p>
+        <ul>
+          <li><code>int</code> — 64 ビット符号付き整数 (<code>i64</code>)</li>
+          <li><code>uint</code> — 64 ビット符号なし整数 (<code>u64</code>)</li>
+          <li><code>float</code> — 64 ビット浮動小数点数 (<code>f64</code>)</li>
+          <li><code>bool</code> — <code>true</code> または <code>false</code></li>
+          <li><code>string</code> — UTF-8 文字列</li>
+          <li><code>nil</code> — 値の不在</li>
+          <li><code>list</code> — 順序付きの拡張可能なコレクション</li>
+          <li><code>dict</code> — キーと値のマッピング</li>
+          <li><code>set</code> — 順序なしの一意な値のコレクション</li>
+          <li><code>tuple</code> — 固定サイズの不変コレクション</li>
+        </ul>
+
+        <h3>型変換</h3>
+        <p>組み込みの変換関数を使用して型を変更します：</p>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let n = int("42");       // 42
+let f = float("3.14");   // 3.14
+let s = string(100);     // "100"
+let b = bool(1);         // true
+let b2 = bool(0);        // false</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; ヒント</div><p>定数は宣言時に値を代入する必要があり、再代入はできません。設定値や <code>const PI = 3.14159;</code> のような数学定数に使用します。</p></div>
+
+        <!-- ========== Strings ========== -->
+        <h2 id="strings">文字列</h2>
+        <p>Zamin の文字列は UTF-8 エンコードされています。二重引用符と一重引用符はどちらも同じ文字列を生成します。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let s1 = "hello";
+let s2 = 'hello';
+// s1 and s2 are equivalent</code></pre>
+
+        <h3>F-String</h3>
+        <p>文字列の前に <code>f</code> を付けると、<code>{}</code> 内に式を埋め込めます：</p>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let name = "Zamin";
+let version = 2;
+
+println(f"Welcome to {name} v{version}!");
+// Output: Welcome to Zamin v2!
+
+let x = 10;
+println(f"Result: {x * 2 + 1}");
+// Output: Result: 21</code></pre>
+
+        <h3>連結と繰り返し</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let greeting = "Hello" + ", " + "world!";
+println(greeting);
+// Output: Hello, world!
+
+let pattern = "ab" * 3;
+println(pattern);
+// Output: ababab</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; ヒント</div><p>分割、結合、トリミング、大文字小文字変換などの高度な操作には <code>string</code> モジュールを使用してください。詳細は <a href="standard-library.html">標準ライブラリ</a> を参照してください。</p></div>
+
+        <!-- ========== Numbers ========== -->
+        <h2 id="numbers">数値</h2>
+
+        <h3>整数リテラル</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let decimal = 42;
+let negative = -7;
+let hex = 0xff;
+let binary = 0b1010;
+let octal = 0o77;</code></pre>
+
+        <h3>符号なし整数</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let count = 42u;
+let size = 1024u;</code></pre>
+
+        <h3>浮動小数点リテラル</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let pi = 3.14159;
+let negative = -0.5;
+let huge = 1e10;</code></pre>
+
+        <h3>算術演算子</h3>
+        <table>
+          <thead>
+            <tr><th>演算子</th><th>説明</th><th>例</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>+</code></td><td>加算</td><td><code>3 + 2</code> → <code>5</code></td></tr>
+            <tr><td><code>-</code></td><td>減算</td><td><code>3 - 2</code> → <code>1</code></td></tr>
+            <tr><td><code>*</code></td><td>乗算</td><td><code>3 * 2</code> → <code>6</code></td></tr>
+            <tr><td><code>/</code></td><td>除算</td><td><code>7 / 2</code> → <code>3.5</code></td></tr>
+            <tr><td><code>//</code></td><td>整数除算</td><td><code>7 // 2</code> → <code>3</code></td></tr>
+            <tr><td><code>%</code></td><td>剰余</td><td><code>7 % 2</code> → <code>1</code></td></tr>
+            <tr><td><code>**</code></td><td>べき乗</td><td><code>2 ** 10</code> → <code>1024</code></td></tr>
+          </tbody>
+        </table>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>println(10 / 3);      // 3.33333...
+println(10 // 3);     // 3
+println(10 % 3);      // 1
+println(2 ** 8);      // 256</code></pre>
+
+        <h3>比較演算子</h3>
+        <p>すべての標準的な比較が使用できます：<code>==</code>、<code>!=</code>、<code>&lt;</code>、<code>&gt;</code>、<code>&lt;=</code>、<code>&gt;=</code>。</p>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; ヒント</div><p><code>math.sqrt()</code>、<code>math.abs()</code>、<code>math.floor()</code>、<code>math.ceil()</code> などの高度な数学関数には <code>math</code> モジュールを使用してください。</p></div>
+
+        <!-- ========== Booleans ========== -->
+        <h2 id="booleans">ブーリアン</h2>
+        <p>Zamin には <code>true</code> と <code>false</code> の 2 つのブーリアンリテラルがあります。</p>
+
+        <h3>論理演算子</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let a = true;
+let b = false;
+
+println(a and b);   // false
+println(a or b);    // true
+println(not a);     // false
+
+if not b {
+    println("b is false");
+}</code></pre>
+
+        <h3>真理値</h3>
+        <p>条件コンテキスト（<code>if</code> や <code>while</code> など）では、以下の値は <strong>falsy</strong> と見なされます：</p>
+        <ul>
+          <li><code>false</code></li>
+          <li><code>nil</code></li>
+          <li><code>0</code> および <code>0.0</code></li>
+          <li><code>""</code>（空文字列）</li>
+          <li><code>[]</code>（空リスト）</li>
+        </ul>
+        <p>それ以外はすべて <strong>truthy</strong> であり、空でない文字列、ゼロでない数値、空でないコレクションが含まれます。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>if "hello" {
+    println("truthy!");
+}
+
+if 0 {
+    println("never reached");
+}
+
+if [] {
+    println("never reached");
+}</code></pre>
+
+        <!-- ========== Collections ========== -->
+        <h2 id="collections">コレクション</h2>
+
+        <h3 id="lists">リスト</h3>
+        <p>リストは順序付きで異種混合の要素を持ち、拡張可能です。角括弧で作成します。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let fruits = ["apple", "banana", "cherry"];
+let mixed = [1, "two", true, 3.0];
+
+// Indexing (0-based)
+println(fruits[0]);   // "apple"
+println(fruits[-1]);  // "cherry" (last element)
+
+// Slicing
+println(fruits[0:2]); // ["apple", "banana"]
+
+// Modification
+fruits.push("date");
+fruits.pop();
+
+// Length
+println(len(fruits)); // 3
+
+// Membership
+if "apple" in fruits {
+    println("Found apple!");
+}</code></pre>
+
+        <h3 id="dicts">辞書</h3>
+        <p>辞書はキーを値にマッピングします。中括弧構文とドット記法でアクセスします。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let user = {
+    name: "Alice",
+    age: 30,
+    active: true,
+};
+
+// Access with dot notation
+println(user.name);    // "Alice"
+
+// Access with bracket notation
+println(user["age"]);  // 30
+
+// Add / update fields
+user.email = "alice@example.com";
+
+// Get with default
+let city = user.get("city", "unknown");
+
+// Iterate
+for key in user.keys() {
+    println(f"{key}: {user[key]}");
+}
+
+for value in user.values() {
+    println(value);
+}
+
+for key, value in user.items() {
+    println(f"{key} = {value}");
+}</code></pre>
+
+        <h3 id="sets">セット</h3>
+        <p>セットは一意で順序のない値を格納します。中括弧構文で異なる要素を指定します。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let colors = {"red", "green", "blue"};
+
+colors.add("yellow");
+colors.remove("green");
+
+println(len(colors)); // 3
+
+let a = {1, 2, 3};
+let b = {2, 3, 4};
+
+println(a | b);   // {1, 2, 3, 4}  — union
+println(a & b);   // {2, 3}        — intersection
+println(a - b);   // {1}           — difference
+
+if 2 in a {
+    println("a contains 2");
+}</code></pre>
+
+        <h3 id="tuples">タプル</h3>
+        <p>タプルは固定サイズの不変コレクションです。一度作成すると変更できません。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let point = (3, 4);
+println(point[0]);  // 3
+println(point[1]);  // 4
+
+// Destructuring
+let (x, y) = point;
+println(f"x={x}, y={y}");
+
+// Return multiple values from a function
+func minmax(list) {
+    return (min(list), max(list));
+}
+
+let (lo, hi) = minmax([3, 1, 4, 1, 5]);
+println(f"min={lo}, max={hi}");</code></pre>
+
+        <h3 id="comprehensions">リスト内包表記</h3>
+        <p>反復、フィルタリング、変換を 1 行で行う簡潔な式でリストを作成します。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let doubled = [x * 2 for x in 0..10];
+// [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+let evens = [x for x in 0..20 if x % 2 == 0];
+// [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+let words = ["hello", "world"];
+let upper = [w.to_upper() for w in words];
+// ["HELLO", "WORLD"]
+
+let nums = [1, 2, 3, 4, 5];
+let filtered = [x * x for x in nums if x > 2];
+// [9, 16, 25]</code></pre>
+
+        <h3>範囲式</h3>
+        <p>範囲は整数のシーケンスを生成します。通常は <code>for</code> ループや内包表記で使用されます。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>// Exclusive end (0 to 9)
+for i in 0..10 {
+    print(f"{i} ");
+}
+// Output: 0 1 2 3 4 5 6 7 8 9
+
+// Inclusive end (0 to 10)
+for i in 0..=10 {
+    print(f"{i} ");
+}
+// Output: 0 1 2 3 4 5 6 7 8 9 10
+
+let list = [10..=15];
+println(list); // [10, 11, 12, 13, 14, 15]</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; ヒント</div><p>終了値を除外する場合は <code>..</code>（Python の <code>range()</code> と同様）、終了値を含めたい場合は <code>..=</code> を使用します。</p></div>
+
+        <!-- ========== Control Flow ========== -->
+        <h2 id="control-flow">制御フロー</h2>
+
+        <h3>If / Elif / Else</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let score = 85;
+
+if score >= 90 {
+    println("A");
+} elif score >= 80 {
+    println("B");
+} elif score >= 70 {
+    println("C");
+} else {
+    println("F");
+}
+// Output: B</code></pre>
+
+        <h3>三項式</h3>
+        <p>条件式の結果を変数に代入します：</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let age = 20;
+let status = if age >= 18 { "adult" } else { "minor" };
+println(status); // "adult"
+
+let x = 5;
+let label = if x > 0 { "positive" } else if x < 0 { "negative" } else { "zero" };
+println(label); // "positive"</code></pre>
+
+        <h3>While ループ</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let count = 0;
+while count < 5 {
+    println(count);
+    count += 1;
+}
+
+// Infinite loop with break
+let total = 0;
+while true {
+    let input = read_line();
+    if input == "quit" {
+        break;
+    }
+    total += int(input);
+}</code></pre>
+
+        <h3>For ループ</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>// Iterate over a list
+let items = ["a", "b", "c"];
+for item in items {
+    println(item);
+}
+
+// Iterate with index
+for i, item in items {
+    println(f"{i}: {item}");
+}
+
+// Iterate over a range
+for i in 0..5 {
+    println(i);
+}
+
+// Iterate with inclusive range
+for i in 0..=5 {
+    println(i);
+}
+
+// Iterate over a dict
+let map = { x: 1, y: 2 };
+for key, value in map {
+    println(f"{key} = {value}");
+}</code></pre>
+
+        <h3>Break と Continue</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>// break exits the innermost loop
+for i in 0..100 {
+    if i == 5 {
+        break;
+    }
+    println(i);
+}
+// Output: 0 1 2 3 4
+
+// continue skips to the next iteration
+for i in 0..10 {
+    if i % 2 == 0 {
+        continue;
+    }
+    println(i);
+}
+// Output: 1 3 5 7 9</code></pre>
+
+        <h3>Match（パターンマッチング）</h3>
+        <p><code>match</code> 文は値を複数のパターンと比較し、一致したブランチを実行します。デフォルトケースには <code>_</code> をワイルドカードとして使用します。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let command = "start";
+
+match command {
+    case "start" => println("Starting..."),
+    case "stop"  => println("Stopping..."),
+    case "pause" => println("Pausing..."),
+    case _       => println("Unknown command"),
+}
+
+// Matching numbers
+let day = 3;
+
+match day {
+    case 1 => println("Monday"),
+    case 2 => println("Tuesday"),
+    case 3 => println("Wednesday"),
+    case 4 => println("Thursday"),
+    case 5 => println("Friday"),
+    case 6 | 7 => println("Weekend"),
+    case _ => println("Invalid day"),
+}
+
+// Matching with destructuring
+let point = (0, 5);
+
+match point {
+    case (0, 0) => println("Origin"),
+    case (0, _) => println("On Y-axis"),
+    case (_, 0) => println("On X-axis"),
+    case (x, y) => println(f"({x}, {y})"),
+}</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; ヒント</div><p>Match のケースは <code>=></code> を使用してパターンと結果を区切ります。<code>|</code> 演算子を使用すると、複数のパターンが同じブランチを共有できます。</p></div>
+
+        <!-- ========== Functions ========== -->
+        <h2 id="functions">関数</h2>
+
+        <h3>名前付き関数</h3>
+        <p><code>func</code> キーワードとブロック本体で関数を定義します：</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>func add(a, b) {
+    return a + b;
+}
+
+println(add(3, 4)); // 7</code></pre>
+
+        <h3>式本体</h3>
+        <p>短い関数の場合は、ブロックの代わりに式本体を使用します：</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>func add(a, b) = a + b;
+func square(n) = n ** 2;
+func greet(name) = f"Hello, {name}!";
+
+println(square(5));  // 25
+println(greet("Zamin")); // "Hello, Zamin!"</code></pre>
+
+        <h3>ラムダ / クロージャ式</h3>
+        <p>匿名関数は変数に代入できます：</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let add = func(a, b) {
+    return a + b;
+};
+
+let multiply = func(a, b) = a * b;
+
+println(add(2, 3));       // 5
+println(multiply(4, 5));  // 20</code></pre>
+
+        <h3>デフォルト引数</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>func greet(name = "World") {
+    println(f"Hello, {name}!");
+}
+
+greet();        // "Hello, World!"
+greet("Alice"); // "Hello, Alice!"</code></pre>
+
+        <h3>可変長引数</h3>
+        <p>引数の前に <code>*</code> を付けると、任意の数の引数を受け入れます：</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>func sum(*nums) {
+    let total = 0;
+    for n in nums {
+        total += n;
+    }
+    return total;
+}
+
+println(sum(1, 2, 3, 4)); // 10</code></pre>
+
+        <h3>クロージャ</h3>
+        <p>関数は外側のスコープの変数をキャプチャして使用できます：</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>func make_counter() {
+    let count = 0;
+    return func() {
+        count += 1;
+        return count;
+    };
+}
+
+let counter = make_counter();
+println(counter()); // 1
+println(counter()); // 2
+println(counter()); // 3</code></pre>
+
+        <h3>高階関数</h3>
+        <p>関数を他の関数の引数として渡せます：</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>func apply(f, value) {
+    return f(value);
+}
+
+let double = func(x) = x * 2;
+let triple = func(x) = x * 3;
+
+println(apply(double, 5)); // 10
+println(apply(triple, 5)); // 15
+
+let nums = [1, 2, 3, 4, 5];
+let doubled = [apply(double, x) for x in nums];
+println(doubled); // [2, 4, 6, 8, 10]</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; ヒント</div><p>Zamin は <code>map</code>、<code>filter</code>、<code>reduce</code> などの一般的な関数型操作をサポートしています — 組み込み関数またはリストのメソッドとして利用できます。読みやすさの点でリスト内包表記が好まれることがよくあります。</p></div>
+
+        <!-- ========== Structs ========== -->
+        <h2 id="structs">構造体</h2>
+        <p>構造体は、名前付きフィールドを持つカスタム型を作成するための Zamin の主要なメカニズムです。</p>
+
+        <h3>定義とインスタンス化</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>struct Point {
+    x,
+    y,
+}
+
+let p = Point(3, 4);
+println(p.x);  // 3
+println(p.y);  // 4</code></pre>
+
+        <h3>Init メソッド</h3>
+        <p>構造体に <code>init</code> 関数を定義して、構築時にカスタムロジックを実行します。<code>init</code> 関数は構造体インスタンスを受け取り、デフォルト値や計算値を設定できます。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>struct Rectangle {
+    width,
+    height,
+}
+
+func Rectangle.init(r) {
+    r.area = r.width * r.height;
+    r.perimeter = (r.width + r.height) * 2;
+}
+
+let rect = Rectangle(10, 5);
+println(rect.area);       // 50
+println(rect.perimeter);  // 30</code></pre>
+
+        <h3>メソッド</h3>
+        <p>構造体フィールドにクロージャを代入してメソッドを作成します：</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>struct Circle {
+    radius,
+}
+
+func Circle.area(self) = 3.14159 * self.radius ** 2;
+func Circle.circumference(self) = 2 * 3.14159 * self.radius;
+func Circle.describe(self) = f"Circle with radius {self.radius}";
+
+let c = Circle(5);
+println(c.area());           // 78.53975
+println(c.circumference());  // 31.4159
+println(c.describe());       // "Circle with radius 5"</code></pre>
+
+        <h3>構造体の比較</h3>
+        <p>同じ型の構造体は、すべてのフィールドが比較可能な場合、値で比較されます：</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let a = Point(1, 2);
+let b = Point(1, 2);
+let c = Point(3, 4);
+
+println(a == b); // true
+println(a == c); // false
+println(a != c); // true</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; ヒント</div><p>Zamin の構造体はデフォルトで参照型です。同じ構造体インスタンスから代入された 2 つの変数は同じデータを共有します。独立したコピーが必要な場合は、明示的にコピーを行ってください。</p></div>
+
+        <!-- ========== Error Handling ========== -->
+        <h2 id="error-handling">エラーハンドリング</h2>
+        <p>Zamin は <code>try</code>/<code>catch</code> ブロックと <code>throw</code> キーワードによる構造化エラーハンドリングを提供します。</p>
+
+        <h3>エラーのスロー</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>throw "something went wrong";
+
+// Or use a structured error object
+throw Error("invalid input");</code></pre>
+
+        <h3>Try / Catch</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>try {
+    let result = risky_operation();
+    println(result);
+} catch (e) {
+    println(f"Error: {e}");
+}</code></pre>
+
+        <h3>エラーの伝播</h3>
+        <p>関数が失敗する可能性がある場合、エラーはキャッチされない限り自動的に呼び出しスタックを伝播します。これにより、適切なレベルでエラーを処理できます。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>func parse_number(s) {
+    let n = int(s);
+    if n == nil {
+        throw Error(f"'{s}' is not a valid number");
+    }
+    return n;
+}
+
+func process_input(input) {
+    let num = parse_number(input);
+    return num * 2;
+}
+
+try {
+    let result = process_input("42");
+    println(result); // 84
+} catch (e) {
+    println(f"Failed: {e}");
+}
+
+try {
+    let result = process_input("abc");
+    println(result); // never reached
+} catch (e) {
+    println(f"Failed: {e}"); // Failed: 'abc' is not a valid number
+}</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; ヒント</div><p>予期される失敗にはエラー値（<code>nil</code> など）を返し、予期しないエラーやプログラマのミスには <code>throw</code> を使用することを推奨します。これによりエラーハンドリングが明確で予測可能になります。</p></div>
+
+        <!-- ========== Modules and Imports ========== -->
+        <h2 id="modules-and-imports">モジュールとインポート</h2>
+        <p>Zamin のモジュールシステムを使用すると、コードを複数のファイルに分割し、共有ライブラリを再利用できます。</p>
+
+        <h3>モジュールのインポート</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>import math
+import string
+import os
+
+println(math.sqrt(16));   // 4.0
+println(math.pi);         // 3.14159...
+
+let upper = string.to_upper("hello");
+println(upper); // "HELLO"</code></pre>
+
+        <h3>エイリアス付きインポート</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>import math as m
+import string as str
+
+println(m.sqrt(25)); // 5.0
+println(str.to_upper("hi")); // "HI"</code></pre>
+
+        <h3>Export によるモジュール作成</h3>
+        <p>アイテムを <code>export</code> としてマークすると、モジュールがインポートされたときに利用可能になります。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>// my_module.zamin
+export func greet(name) = f"Hello, {name}!";
+
+export let VERSION = "1.0.0";
+
+struct export User {
+    name,
+    email,
+}</code></pre>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>// main.zamin
+import my_module
+
+println(my_module.greet("Alice")); // "Hello, Alice!"
+println(my_module.VERSION);        // "1.0.0"
+
+let user = my_module.User("Bob", "bob@example.com");</code></pre>
+
+        <h3>モジュールの検索パス</h3>
+        <p>Zamin は以下の場所から順にモジュールを検索します：</p>
+        <ol>
+          <li>現在のファイルのディレクトリ</li>
+          <li>プロジェクトの <code>lib/</code> ディレクトリ</li>
+          <li>Zamin 標準ライブラリのパス</li>
+          <li><code>zamin.json</code> 設定で指定されたパス</li>
+        </ol>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; ヒント</div><p>依存関係とモジュールパスの管理には <code>zamin project</code> CLI を使用してください。詳細は <a href="project-management.html">Project CLI</a> を参照してください。</p></div>
+
+        <!-- ========== Comments ========== -->
+        <h2 id="comments">コメント</h2>
+        <p>Zamin は一行コメントをサポートしています。<code>//</code> から行末まではコンパイラによって無視されます。</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>// This is a comment
+let x = 42; // Inline comment
+
+// Multi-line comments can be done
+// by writing multiple single-line comments
+// like this.</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; ヒント</div><p>コメントはコードの <em>内容</em> ではなく、<em>なぜ</em> その方法で行われているかを説明するために使用します。良いコードはそれ自体で説明可能であるべきです。コメントは文脈と意図のためにあります。</p></div>
+
+        <!-- ========== Operators ========== -->
+        <h2 id="operators">演算子</h2>
+        <p>以下は Zamin の全演算子を優先順位の高い順に並べた完全なリファレンスです。</p>
+
+        <table>
+          <thead>
+            <tr><th>優先順位</th><th>演算子</th><th>説明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><code>**</code></td><td>べき乗</td></tr>
+            <tr><td>2</td><td><code>~</code>, <code>-</code> (unary)</td><td>ビット単位 NOT、単項マイナス</td></tr>
+            <tr><td>3</td><td><code>*</code>, <code>/</code>, <code>//</code>, <code>%</code></td><td>乗算、除算、整数除算、剰余</td></tr>
+            <tr><td>4</td><td><code>+</code>, <code>-</code></td><td>加算、減算</td></tr>
+            <tr><td>5</td><td><code>&lt;&lt;</code>, <code>&gt;&gt;</code></td><td>ビット単位左シフト、右シフト</td></tr>
+            <tr><td>6</td><td><code>&amp;</code></td><td>ビット単位 AND</td></tr>
+            <tr><td>7</td><td><code>^</code></td><td>ビット単位 XOR</td></tr>
+            <tr><td>8</td><td><code>|</code></td><td>ビット単位 OR</td></tr>
+            <tr><td>9</td><td><code>..</code>, <code>..=</code></td><td>範囲（排他的）、範囲（包括的）</td></tr>
+            <tr><td>10</td><td><code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></td><td>比較</td></tr>
+            <tr><td>11</td><td><code>not</code></td><td>論理 NOT</td></tr>
+            <tr><td>12</td><td><code>and</code></td><td>論理 AND</td></tr>
+            <tr><td>13</td><td><code>or</code></td><td>論理 OR</td></tr>
+            <tr><td>14</td><td><code>in</code></td><td>メンバーシップテスト</td></tr>
+            <tr><td>15</td><td><code>=</code>, <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code>, <code>//=</code>, <code>%=</code>, <code>**=</code></td><td>代入および複合代入</td></tr>
+          </tbody>
+        </table>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>// Arithmetic
+println(2 ** 10);       // 1024
+println(7 / 2);         // 3.5
+println(7 // 2);        // 3
+println(-5.abs());      // 5
+
+// Comparison
+println(3 == 3);        // true
+println(3 != 4);        // true
+println(1 < 2);         // true
+
+// Logical
+println(true and false); // false
+println(true or false);  // true
+println(not false);      // true
+
+// Membership
+println(3 in [1, 2, 3]); // true
+println("a" in "cat");   // true
+
+// Compound assignment
+let x = 10;
+x += 5;
+x *= 2;
+println(x);  // 30</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; ヒント</div><p>演算子の優先順位が不明な場合は、括弧を使用して意図を明示してください。<code>(a + b) * c</code> は優先順位ルールに頼るよりも常に明確です。</p></div>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/language-guide.html">GitHub でこのページを編集</a>
+          <span>最終更新: 2026年7月</span>
+        </div>
+        <div class="feedback">
+          <span>このページは役に立ちましたか？</span>
+          <button>&#128077; はい</button>
+          <button>&#128078; いいえ</button>
+          <span id="feedback-msg"></span>
+        </div>
+
+      </div>
+      <div class="toc">
+        <div class="toc-title">目次</div>
+        <a href="#variables-and-types" class="toc-link">変数と型</a>
+        <a href="#strings" class="toc-link">文字列</a>
+        <a href="#numbers" class="toc-link">数値</a>
+        <a href="#booleans" class="toc-link">ブーリアン</a>
+        <a href="#collections" class="toc-link">コレクション</a>
+        <a href="#lists" class="toc-link toc-sub">リスト</a>
+        <a href="#dicts" class="toc-link toc-sub">辞書</a>
+        <a href="#sets" class="toc-link toc-sub">セット</a>
+        <a href="#tuples" class="toc-link toc-sub">タプル</a>
+        <a href="#comprehensions" class="toc-link toc-sub">リスト内包表記</a>
+        <a href="#control-flow" class="toc-link">制御フロー</a>
+        <a href="#functions" class="toc-link">関数</a>
+        <a href="#structs" class="toc-link">構造体</a>
+        <a href="#error-handling" class="toc-link">エラーハンドリング</a>
+        <a href="#modules-and-imports" class="toc-link">モジュールとインポート</a>
+        <a href="#comments" class="toc-link">コメント</a>
+        <a href="#operators" class="toc-link">演算子</a>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

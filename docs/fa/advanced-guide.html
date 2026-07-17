@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="fa" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>راهنمای پیشرفته - زبان برنامه‌نویسی زمین</title>
+  <meta name="description" content="راهنمای پیشرفته زبان برنامه‌نویسی زمین شامل افزونه‌های C، تعامل با پایتون، شتاب‌دهی GPU با CUDA، جاسازی در Rust و پشتیبانی LSP.">
+  <meta property="og:title" content="راهنمای پیشرفته - زمین">
+  <meta property="og:description" content="افزونه‌های C، تعامل با پایتون، شتاب‌دهی GPU/CUDA، جاسازی در Rust و مستندات سرور LSP.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> مستندات زمین</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="جستجوی مستندات... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="تغییر تم">&#9790;</button>
+      <button id="print-btn" title="چاپ">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="انتخاب زبان">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">شروع کار</div>
+        <a href="index.html" class="sidebar-link">نمای کلی</a>
+        <a href="getting-started.html" class="sidebar-link">نصب</a>
+        <a href="playground.html" class="sidebar-link">محیط آزمایش</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">زبان</div>
+        <a href="language-guide.html" class="sidebar-link">راهنمای زبان</a>
+        <a href="standard-library.html" class="sidebar-link">کتابخانه استاندارد</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">قابلیت‌ها</div>
+        <a href="gui-guide.html" class="sidebar-link">ابزارهای GUI</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link active">پیشرفته</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">مرجع</div>
+        <a href="project-management.html" class="sidebar-link">CLI پروژه</a>
+        <a href="performance.html" class="sidebar-link">عملکرد</a>
+        <a href="faq.html" class="sidebar-link">سوالات متداول</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">خانه</a><span class="sep">/</span><span>راهنمای پیشرفته</span>
+        </div>
+
+        <h1>راهنمای پیشرفته</h1>
+        <p>این راهنما قابلیت‌های پیشرفته زبان زمین را پوشش می‌دهد شامل افزودن افزونه‌های C، تعامل با پایتون، استفاده از شتاب‌دهی GPU از طریق CUDA، جاسازی زمین در برنامه‌های Rust و استفاده از سرور LSP داخلی.</p>
+
+        <h2 id="c-extensions">افزونه‌های C</h2>
+        <p>زمین از افزونه‌های بومی C برای کدهای بحرانی از نظر عملکرد یا بسته‌بندی کتابخانه‌های C موجود پشتیبانی می‌کند. افزونه‌ها به صورت اشیاء مشترک کامپایل شده و به طور خودکار در زمان اجرا بارگذاری می‌شوند.</p>
+
+        <h3>فایل هدر</h3>
+        <p>هدر اصلی را در کد C خود اضافه کنید:</p>
+        <pre><code>#include "zamin.h"</code></pre>
+        <p>هدر در مسیر <code>include/zamin.h</code> در درخت منبع زمین قرار دارد.</p>
+
+        <h3>انواع زمین</h3>
+        <p>زمین ثابت‌های نوع C زیر را برای استفاده با اتحاد <code>ZaminValue</code> ارائه می‌دهد:</p>
+        <table>
+          <thead>
+            <tr><th>ثابت</th><th>توضیحات</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>ZAMIN_NIL</code></td><td>مقدار تهی</td></tr>
+            <tr><td><code>ZAMIN_INT</code></td><td>عدد صحیح (64 بیتی علامت‌دار)</td></tr>
+            <tr><td><code>ZAMIN_FLOAT</code></td><td>اعشاری با دقت دوبرابر</td></tr>
+            <tr><td><code>ZAMIN_BOOL</code></td><td>بولی درست/نادرست</td></tr>
+            <tr><td><code>ZAMIN_STRING</code></td><td>رشته تخصیص‌یافته در هیپ</td></tr>
+          </tbody>
+        </table>
+
+        <h3>ساختار ZaminValue</h3>
+        <p>ساختار <code>ZaminValue</code> یک اتحاد برچسب‌دار است که تمام مقادیر قابل عبور از مرز C/زمین را نمایش می‌دهد:</p>
+        <pre><code>typedef struct {
+    int type;
+    union {
+        int64_t i;
+        double f;
+        int b;
+        const char *s;
+    } as;
+} ZaminValue;</code></pre>
+
+        <h3>ساختار ZaminModuleFunc</h3>
+        <p>هر تابع صادرشده توسط یک ورودی <code>ZaminModuleFunc</code> توصیف می‌شود:</p>
+        <pre><code>typedef struct {
+    const char *name;
+    ZaminValue (*func)(int argc, ZaminValue *argv);
+    int arity;  // -1 for variadic
+} ZaminModuleFunc;</code></pre>
+
+        <h3>صدور یک ماژول</h3>
+        <p>هر افزونه C باید یک تابع <code>zamin_module_init</code> صادر کند که یک آرایه <code>ZaminModuleFunc</code> برگرداند و تعداد را از طریق اشاره‌گر ارائه‌شده تنظیم کند:</p>
+        <pre><code> ZaminModuleFunc *zamin_module_init(int *count) {
+    static ZaminModuleFunc funcs[] = { ... };
+    *count = sizeof(funcs) / sizeof(funcs[0]);
+    return funcs;
+}</code></pre>
+
+        <h3>ساخت</h3>
+        <p>افزونه خود را به عنوان یک کتابخانه مشترک کامپایل کنید:</p>
+        <pre><code>gcc -shared -fPIC -O2 -I../include -o mymod.so mymod.c</code></pre>
+        <p>فایل <code>.so</code> حاصل را در دایرکتوری <code>modules/</code> پروژه خود قرار دهید. زمین به طور خودکار آن را هنگام نوشتن <code>use mymod</code> بارگذاری می‌کند.</p>
+
+        <h3>مثال کامل: math_ext</h3>
+        <pre><code>#include "zamin.h"
+
+static ZaminValue math_add(int argc, ZaminValue *argv) {
+    if (argc != 2) {
+        return (ZaminValue){ ZAMIN_NIL, { .i = 0 } };
+    }
+    int64_t a = argv[0].as.i;
+    int64_t b = argv[1].as.i;
+    return (ZaminValue){ ZAMIN_INT, { .i = a + b } };
+}
+
+static ZaminValue math_multiply(int argc, ZaminValue *argv) {
+    if (argc != 2) {
+        return (ZaminValue){ ZAMIN_NIL, { .i = 0 } };
+    }
+    int64_t a = argv[0].as.i;
+    int64_t b = argv[1].as.i;
+    return (ZaminValue){ ZAMIN_INT, { .i = a * b } };
+}
+
+ZaminModuleFunc *zamin_module_init(int *count) {
+    static ZaminModuleFunc funcs[] = {
+        { "add",      math_add,      2 },
+        { "multiply",  math_multiply,  2 },
+    };
+    *count = sizeof(funcs) / sizeof(funcs[0]);
+    return funcs;
+}</code></pre>
+        <p>استفاده در زمین:</p>
+        <pre><code>use math_ext
+
+let result = math_ext.add(10, 20)
+print(result)  // 30
+
+let product = math_ext.multiply(6, 7)
+print(product)  // 42</code></pre>
+
+        <h2 id="python-interop">تعامل با پایتون</h2>
+        <p>زمین می‌تواند مستقیماً ماژول‌های پایتون را زمانی که با قابلیت <code>python</code> کامپایل شده باشد فراخوانی کند. این امکان استفاده مجدد از اکوسیستم گسترده پایتون را در کد زمین فراهم می‌کند.</p>
+
+        <h3>ساخت با پشتیبانی پایتون</h3>
+        <pre><code>cargo build --features python</code></pre>
+
+        <h3>وارد کردن ماژول‌های پایتون</h3>
+        <p>از <code>py.import()</code> برای آوردن یک ماژول پایتون به محدوده استفاده کنید:</p>
+        <pre><code>let np = py.import("numpy")
+
+let arr = np.array([1, 2, 3, 4, 5])
+print(arr.mean())  // 3.0</code></pre>
+
+        <h3>بررسی نسخه پایتون</h3>
+        <pre><code>print(py.version())  // e.g. "3.14.0"</code></pre>
+
+        <h3>تبدیل نوع</h3>
+        <p>زمین به طور خودکار انواع را بین دو زبان تبدیل می‌کند:</p>
+        <table>
+          <thead>
+            <tr><th>نوع زمین</th><th>نوع پایتون</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>int</code></td><td><code>int</code></td></tr>
+            <tr><td><code>float</code></td><td><code>float</code></td></tr>
+            <tr><td><code>string</code></td><td><code>str</code></td></tr>
+            <tr><td><code>bool</code></td><td><code>bool</code></td></tr>
+            <tr><td><code>list</code></td><td><code>list</code></td></tr>
+            <tr><td><code>nil</code></td><td><code>None</code></td></tr>
+            <tr><td><code>dict</code></td><td><code>dict</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3>مثال‌ها</h3>
+        <p>استفاده از <code>requests</code> برای دریافت URL:</p>
+        <pre><code>let requests = py.import("requests")
+
+let resp = requests.get("https://httpbin.org/json")
+print(resp.status_code)
+print(resp.json())</code></pre>
+
+        <p>استفاده از <code>numpy</code> برای عملیات ماتریسی:</p>
+        <pre><code>let np = py.import("numpy")
+
+let a = np.array([[1, 2], [3, 4]])
+let b = np.array([[5, 6], [7, 8]])
+let c = np.dot(a, b)
+print(c)
+// [[19 22]
+//  [43 50]]</code></pre>
+
+        <h2 id="cuda">شتاب‌دهی CUDA / GPU</h2>
+        <p>زمین می‌تواند از GPUهای NVIDIA برای محاسبات زمانی که CUDA در دسترس است استفاده کند. سیستم ساخت به طور خودکار CUDA را در زمان کامپایل از طریق <code>build.rs</code> تشخیص می‌دهد.</p>
+
+        <h3>تشخیص خودکار</h3>
+        <p>در طول <code>cargo build</code>، <code>build.rs</code> کامپایلر <code>nvcc</code> و ابزارهای CUDA را بررسی می‌کند. اگر یافت شوند، ماژول‌های GPU به طور خودکار کامپایل و پیوند می‌شوند. نیازی به پرچم‌های اضافی نیست.</p>
+
+        <h3>ماژول LINUM</h3>
+        <p>ماژول <code>LINUM</code> (عددی زمین) primitives شبکه عصبی با شتاب GPU را فراهم می‌کند:</p>
+        <ul>
+          <li><code>linum.tensor()</code> - ایجاد تنسور GPU</li>
+          <li><code>linum.matmul()</code> - ضرب ماتریس روی GPU</li>
+          <li><code>linum.relu()</code> / <code>linum.sigmoid()</code> - توابع فعال‌سازی</li>
+          <li><code>linum.softmax()</code> - Softmax برای طبقه‌بندی</li>
+          <li><code>linum.cross_entropy()</code> - توابع خطا</li>
+        </ul>
+
+        <h3>API حافظه GPU</h3>
+        <pre><code>print(linum.gpu_name())        // "NVIDIA GeForce RTX 4090"
+print(linum.gpu_memory())      // 24576 (MB)
+print(linum.gpu_memory_used()) // 512 (MB)</code></pre>
+
+        <h3>Example: Neural Network</h3>
+        <pre><code>use linum
+
+let model = linum.Sequential([
+    linum.Linear(784, 256),
+    linum.ReLU(),
+    linum.Linear(256, 128),
+    linum.ReLU(),
+    linum.Linear(128, 10),
+    linum.Softmax()
+])
+
+let optimizer = linum.Adam(model.parameters(), lr: 0.001)
+let loss_fn = linum.CrossEntropyLoss()
+
+for epoch in 0..10 {
+    let pred = model.forward(train_data)
+    let loss = loss_fn(pred, train_labels)
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    print("Epoch {epoch}, Loss: {loss.item():.4f}")
+}</code></pre>
+
+        <h2 id="embedding-in-rust">جاسازی در Rust</h2>
+        <p>زمین می‌تواند به عنوان یک کتابخانه در برنامه‌های Rust جاسازی شود. این برای ساخت ابزارها، IDEها یا برنامه‌هایی که به قابلیت اسکریپت‌نویسی نیاز دارند مفید است.</p>
+
+        <h3>وابستگی Cargo.toml</h3>
+        <pre><code>[dependencies]
+zamin = { path = "../zamin" }</code></pre>
+
+        <h3>API</h3>
+        <p>دو تابع اصلی ارائه شده است:</p>
+        <ul>
+          <li><code>zamin::execute_source(code: &amp;str)</code> - اجرای یک رشته کد زمین</li>
+          <li><code>zamin::execute_file(path: &amp;str)</code> - اجرای یک فایل زمین از دیسک</li>
+        </ul>
+
+        <h3>مثال کامل جاسازی در Rust</h3>
+        <pre><code>func main() {
+    // Execute a Zamin source string
+    zamin::execute_source(r#"
+        let greeting = "Hello from Zamin!"
+        print(greeting)
+        let result = 2 + 3
+        print("2 + 3 = {result}")
+    "#).expect("Failed to execute Zamin source");
+
+    // Execute a Zamin file
+    zamin::execute_file("scripts/app.zamin").expect("Failed to execute file");
+
+    // Access Zamin values from Rust
+    let mut vm = zamin::Vm::new();
+    vm.execute("let x = 42").unwrap();
+    let value = vm.get_global("x").unwrap();
+    println!("Zamin returned: {:?}", value);
+}</code></pre>
+
+        <h2 id="lsp-server">سرور LSP</h2>
+        <p>زمین با یک پیاده‌سازی داخلی از پروتکل سرور زبان (LSP) عرضه می‌شود که قابلیت‌های IDE را برای هر ویرایشگر با پشتیبانی LSP فراهم می‌کند.</p>
+
+        <h3>فایل باینری zamin-lsp</h3>
+        <p>پ از ساخت زمین، فایل باینری <code>zamin-lsp</code> در دایرکتوری خروجی در دسترس خواهد بود. این فایل از طریق stdio با استفاده از پروتکل LSP ارتباط برقرار می‌کند.</p>
+
+        <h3>قابلیت‌ها</h3>
+        <ul>
+          <li><strong>تکمیل خودکار</strong> - تکمیل خودکار آگاه از زمینه برای کلمات کلیدی، توابع داخلی، APIهای ماژول و متغیرهای تعریف‌شده توسط کاربر</li>
+          <li><strong>هاور</strong> - اطلاعات نوع و مستندات هنگام هاور برای همه نمادها</li>
+          <li><strong>تشخیص خطا</strong> - خطاهای نحوی بلادرنگ، ناهماهنگی نوع و مراجع تعریف‌نشده</li>
+        </ul>
+
+        <h3>افزونه VS Code</h3>
+        <p>یک افزونه VS Code در دسترس است. آن را از بازارچه نصب کنید و موارد زیر را به <code>settings.json</code> خود اضافه کنید:</p>
+        <pre><code>{
+  "zamin.server.path": "/path/to/zamin-lsp"
+}</code></pre>
+
+        <p>این افزونه برجسته‌سازی نحوی، خط‌کشی خطا، پنجره‌های تکمیل خودکار و مستندات هاور را به صورت آماده فراهم می‌کند.</p>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/advanced-guide.html">ویرایش این صفحه در گیت‌هاب</a>
+          <span>آخرین به‌روزرسانی: جولای ۲۰۲۶</span>
+        </div>
+        <div class="feedback">
+          <span>این صفحه مفید بود؟</span>
+          <button>&#128077; بله</button>
+          <button>&#128078; خیر</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fa" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>شروع کار - زبان برنامه‌نویسی زمین</title>
+  <meta name="description" content="زمین را نصب کنید و اولین برنامه خود را بنویسید. پیش‌نیازها، ساخت از منبع، REPL و راه‌اندازی پروژه را بیاموزید.">
+  <meta property="og:title" content="شروع کار - زمین">
+  <meta property="og:description" content="زمین را نصب کنید و اولین برنامه خود را بنویسید. پیش‌نیازها، ساخت از منبع، REPL و راه‌اندازی پروژه را بیاموزید.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> مستندات زمین</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="جستجوی مستندات... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="تغییر تم">&#9790;</button>
+      <button id="print-btn" title="چاپ">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="انتخاب زبان">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">شروع کار</div>
+        <a href="index.html" class="sidebar-link">نمای کلی</a>
+        <a href="getting-started.html" class="sidebar-link active">نصب</a>
+        <a href="playground.html" class="sidebar-link">محیط آزمایش</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">زبان</div>
+        <a href="language-guide.html" class="sidebar-link">راهنمای زبان</a>
+        <a href="standard-library.html" class="sidebar-link">کتابخانه استاندارد</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">قابلیت‌ها</div>
+        <a href="gui-guide.html" class="sidebar-link">ابزارهای GUI</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">پیشرفته</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">مرجع</div>
+        <a href="project-management.html" class="sidebar-link">CLI پروژه</a>
+        <a href="performance.html" class="sidebar-link">عملکرد</a>
+        <a href="faq.html" class="sidebar-link">سوالات متداول</a>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="content">
+      <div class="content-inner">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a href="index.html">خانه</a> &gt; <span>شروع کار</span>
+        </nav>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+          <div class="toc-title">در این صفحه</div>
+          <a href="#prerequisites">پیش‌نیازها</a>
+          <a href="#installation">نصب</a>
+          <a href="#verify-installation">تأیید نصب</a>
+          <a href="#your-first-script">اولین اسکریپت شما</a>
+          <a href="#using-the-repl">استفاده از REPL</a>
+          <a href="#project-setup">راه‌اندازی پروژه</a>
+        </div>
+
+        <h1>شروع کار</h1>
+        <p>این راهنما شما را در مراحل نصب زمین از منبع، تأیید تنظیمات، نوشتن اولین اسکریپت و سازماندهی پروژه‌های بزرگتر راهنمایی می‌کند.</p>
+
+        <h2 id="prerequisites">پیش‌نیازها</h2>
+        <p>قبل از ساخت زمین، مطمئن شوید که موارد زیر روی سیستم شما نصب شده است:</p>
+        <ul>
+          <li><strong>Rust 1.80+</strong> &mdash; زمین به زبان Rust نوشته شده است. آن را از طریق <a href="https://rustup.rs">rustup</a> نصب کنید:</li>
+        </ul>
+        <pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></pre>
+        <ul>
+          <li><strong>Git</strong> &mdash; برای کلون کردن مخزن الزامی است.</li>
+          <li><strong>C compiler</strong> &mdash; GCC یا Clang در Linux/macOS، MSVC در Windows. برای افزونه‌های بومی و قابلیت‌های اختیاری مورد نیاز است.</li>
+        </ul>
+
+        <h2 id="installation">نصب</h2>
+        <h3>کلون و ساخت</h3>
+        <p>مخزن را کلون کرده و زمین را در حالت release بسازید:</p>
+        <pre><code>git clone https://github.com/young-developer90/zamin.git
+cd zamin
+cargo build --release</code></pre>
+        <p>فایل باینری کامپایل‌شده در <code>target/release/zamin</code> قرار خواهد گرفت. آن را به <code>PATH</code> خود اضافه کنید تا دسترسی راحت‌تری داشته باشید:</p>
+        <pre><code>export PATH="$PWD/target/release:$PATH"</code></pre>
+
+        <h3>قابلیت‌های اختیاری</h3>
+        <p>زمین از پرچم‌های قابلیت اختیاری پشتیبانی می‌کند که قابلیت‌های اضافی را فعال می‌کنند:</p>
+        <pre><code>cargo build --release --features opencv</code></pre>
+        <table>
+          <thead>
+            <tr><th>قابلیت</th><th>توضیحات</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>opencv</code></td><td>فعال‌سازی bindingهای OpenCV برای پردازش تصویر و بینایی کامپیوتر</td></tr>
+            <tr><td><code>luna</code></td><td>فعال‌سازی ابزار Luna GUI برای Linux</td></tr>
+            <tr><td><code>python</code></td><td>فعال‌سازی تعامل با Python برای فراخوانی مستقیم کتابخانه‌های Python</td></tr>
+          </tbody>
+        </table>
+        <p>می‌توانید چندین قابلیت را ترکیب کنید:</p>
+        <pre><code>cargo build --release --features "opencv,luna,python"</code></pre>
+
+        <h2 id="verify-installation">تأیید نصب</h2>
+        <p>بررسی کنید که زمین نصب شده و کار می‌کند:</p>
+        <pre><code>$ zamin version
+zamin 1.7.3</code></pre>
+        <p>REPL تعاملی را راه‌اندازی کنید تا از عملکرد زمان اجرا مطمئن شوید:</p>
+        <pre><code>$ zamin repl
+Zamin 1.7.3 (interactive)
+Type "help" for more information.
+zamin&gt;</code></pre>
+
+        <h2 id="your-first-script">اولین اسکریپت شما</h2>
+        <p>یک فایل به نام <code>hello.zamin</code> با محتوای زیر ایجاد کنید:</p>
+        <pre><code>print("Hello, Zamin!")</code></pre>
+        <p>آن را اجرا کنید:</p>
+        <pre><code>$ zamin run hello.zamin
+Hello, Zamin!</code></pre>
+        <p>بیایید چیز جالب‌تری امتحان کنیم. محتوای <code>hello.zamin</code> را با کد زیر جایگزین کنید:</p>
+        <pre><code><span class="kw">func</span> greet(name) {
+    print(<span class="str">"Hello, </span>{name}<span class="str">!"</span>);
+}
+
+<span class="kw">func</span> fibonacci(n) {
+    <span class="kw">if</span> n &lt;= <span class="num">1</span> {
+        <span class="kw">return</span> n;
+    }
+    <span class="kw">return</span> fibonacci(n - <span class="num">1</span>) + fibonacci(n - <span class="num">2</span>);
+}
+
+greet(<span class="str">"World"</span>);
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="num">0</span>..<span class="num">10</span> {
+    print(<span class="str">"fib(</span>{i}<span class="str">) = </span>{fibonacci(i)}<span class="str">"</span>);
+}</code></pre>
+
+        <h2 id="using-the-repl">استفاده از REPL</h2>
+        <p>REPL زمین برای آزمایش قابلیت‌های زبان و تست تکه‌کدها عالی است:</p>
+        <pre><code>$ zamin repl
+Zamin 1.7.3 (interactive)
+Type "help" for more information.
+zamin&gt; print("Hello!")
+Hello!
+zamin&gt; 2 + 2
+4
+zamin&gt; func add(a, b) { a + b }
+zamin&gt; add(10, 20)
+30
+zamin&gt; [1, 2, 3].map(func(x) { x * 2 })
+[2, 4, 6]
+zamin&gt; .exit</code></pre>
+
+        <h2 id="project-setup">راه‌اندازی پروژه</h2>
+        <p>برای برنامه‌های بزرگتر، از scaffold پروژه داخلی زمین استفاده کنید:</p>
+        <pre><code>$ zamin new myproject
+Created new project "myproject"
+  src/main.zamin
+  zamin.json</code></pre>
+        <p>این دستور یک دایرکتوری پروژه با ساختار زیر ایجاد می‌کند:</p>
+        <pre><code>myproject/
+├── zamin.json
+└── src/
+    └── main.zamin</code></pre>
+
+        <h3>zamin.json</h3>
+        <p>فایل <code>zamin.json</code> فراداده و تنظیمات ساخت پروژه شما را تعریف می‌کند:</p>
+        <pre><code>{
+  "name": "myproject",
+  "version": "1.0.0",
+  "entry": "src/main.zamin",
+  "dependencies": [],
+  "features": []
+}</code></pre>
+
+        <h3>src/main.zamin</h3>
+        <p>نقطه ورود برنامه شما:</p>
+        <pre><code>print(<span class="str">"Welcome to myproject!"</span>)</code></pre>
+        <p>پروژه خود را بسازید و اجرا کنید:</p>
+        <pre><code>$ cd myproject
+$ zamin run
+Welcome to myproject!</code></pre>
+        <p>برای جزئیات بیشتر درباره مدیریت پروژه، به مرجع <a href="project-management.html">CLI پروژه</a> مراجعه کنید.</p>
+
+        <!-- Page Meta -->
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/getting-started.html" target="_blank">ویرایش این صفحه در گیت‌هاب</a>
+          <span>آخرین به‌روزرسانی: جولای ۲۰۲۶</span>
+        </div>
+        <!-- Feedback -->
+        <div class="feedback">
+          <span>مفید بود؟</span>
+          <button>&#128077; بله</button>
+          <button>&#128078; خیر</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fa" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>عملکرد - زبان برنامه‌نویسی زمین</title>
+  <meta name="description" content="معیارهای عملکرد، جزئیات معماری ماشین مجازی، تکنیک‌های بهینه‌سازی و نکاتی برای نوشتن کد سریع در زمین.">
+  <meta property="og:title" content="عملکرد - زمین">
+  <meta property="og:description" content="معیارها، تکنیک‌های بهینه‌سازی و نکات عملکردی برای ماشین مجازی زبان زمین.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> مستندات زمین</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="جستجوی مستندات... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="تغییر تم">&#9790;</button>
+      <button id="print-btn" title="چاپ">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="انتخاب زبان">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">شروع کار</div>
+        <a href="index.html" class="sidebar-link">نمای کلی</a>
+        <a href="getting-started.html" class="sidebar-link">نصب</a>
+        <a href="playground.html" class="sidebar-link">محیط آزمایش</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">زبان</div>
+        <a href="language-guide.html" class="sidebar-link">راهنمای زبان</a>
+        <a href="standard-library.html" class="sidebar-link">کتابخانه استاندارد</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">قابلیت‌ها</div>
+        <a href="gui-guide.html" class="sidebar-link">ابزارهای GUI</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">پیشرفته</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">مرجع</div>
+        <a href="project-management.html" class="sidebar-link">CLI پروژه</a>
+        <a href="performance.html" class="sidebar-link active">عملکرد</a>
+        <a href="faq.html" class="sidebar-link">سوالات متداول</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">خانه</a><span class="sep">/</span><span>عملکرد</span>
+        </div>
+
+        <h1>عملکرد</h1>
+        <p>زمین برای سرعت طراحی شده است. این صفحه معماری ماشین مجازی، مقایسه معیارها، تکنیک‌های بهینه‌سازی و نکات عملی برای نوشتن کد با عملکرد بالا در زمین را پوشش می‌دهد.</p>
+
+        <h2 id="overview">نمای کلی</h2>
+        <p>زمان اجرای زمین حول سه مؤلفه اصلی ساخته شده است:</p>
+        <ul>
+          <li><strong>کامپایل به بایت‌کد</strong> - کد منبع قبل از اجرا به بایت‌کد فشرده کامپایل می‌شود. کامپایلر در زمان کامپیل، ثابت‌سازی عبارات، حذف کد مرده و بهینه‌سازی‌های جزئی را انجام می‌دهد.</li>
+          <li><strong>ماشین مجازی مبتنی بر ثبات</strong> - ماشین مجازی بایت‌کد را با استفاده از مجموعه دستورالعمل‌های مبتنی بر ثبات اجرا می‌کند که ترافیک حافظه را نسبت به طراحی‌های مبتنی بر پشته کاهش می‌دهد.</li>
+          <li><strong>زباله‌روب نشانه‌گذاری و جاروب</strong> - یک GC نسل‌محور غیرحرکتی با فازهای جمع‌آوری تدریجی که زمان توقف را به حداقل می‌رساند و در عین حال سربار حافظه را پایین نگه می‌دارد.</li>
+        </ul>
+
+        <h2 id="benchmarks">معیارها در برابر Python 3</h2>
+        <p>معیارهای واقعی که زمین و Python 3 را روی یک ماشین با استفاده از <code>time</code> برای اندازه‌گیری زمان واقعی مقایسه می‌کنند. مقادیر کمتر بهتر است.</p>
+        <table>
+          <thead>
+            <tr><th>معیار</th><th>زمین</th><th>Python 3</th><th>نسبت</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>فیبوناچی بازگشتی(32)</td><td>1.51s</td><td>0.35s</td><td>4.3x</td></tr>
+            <tr><td>حلقه اعداد صحیح (۵ میلیون عملیات)</td><td><strong>0.47s</strong></td><td>0.53s</td><td><strong>0.9x</strong></td></tr>
+            <tr><td>الحاق رشته (۱۰۰ هزار)</td><td>3.14s</td><td>0.23s</td><td>13.4x</td></tr>
+            <tr><td>افزودن به لیست (۵۰۰ هزار)</td><td>0.13s</td><td>0.09s</td><td>1.5x</td></tr>
+          </tbody>
+        </table>
+        <p>زمین در حلقه‌های فشرده اعداد صحیح عالی عمل می‌کند &mdash; اغلب با CPython برابری یا از آن بهتر است &mdash; اما به دلیل سربار مفسر بایت‌کد در عملیات‌های رشته و لیست کندتر است.</p>
+
+        <h2 id="vm-core-benchmarks">تأثیر بهینه‌سازی</h2>
+        <p>بهینه‌ساز جزئی و opcodeهای تخصصی اعداد صحیح افزایش سرعت قابل توجهی را در عملیات‌های اصلی ماشین مجازی فراهم می‌کنند:</p>
+        <table>
+          <thead>
+            <tr><th>بهینه‌سازی</th><th>تأثیر</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>توزیع خام بایت</td><td>۱۵-۲۵٪ توزیع سریع‌تر دستورالعمل در مقایسه با جدول اشاره‌گر تابع</td></tr>
+            <tr><td>opcodeهای تخصصی اعداد صحیح</td><td>از boxing و بررسی نوع در حلقه‌های داغ اعداد صحیح جلوگیری می‌کند</td></tr>
+            <tr><td>ثابت‌سازی عبارات</td><td>ارزیابی زمان اجرای عبارات ثابت را حذف می‌کند</td></tr>
+            <tr><td>رشته‌سازی پرش</td><td>زنجیره‌های پرش‌های غیرشرطی را جمع می‌کند</td></tr>
+            <tr><td>حذف کد مرده</td><td>شاخه‌های غیرقابل دسترس پس از return/throw را حذف می‌کند</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="optimization-techniques">تکنیک‌های بهینه‌سازی</h2>
+
+        <h3>توزیع خام بایت</h3>
+        <p>حلقه اصلی ماشین مجازی از توزیع خام بایت (gotos محاسبه‌شده در GCC/Clang، fallback مبتنی بر switch) به جای جدول توزیع اشاره‌گر تابع استفاده می‌کند. این کار یک فراخوانی غیرمستقیم به ازای هر دستورالعمل را حذف می‌کند و بهبود ۱۵-۲۵٪ را در تمام بارهای کاری به همراه دارد.</p>
+
+        <h3>opcodeهای تخصصی اعداد صحیح</h3>
+        <p>عملیات‌های پرکاربرد اعداد صحیح دارای opcodeهای اختصاصی هستند که از توزیع operand عمومی اجتناب می‌کنند. به عنوان مثال، <code>OP_ADD_INT_IMM</code> یک ثابت کوچک را بدون boxing یا بررسی نوع به یک ثبات عدد صحیح اضافه می‌کند و <code>OP_LOAD_INT_CONST</code> یک ثابت زمان کامپایل را مستقیماً در یک ثبات بارگذاری می‌کند.</p>
+
+        <h3>بهینه‌ساز جزئی</h3>
+        <p>کامپایلر بایت‌کد یک بهینه‌ساز جزئی را اجرا می‌کند که موارد زیر را انجام می‌دهد:</p>
+        <ul>
+          <li><strong>ثابت‌سازی عبارات</strong> - ارزیابی زمان کامپایل عبارات ثابت</li>
+          <li><strong>حذف کد مرده</strong> - حذف شاخه‌های غیرقابل دسترس و تخصیص‌های استفاده‌نشده</li>
+          <li><strong>کاهش قدرت</strong> - جایگزینی عملیات‌های پرهزینه با معادل‌های ارزان‌تر (مثلاً <code>x * 2</code> به <code>x &lt;&lt; 1</code> تبدیل می‌شود)</li>
+          <li><strong>زنجیره‌سازی پرش</strong> - جمع کردن زنجیره‌های پرش‌های غیرشرطی به یک هدف واحد</li>
+          <li><strong>ادغام opcode</strong> - ترکیب دنباله‌هایی مانند بارگذاری-و-ذخیره در یک عملیات واحد</li>
+        </ul>
+
+        <h2 id="tips">نکات عملکردی</h2>
+        <ul>
+          <li><strong>برای الحاق از f-strings استفاده کنید</strong> - <code>"Hello {name}"</code> سریع‌تر از <code>"Hello " + name</code> است زیرا از تخصیص‌های میانی رشته جلوگیری می‌کند.</li>
+          <li><strong>لیست‌ها را از پیش تخصیص دهید</strong> - وقتی اندازه نهایی را می‌دانید از <code>list.new(capacity)</code> استفاده کنید تا از تخصیص‌های مکرر جلوگیری شود.</li>
+          <li><strong>متغیرهای محلی را ترجیح دهید</strong> - دسترسی به متغیر محلی در ماشین مجازی حدود ۱۰ برابر سریع‌تر از دسترسی به متغیر سراسری است.</li>
+          <li><strong>از iteratorها به جای حلقه‌های اندیسی استفاده کنید</strong> - حلقه‌های مبتنی بر iterator از بررسی مرز در هر تکرار جلوگیری می‌کنند.</li>
+          <li><strong>از تخصیص مکرر در حلقه‌ها اجتناب کنید</strong> - محاسبات ثابت را خارج از بدنه حلقه منتقل کنید. رشته‌ها و لیست‌ها را یک بار ایجاد کرده و مجدداً استفاده کنید.</li>
+          <li><strong>از <code>zamin build</code> برای تولید استفاده کنید</strong> - ساخت یک باینری مستقل بهینه‌سازی‌های AOT اضافی را فعال می‌کند که مفسر قادر به انجام آنها نیست.</li>
+          <li><strong>قبل از بهینه‌سازی پروفایل کنید</strong> - از <code>zamin run --disassemble</code> برای بررسی بایت‌کد و شناسایی نقاط داغ استفاده کنید.</li>
+        </ul>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/performance.html">ویرایش این صفحه در گیت‌هاب</a>
+          <span>آخرین به‌روزرسانی: جولای ۲۰۲۶</span>
+        </div>
+        <div class="feedback">
+          <span>آیا این صفحه مفید بود؟</span>
+          <button>&#128077; بله</button>
+          <button>&#128078; خیر</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

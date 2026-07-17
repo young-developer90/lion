@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fa" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>صفحه یافت نشد - زبان برنامه‌نویسی زمین</title>
+  <meta name="description" content="صفحه‌ای که به دنبال آن هستید وجود ندارد.">
+  <meta property="og:title" content="صفحه یافت نشد - زمین">
+  <meta property="og:description" content="صفحه‌ای که به دنبال آن هستید وجود ندارد.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> مستندات زمین</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="جستجوی مستندات... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="تغییر تم">&#9790;</button>
+      <button id="print-btn" title="چاپ">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="انتخاب زبان">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">شروع کار</div>
+        <a href="index.html" class="sidebar-link">نمای کلی</a>
+        <a href="getting-started.html" class="sidebar-link">نصب</a>
+        <a href="playground.html" class="sidebar-link">محیط آزمایش</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">زبان</div>
+        <a href="language-guide.html" class="sidebar-link">راهنمای زبان</a>
+        <a href="standard-library.html" class="sidebar-link">کتابخانه استاندارد</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">قابلیت‌ها</div>
+        <a href="gui-guide.html" class="sidebar-link">ابزارهای GUI</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">پیشرفته</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">مرجع</div>
+        <a href="project-management.html" class="sidebar-link">CLI پروژه</a>
+        <a href="performance.html" class="sidebar-link">عملکرد</a>
+        <a href="faq.html" class="sidebar-link">سوالات متداول</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">خانه</a><span class="sep">/</span><span>404</span>
+        </div>
+
+        <div style="text-align: center; padding: 4rem 1rem;">
+          <h1 style="font-size: 6rem; margin: 0; color: var(--color-primary, #e74c3c);">404</h1>
+          <h2 style="margin-top: 1rem;">صفحه یافت نشد</h2>
+          <p style="margin-top: 1rem; opacity: 0.7;">صفحه‌ای که درخواست کرده‌اید وجود ندارد یا منتقل شده است.</p>
+          <a href="index.html" style="display: inline-block; margin-top: 2rem; padding: 0.75rem 1.5rem; background: var(--color-primary, #e74c3c); color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">بازگشت به صفحه اصلی مستندات</a>
+        </div>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/404.html">ویرایش این صفحه در گیت‌هاب</a>
+          <span>آخرین به‌روزرسانی: جولای ۲۰۲۶</span>
+        </div>
+        <div class="feedback">
+          <span>مفید بود؟</span>
+          <button>&#128077; بله</button>
+          <button>&#128078; خیر</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="fa" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>زبان برنامه‌نویسی زمین</title>
+  <meta name="description" content="زمین یک زبان برنامه‌نویسی سریع و خواناتا با کتابخانه استاندارد قدرتمند، ابزارهای GUI داخلی و پشتیبانی از چند پلتفرم است.">
+  <meta property="og:title" content="زبان برنامه‌نویسی زمین">
+  <meta property="og:description" content="یک زبان برنامه‌نویسی سریع و خواناتا با کتابخانه استاندارد قدرتمند، ابزارهای GUI داخلی و پشتیبانی از چند پلتفرم.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> مستندات زمین</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="جستجوی مستندات... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="تغییر تم">&#9790;</button>
+      <button id="print-btn" title="چاپ">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="انتخاب زبان">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">شروع کار</div>
+        <a href="index.html" class="sidebar-link active">نمای کلی</a>
+        <a href="getting-started.html" class="sidebar-link">نصب</a>
+        <a href="playground.html" class="sidebar-link">محیط آزمایش</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">زبان</div>
+        <a href="language-guide.html" class="sidebar-link">راهنمای زبان</a>
+        <a href="standard-library.html" class="sidebar-link">کتابخانه استاندارد</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">قابلیت‌ها</div>
+        <a href="gui-guide.html" class="sidebar-link">ابزارهای GUI</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">پیشرفته</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">مرجع</div>
+        <a href="project-management.html" class="sidebar-link">CLI پروژه</a>
+        <a href="performance.html" class="sidebar-link">عملکرد</a>
+        <a href="faq.html" class="sidebar-link">سوالات متداول</a>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="content">
+      <div class="content-inner">
+
+        <!-- Hero -->
+        <section class="hero">
+          <h1>زمین</h1>
+          <p class="tagline">یک زبان برنامه‌نویسی سریع و خواناتا</p>
+          <p>زمین ترکیبی از نحو شبیه به Python با یک ماشین مجازی بایت‌کد سبک است. این زبان در حلقه‌های سنگین عددی با Python رقابت می‌کند و با بیش از ۲۵ ماژول کتابخانه استاندارد داخلی، یک ابزار GUI بومی و قابلیت تعامل با C و Python عرضه می‌شود — آماده برای پروژه‌های واقعی.</p>
+          <div class="hero-actions">
+            <a href="getting-started.html" class="btn btn-primary">شروع کنید</a>
+            <a href="language-guide.html" class="btn btn-secondary">راهنمای زبان</a>
+            <a href="playground.html" class="btn btn-secondary">محیط آزمایش</a>
+          </div>
+        </section>
+
+        <!-- Features -->
+        <section class="features">
+          <h2>چرا زمین؟</h2>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <div class="feature-icon">&#9889;</div>
+              <h3>ماشین مجازی بایت‌کد</h3>
+              <p>ماشین مجازی بایت‌کد مبتنی بر ثبات با dispatch خام، opcodeهای تخصصی اعداد صحیح و بهینه‌ساز نگاه‌به‌جلو. در حلقه‌های عددی با CPython رقابت می‌کند و بیش از ۲۵ ماژول داخلی در دسترس شماست.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#128221;</div>
+              <h3>نحو خواناتا</h3>
+              <p>نحوی شبیه به Python که از همان ابتدا طبیعی به نظر می‌رسد. بلوک‌های مبتنی بر تورفتگی، عبارات تمیز و حاشیه‌نویسی نوع ساده، کد شما را خواناتا و قابل نگهداری می‌کند.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#128230;</div>
+              <h3>خودکفا</h3>
+              <p>بیش از ۲۵ ماژول کتابخانه استاندارد به صورت پیش‌فرض ارائه می‌شود. ورودی/خروجی فایل، شبکه، JSON، regex، ریاضی، تاریخ و زمان و موارد دیگر — بدون نیاز به مدیر بسته خارجی برای کارهای روزمره.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#127760;</div>
+              <h3>چند پلتفرم</h3>
+              <p>با یک پایگاه کد واحد روی Linux، macOS و Windows بسازید و اجرا کنید. کامپایلر و زمان اجرای زمین کاملاً قابل حمل هستند، بنابراین پروژه‌هایتان هر جا که می‌روید همراه شما هستند.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#128268;</div>
+              <h3>قابل گسترش</h3>
+              <p>برای کدهای حساس به عملکرد، افزونه‌های C بنویسید، مستقیماً کتابخانه‌های Python را فراخوانی کنید یا از NVIDIA CUDA برای محاسبات شتاب‌یافته GPU بهره ببرید. زمین با اکوسیستمی که از قبل می‌شناسید به خوبی کار می‌کند.</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#128444;</div>
+              <h3>GUI داخلی</h3>
+              <p>با ابزار Sol GUI در Windows یا Luna در Linux، برنامه‌های دسکتاپ بومی ایجاد کنید. ویجت‌ها، چیدمان‌ها، مدیریت رویداد و استایل‌دهی همه بخشی از تجربه استاندارد هستند.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick Example -->
+        <section class="quick-example">
+          <h2>مثال سریع</h2>
+          <p>در ادامه یک نمونه از کد زمین را مشاهده می‌کنید:</p>
+          <pre><code><span class="kw">func</span> greet(name) {
+    print(<span class="str">"Hello, </span>{name}<span class="str">!"</span>);
+}
+
+<span class="kw">func</span> fibonacci(n) {
+    <span class="kw">if</span> n &lt;= <span class="num">1</span> {
+        <span class="kw">return</span> n;
+    }
+    <span class="kw">return</span> fibonacci(n - <span class="num">1</span>) + fibonacci(n - <span class="num">2</span>);
+}
+
+greet(<span class="str">"World"</span>);
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="num">0</span>..<span class="num">10</span> {
+    print(<span class="str">"fib(</span>{i}<span class="str">) = </span>{fibonacci(i)}<span class="str">"</span>);
+}</code></pre>
+        </section>
+
+        <!-- Performance -->
+        <section class="performance">
+          <h2>عملکرد</h2>
+          <p>ماشین مجازی بایت‌کد زمین با معماری مبتنی بر ثبات و بهینه‌سازی‌های الهام‌گرفته از JIT، عملکرد قدرتمندی در بارهای کاری رایج ارائه می‌دهد:</p>
+          <div class="benchmark-results">
+            <div class="benchmark-item">
+              <div class="benchmark-label">حلقه عددی (۵ میلیون عملیات) در مقایسه با Python 3</div>
+              <div class="benchmark-bar-container">
+                <div class="benchmark-bar" style="width: 100%;">0.9x &mdash; هم‌سطح Python</div>
+              </div>
+            </div>
+            <div class="benchmark-item">
+              <div class="benchmark-label">اضافه کردن به لیست (۵۰۰K) در مقایسه با Python 3</div>
+              <div class="benchmark-bar-container">
+                <div class="benchmark-bar" style="width: 60%;">1.5x کندتر</div>
+              </div>
+            </div>
+            <div class="benchmark-item">
+              <div class="benchmark-label">فیبوناچی بازگشتی fib(32) در مقایسه با Python 3</div>
+              <div class="benchmark-bar-container">
+                <div class="benchmark-bar" style="width: 33%;">4.3x کندتر</div>
+              </div>
+            </div>
+            <div class="benchmark-item">
+              <div class="benchmark-label">الحاق رشته (۱۰۰K) در مقایسه با Python 3</div>
+              <div class="benchmark-bar-container">
+                <div class="benchmark-bar" style="width: 10%;">13.4x کندتر</div>
+              </div>
+            </div>
+          </div>
+          <p><a href="performance.html">مشاهده بنچمارک‌های دقیق &rarr;</a></p>
+        </section>
+
+        <!-- Documentation Pages -->
+        <section class="doc-pages">
+          <h2>مستندات</h2>
+          <div class="doc-grid">
+            <a href="getting-started.html" class="doc-card">
+              <h3>شروع کار</h3>
+              <p>زمین را نصب کنید و اولین برنامه خود را بنویسید.</p>
+            </a>
+            <a href="language-guide.html" class="doc-card">
+              <h3>راهنمای زبان</h3>
+              <p>انواع، توابع، جریان کنترل و موارد دیگر.</p>
+            </a>
+            <a href="standard-library.html" class="doc-card">
+              <h3>کتابخانه استاندارد</h3>
+              <p>همه ۲۵+ ماژول داخلی را کاوش کنید.</p>
+            </a>
+            <a href="gui-guide.html" class="doc-card">
+              <h3>ابزارهای GUI</h3>
+              <p>برنامه‌های دسکتاپ بومی با Sol و Luna بسازید.</p>
+            </a>
+            <a href="opencv-guide.html" class="doc-card">
+              <h3>یکپارچه‌سازی OpenCV</h3>
+              <p>پردازش تصویر و بینایی کامپیوتر در زمین.</p>
+            </a>
+            <a href="advanced-guide.html" class="doc-card">
+              <h3>موضوعات پیشرفته</h3>
+              <p>افزونه‌های C، تعامل با Python و CUDA.</p>
+            </a>
+            <a href="project-management.html" class="doc-card">
+              <h3>CLI پروژه</h3>
+              <p>ایجاد، ساخت و مدیریت پروژه‌های زمین.</p>
+            </a>
+            <a href="performance.html" class="doc-card">
+              <h3>عملکرد</h3>
+              <p>بنچمارک‌ها و تکنیک‌های بهینه‌سازی.</p>
+            </a>
+            <a href="faq.html" class="doc-card">
+              <h3>سوالات متداول</h3>
+              <p>پرسش‌ها و پاسخ‌های رایج.</p>
+            </a>
+            <a href="playground.html" class="doc-card">
+              <h3>محیط آزمایش</h3>
+              <p>کد زمین را در مرورگر خود بنویسید، اجرا کنید و به اشتراک بگذارید.</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Page Meta -->
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/index.html" target="_blank">ویرایش این صفحه در گیت‌هاب</a>
+          <span>آخرین به‌روزرسانی: جولای ۲۰۲۶</span>
+        </div>
+        <!-- Feedback -->
+        <div class="feedback">
+          <span>مفید بود؟</span>
+          <button>&#128077; بله</button>
+          <button>&#128078; خیر</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/script.js"></script>
+</body>
+</html>

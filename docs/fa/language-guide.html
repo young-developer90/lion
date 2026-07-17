@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="fa" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>راهنمای زبان - زبان برنامه‌نویسی زمین</title>
+  <meta name="description" content="مرجع کامل زبان برنامه‌نویسی زمین">
+  <meta property="og:title" content="راهنمای زبان - Zamin">
+  <meta property="og:description" content="مرجع کامل زبان برنامه‌نویسی زمین: انواع، توابع، جریان کنترل، structها، ماژول‌ها و موارد دیگر.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin Docs</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Search docs... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="Toggle theme">&#9790;</button>
+      <button id="print-btn" title="Print">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="انتخاب زبان">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">شروع</div>
+        <a href="index.html" class="sidebar-link">مرور کلی</a>
+        <a href="getting-started.html" class="sidebar-link">نصب</a>
+        <a href="playground.html" class="sidebar-link">محیط آزمایشی</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">زبان</div>
+        <a href="language-guide.html" class="sidebar-link active">راهنمای زبان</a>
+        <a href="standard-library.html" class="sidebar-link">کتابخانه استاندارد</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">ویژگی‌ها</div>
+        <a href="gui-guide.html" class="sidebar-link">ابزار GUI</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">پیشرفته</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">مرجع</div>
+        <a href="project-management.html" class="sidebar-link">CLI پروژه</a>
+        <a href="performance.html" class="sidebar-link">عملکرد</a>
+        <a href="faq.html" class="sidebar-link">سوالات متداول</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+
+        <nav class="breadcrumb">
+          <a href="index.html">خانه</a> / <span>راهنمای زبان</span>
+        </nav>
+
+        <h1>راهنمای زبان</h1>
+        <p>یک مرجع کامل برای زبان برنامه‌نویسی زمین. این راهنما تمام ویژگی‌های اصلی را پوشش می‌دهد — از متغیرها و انواع گرفته تا structها، تطبیق الگو و ماژول‌ها. هر بخش شامل توضیحات و مثال‌های کد قابل اجرا است.</p>
+
+        <!-- ========== Variables and Types ========== -->
+        <h2 id="variables-and-types">متغیرها و انواع</h2>
+        <p>Zamin از <code>let</code> برای متغیرهای قابل تغییر و <code>const</code> برای ثابت‌ها استفاده می‌کند. شما هرگز حاشیه‌نویسی صریح نوع نمی‌نویسید — کامپایلر انواع را از مقدار تخصیص‌یافته استنباط می‌کند.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let x = 42;
+let name = "Zamin";
+let pi = 3.14159;
+let active = true;
+
+const MAX_SIZE = 1024;
+const GREETING = "hello";</code></pre>
+
+        <h3>انواع اصلی</h3>
+        <p>Zamin این انواع داخلی را فراهم می‌کند:</p>
+        <ul>
+          <li><code>int</code> — عدد صحیح ۶۴ بیتی علامت‌دار (<code>i64</code>)</li>
+          <li><code>uint</code> — عدد صحیح ۶۴ بیتی بدون علامت (<code>u64</code>)</li>
+          <li><code>float</code> — ممیز شناور ۶۴ بیتی (<code>f64</code>)</li>
+          <li><code>bool</code> — <code>true</code> یا <code>false</code></li>
+          <li><code>string</code> — رشته UTF-8</li>
+          <li><code>nil</code> — عدم وجود مقدار</li>
+          <li><code>list</code> — مجموعه مرتب و قابل رشد</li>
+          <li><code>dict</code> — نگاشت کلید-مقدار</li>
+          <li><code>set</code> — مجموعه نامرتب از مقادیر یکتا</li>
+          <li><code>tuple</code> — مجموعه با اندازه ثابت و غیرقابل تغییر</li>
+        </ul>
+
+        <h3>تبدیل نوع</h3>
+        <p>از توابع تبدیل داخلی برای تغییر بین انواع استفاده کنید:</p>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let n = int("42");       // 42
+let f = float("3.14");   // 3.14
+let s = string(100);     // "100"
+let b = bool(1);         // true
+let b2 = bool(0);        // false</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; نکته</div><p>ثابت‌ها باید در زمان اعلان مقداردهی شوند و نمی‌توان آن‌ها را دوباره تخصیص داد. از آن‌ها برای مقادیر پیکربندی و ثابت‌های ریاضی مانند <code>const PI = 3.14159;</code> استفاده کنید.</p></div>
+
+        <!-- ========== Strings ========== -->
+        <h2 id="strings">رشته‌ها</h2>
+        <p>رشته‌ها در Zamin با UTF-8 کدگذاری می‌شوند. هم نقل قول دوتایی و هم نقل قول تکی رشته‌های یکسانی ایجاد می‌کنند.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let s1 = "hello";
+let s2 = 'hello';
+// s1 and s2 are equivalent</code></pre>
+
+        <h3>F-Stringها</h3>
+        <p>یک رشته را با <code>f</code> پیشوند کنید تا عبارات را داخل <code>{}</code> جاسازی کنید:</p>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let name = "Zamin";
+let version = 2;
+
+println(f"Welcome to {name} v{version}!");
+// Output: Welcome to Zamin v2!
+
+let x = 10;
+println(f"Result: {x * 2 + 1}");
+// Output: Result: 21</code></pre>
+
+        <h3>الحاق و تکرار</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let greeting = "Hello" + ", " + "world!";
+println(greeting);
+// Output: Hello, world!
+
+let pattern = "ab" * 3;
+println(pattern);
+// Output: ababab</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; نکته</div><p>از ماژول <code>string</code> برای عملیات پیشرفته مانند تقسیم، پیوستن، حذف فضای خالی و تغییر حروف استفاده کنید. برای جزئیات به <a href="standard-library.html">کتابخانه استاندارد</a> مراجعه کنید.</p></div>
+
+        <!-- ========== Numbers ========== -->
+        <h2 id="numbers">اعداد</h2>
+
+        <h3>لیترال‌های اعداد صحیح</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let decimal = 42;
+let negative = -7;
+let hex = 0xff;
+let binary = 0b1010;
+let octal = 0o77;</code></pre>
+
+        <h3>اعداد صحیح بدون علامت</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let count = 42u;
+let size = 1024u;</code></pre>
+
+        <h3>لیترال‌های ممیز شناور</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let pi = 3.14159;
+let negative = -0.5;
+let huge = 1e10;</code></pre>
+
+        <h3>عملگرهای حسابی</h3>
+        <table>
+          <thead>
+            <tr><th>عملگر</th><th>توضیح</th><th>مثال</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>+</code></td><td>جمع</td><td><code>3 + 2</code> → <code>5</code></td></tr>
+            <tr><td><code>-</code></td><td>تفریق</td><td><code>3 - 2</code> → <code>1</code></td></tr>
+            <tr><td><code>*</code></td><td>ضرب</td><td><code>3 * 2</code> → <code>6</code></td></tr>
+            <tr><td><code>/</code></td><td>تقسیم</td><td><code>7 / 2</code> → <code>3.5</code></td></tr>
+            <tr><td><code>//</code></td><td>تقسیم صحیح</td><td><code>7 // 2</code> → <code>3</code></td></tr>
+            <tr><td><code>%</code></td><td>باقی‌مانده</td><td><code>7 % 2</code> → <code>1</code></td></tr>
+            <tr><td><code>**</code></td><td>توان</td><td><code>2 ** 10</code> → <code>1024</code></td></tr>
+          </tbody>
+        </table>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>println(10 / 3);      // 3.33333...
+println(10 // 3);     // 3
+println(10 % 3);      // 1
+println(2 ** 8);      // 256</code></pre>
+
+        <h3>عملگرهای مقایسه</h3>
+        <p>تمام مقایسه‌های استاندارد کار می‌کنند: <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code>.</p>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; نکته</div><p>از ماژول <code>math</code> برای توابع ریاضی پیشرفته مانند <code>math.sqrt()</code>، <code>math.abs()</code>، <code>math.floor()</code> و <code>math.ceil()</code> استفاده کنید.</p></div>
+
+        <!-- ========== Booleans ========== -->
+        <h2 id="booleans">مقادیر بولی</h2>
+        <p>Zamin دو لیترال بولی دارد: <code>true</code> و <code>false</code>.</p>
+
+        <h3>عملگرهای منطقی</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let a = true;
+let b = false;
+
+println(a and b);   // false
+println(a or b);    // true
+println(not a);     // false
+
+if not b {
+    println("b is false");
+}</code></pre>
+
+        <h3>درستی</h3>
+        <p>در زمینه‌های شرطی (مانند <code>if</code> و <code>while</code>)، مقادیر زیر <strong>نادرست</strong> در نظر گرفته می‌شوند:</p>
+        <ul>
+          <li><code>false</code></li>
+          <li><code>nil</code></li>
+          <li><code>0</code> and <code>0.0</code></li>
+          <li><code>""</code> (empty string)</li>
+          <li><code>[]</code> (empty list)</li>
+        </ul>
+        <p>بقیه موارد <strong>درست</strong> هستند، از جمله رشته‌های غیر خالی، اعداد غیر صفر و مجموعه‌های غیر خالی.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>if "hello" {
+    println("truthy!");
+}
+
+if 0 {
+    println("never reached");
+}
+
+if [] {
+    println("never reached");
+}</code></pre>
+
+        <!-- ========== Collections ========== -->
+        <h2 id="collections">مجموعه‌ها</h2>
+
+        <h3 id="lists">لیست‌ها</h3>
+        <p>لیست‌ها مرتب، ناهمگن و قابل رشد هستند. آن‌ها را با کروشه ایجاد کنید.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let fruits = ["apple", "banana", "cherry"];
+let mixed = [1, "two", true, 3.0];
+
+// Indexing (0-based)
+println(fruits[0]);   // "apple"
+println(fruits[-1]);  // "cherry" (last element)
+
+// Slicing
+println(fruits[0:2]); // ["apple", "banana"]
+
+// Modification
+fruits.push("date");
+fruits.pop();
+
+// Length
+println(len(fruits)); // 3
+
+// Membership
+if "apple" in fruits {
+    println("Found apple!");
+}</code></pre>
+
+        <h3 id="dicts">دیکت‌ها</h3>
+        <p>دیکت‌ها کلیدها را به مقادیر نگاشت می‌کنند. از نحو آکولاد و نماد نقطه برای دسترسی استفاده کنید.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let user = {
+    name: "Alice",
+    age: 30,
+    active: true,
+};
+
+// Access with dot notation
+println(user.name);    // "Alice"
+
+// Access with bracket notation
+println(user["age"]);  // 30
+
+// Add / update fields
+user.email = "alice@example.com";
+
+// Get with default
+let city = user.get("city", "unknown");
+
+// Iterate
+for key in user.keys() {
+    println(f"{key}: {user[key]}");
+}
+
+for value in user.values() {
+    println(value);
+}
+
+for key, value in user.items() {
+    println(f"{key} = {value}");
+}</code></pre>
+
+        <h3 id="sets">مجموعه‌ها</h3>
+        <p>مجموعه‌ها مقادیر یکتا و نامرتب را ذخیره می‌کنند. از نحو آکولاد با عناصر مجزا استفاده کنید.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let colors = {"red", "green", "blue"};
+
+colors.add("yellow");
+colors.remove("green");
+
+println(len(colors)); // 3
+
+let a = {1, 2, 3};
+let b = {2, 3, 4};
+
+println(a | b);   // {1, 2, 3, 4}  — union
+println(a & b);   // {2, 3}        — intersection
+println(a - b);   // {1}           — difference
+
+if 2 in a {
+    println("a contains 2");
+}</code></pre>
+
+        <h3 id="tuples">تاپل‌ها</h3>
+        <p>تاپل‌ها مجموعه‌هایی با اندازه ثابت و غیرقابل تغییر هستند. پس از ایجاد، نمی‌توان آن‌ها را تغییر داد.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let point = (3, 4);
+println(point[0]);  // 3
+println(point[1]);  // 4
+
+// Destructuring
+let (x, y) = point;
+println(f"x={x}, y={y}");
+
+// Return multiple values from a function
+func minmax(list) {
+    return (min(list), max(list));
+}
+
+let (lo, hi) = minmax([3, 1, 4, 1, 5]);
+println(f"min={lo}, max={hi}");</code></pre>
+
+        <h3 id="comprehensions">فهم‌های لیست</h3>
+        <p>با عبارات مختصری که تکرار، فیلتر و تبدیل را در یک خط انجام می‌دهند، لیست ایجاد کنید.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let doubled = [x * 2 for x in 0..10];
+// [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+let evens = [x for x in 0..20 if x % 2 == 0];
+// [0, 2, 4, 6, 8, 10, 12, 14, 16, 18]
+
+let words = ["hello", "world"];
+let upper = [w.to_upper() for w in words];
+// ["HELLO", "WORLD"]
+
+let nums = [1, 2, 3, 4, 5];
+let filtered = [x * x for x in nums if x > 2];
+// [9, 16, 25]</code></pre>
+
+        <h3>عبارات بازه</h3>
+        <p>بازه‌ها دنباله‌هایی از اعداد صحیح تولید می‌کنند. معمولاً در حلقه‌های <code>for</code> و فهم‌ها استفاده می‌شوند.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>// Exclusive end (0 to 9)
+for i in 0..10 {
+    print(f"{i} ");
+}
+// Output: 0 1 2 3 4 5 6 7 8 9
+
+// Inclusive end (0 to 10)
+for i in 0..=10 {
+    print(f"{i} ");
+}
+// Output: 0 1 2 3 4 5 6 7 8 9 10
+
+let list = [10..=15];
+println(list); // [10, 11, 12, 13, 14, 15]</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; نکته</div><p>زمانی که مقدار پایان باید حذف شود از <code>..</code> استفاده کنید (مانند <code>range()</code> پایتون) و زمانی که مقدار پایان باید شامل شود از <code>..=</code> استفاده کنید.</p></div>
+
+        <!-- ========== Control Flow ========== -->
+        <h2 id="control-flow">جریان کنترل</h2>
+
+        <h3>If / Elif / Else</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let score = 85;
+
+if score >= 90 {
+    println("A");
+} elif score >= 80 {
+    println("B");
+} elif score >= 70 {
+    println("C");
+} else {
+    println("F");
+}
+// Output: B</code></pre>
+
+        <h3>عبارات سه‌تایی</h3>
+        <p>نتیجه یک عبارت شرطی را به یک متغیر تخصیص دهید:</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let age = 20;
+let status = if age >= 18 { "adult" } else { "minor" };
+println(status); // "adult"
+
+let x = 5;
+let label = if x > 0 { "positive" } else if x < 0 { "negative" } else { "zero" };
+println(label); // "positive"</code></pre>
+
+        <h3>حلقه‌های While</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let count = 0;
+while count < 5 {
+    println(count);
+    count += 1;
+}
+
+// Infinite loop with break
+let total = 0;
+while true {
+    let input = read_line();
+    if input == "quit" {
+        break;
+    }
+    total += int(input);
+}</code></pre>
+
+        <h3>حلقه‌های For</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>// Iterate over a list
+let items = ["a", "b", "c"];
+for item in items {
+    println(item);
+}
+
+// Iterate with index
+for i, item in items {
+    println(f"{i}: {item}");
+}
+
+// Iterate over a range
+for i in 0..5 {
+    println(i);
+}
+
+// Iterate with inclusive range
+for i in 0..=5 {
+    println(i);
+}
+
+// Iterate over a dict
+let map = { x: 1, y: 2 };
+for key, value in map {
+    println(f"{key} = {value}");
+}</code></pre>
+
+        <h3>Break و Continue</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>// break exits the innermost loop
+for i in 0..100 {
+    if i == 5 {
+        break;
+    }
+    println(i);
+}
+// Output: 0 1 2 3 4
+
+// continue skips to the next iteration
+for i in 0..10 {
+    if i % 2 == 0 {
+        continue;
+    }
+    println(i);
+}
+// Output: 1 3 5 7 9</code></pre>
+
+        <h3>Match (تطبیق الگو)</h3>
+        <p>عبارت <code>match</code> یک مقدار را با چندین الگو مقایسه کرده و شاخه منطبق را اجرا می‌کند. از <code>_</code> به عنوان wildcard برای حالت پیش‌فرض استفاده کنید.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let command = "start";
+
+match command {
+    case "start" => println("Starting..."),
+    case "stop"  => println("Stopping..."),
+    case "pause" => println("Pausing..."),
+    case _       => println("Unknown command"),
+}
+
+// Matching numbers
+let day = 3;
+
+match day {
+    case 1 => println("Monday"),
+    case 2 => println("Tuesday"),
+    case 3 => println("Wednesday"),
+    case 4 => println("Thursday"),
+    case 5 => println("Friday"),
+    case 6 | 7 => println("Weekend"),
+    case _ => println("Invalid day"),
+}
+
+// Matching with destructuring
+let point = (0, 5);
+
+match point {
+    case (0, 0) => println("Origin"),
+    case (0, _) => println("On Y-axis"),
+    case (_, 0) => println("On X-axis"),
+    case (x, y) => println(f"({x}, {y})"),
+}</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; نکته</div><p>حالت‌های Match از <code>=></code> برای جدا کردن الگو از نتیجه استفاده می‌کنند. عملگر <code>|</code> به چندین الگو اجازه می‌دهد تا یک شاخه مشترک داشته باشند.</p></div>
+
+        <!-- ========== Functions ========== -->
+        <h2 id="functions">توابع</h2>
+
+        <h3>توابع نام‌دار</h3>
+        <p>توابع را با کلمه کلیدی <code>func</code> و بدنه بلوکی تعریف کنید:</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>func add(a, b) {
+    return a + b;
+}
+
+println(add(3, 4)); // 7</code></pre>
+
+        <h3>بدنه‌های بیانی</h3>
+        <p>برای توابع کوتاه، به جای بلوک از بدنه بیانی استفاده کنید:</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>func add(a, b) = a + b;
+func square(n) = n ** 2;
+func greet(name) = f"Hello, {name}!";
+
+println(square(5));  // 25
+println(greet("Zamin")); // "Hello, Zamin!"</code></pre>
+
+        <h3>عبارات لامبدا / بستار</h3>
+        <p>توابع ناشناس می‌توانند به متغیرها تخصیص داده شوند:</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let add = func(a, b) {
+    return a + b;
+};
+
+let multiply = func(a, b) = a * b;
+
+println(add(2, 3));       // 5
+println(multiply(4, 5));  // 20</code></pre>
+
+        <h3>آرگومان‌های پیش‌فرض</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>func greet(name = "World") {
+    println(f"Hello, {name}!");
+}
+
+greet();        // "Hello, World!"
+greet("Alice"); // "Hello, Alice!"</code></pre>
+
+        <h3>آرگومان‌های متغیر</h3>
+        <p>یک پارامتر را با <code>*</code> پیشوند کنید تا هر تعداد آرگومان را بپذیرد:</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>func sum(*nums) {
+    let total = 0;
+    for n in nums {
+        total += n;
+    }
+    return total;
+}
+
+println(sum(1, 2, 3, 4)); // 10</code></pre>
+
+        <h3>بستارها</h3>
+        <p>توابع می‌توانند متغیرها را از دامنه احاطه‌کننده خود ضبط کرده و استفاده کنند:</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>func make_counter() {
+    let count = 0;
+    return func() {
+        count += 1;
+        return count;
+    };
+}
+
+let counter = make_counter();
+println(counter()); // 1
+println(counter()); // 2
+println(counter()); // 3</code></pre>
+
+        <h3>توابع مرتبه بالاتر</h3>
+        <p>توابع می‌توانند به عنوان آرگومان به توابع دیگر منتقل شوند:</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>func apply(f, value) {
+    return f(value);
+}
+
+let double = func(x) = x * 2;
+let triple = func(x) = x * 3;
+
+println(apply(double, 5)); // 10
+println(apply(triple, 5)); // 15
+
+let nums = [1, 2, 3, 4, 5];
+let doubled = [apply(double, x) for x in nums];
+println(doubled); // [2, 4, 6, 8, 10]</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; نکته</div><p>Zamin از عملیات تابعی رایج مانند <code>map</code>، <code>filter</code> و <code>reduce</code> پشتیبانی می‌کند — چه به عنوان توابع داخلی یا متدهای روی لیست‌ها. فهم‌های لیست اغلب برای خوانایی ترجیح داده می‌شوند.</p></div>
+
+        <!-- ========== Structs ========== -->
+        <h2 id="structs">Structها</h2>
+        <p>Structها مکانیزم اصلی Zamin برای ایجاد انواع سفارشی با فیلدهای نام‌دار هستند.</p>
+
+        <h3>تعریف و نمونه‌سازی</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>struct Point {
+    x,
+    y,
+}
+
+let p = Point(3, 4);
+println(p.x);  // 3
+println(p.y);  // 4</code></pre>
+
+        <h3>متد Init</h3>
+        <p>یک تابع <code>init</code> روی struct برای اجرای منطق سفارشی در زمان ساخت تعریف کنید. تابع <code>init</code> نمونه struct را دریافت می‌کند و می‌تواند مقادیر پیش‌فرض یا محاسبه‌شده فیلدها را تنظیم کند.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>struct Rectangle {
+    width,
+    height,
+}
+
+func Rectangle.init(r) {
+    r.area = r.width * r.height;
+    r.perimeter = (r.width + r.height) * 2;
+}
+
+let rect = Rectangle(10, 5);
+println(rect.area);       // 50
+println(rect.perimeter);  // 30</code></pre>
+
+        <h3>متدها</h3>
+        <p>بستارها را به فیلدهای struct تخصیص دهید تا متد ایجاد کنید:</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>struct Circle {
+    radius,
+}
+
+func Circle.area(self) = 3.14159 * self.radius ** 2;
+func Circle.circumference(self) = 2 * 3.14159 * self.radius;
+func Circle.describe(self) = f"Circle with radius {self.radius}";
+
+let c = Circle(5);
+println(c.area());           // 78.53975
+println(c.circumference());  // 31.4159
+println(c.describe());       // "Circle with radius 5"</code></pre>
+
+        <h3>مقایسه Structها</h3>
+        <p>Structهای هم‌نوع با مقدار مقایسه می‌شوند زمانی که تمام فیلدهای آن‌ها قابل مقایسه باشند:</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>let a = Point(1, 2);
+let b = Point(1, 2);
+let c = Point(3, 4);
+
+println(a == b); // true
+println(a == c); // false
+println(a != c); // true</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; نکته</div><p>Structها در Zamin به طور پیش‌فرض انواع ارجاعی هستند. دو متغیر که از یک نمونه struct تخصیص داده شده‌اند، داده یکسانی را به اشتراک می‌گذارند. زمانی که کپی‌های مستقل نیاز است، از کپی صریح استفاده کنید.</p></div>
+
+        <!-- ========== Error Handling ========== -->
+        <h2 id="error-handling">مدیریت خطا</h2>
+        <p>Zamin مدیریت خطای ساختاریافته با بلوک‌های <code>try</code>/<code>catch</code> و کلمه کلیدی <code>throw</code> ارائه می‌دهد.</p>
+
+        <h3>پرتاب خطاها</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>throw "something went wrong";
+
+// Or use a structured error object
+throw Error("invalid input");</code></pre>
+
+        <h3>Try / Catch</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>try {
+    let result = risky_operation();
+    println(result);
+} catch (e) {
+    println(f"Error: {e}");
+}</code></pre>
+
+        <h3>انتشار خطا</h3>
+        <p>زمانی که یک تابع ممکن است شکست بخورد، خطاها به طور خودکار در پشته فراخوانی به سمت بالا منتشر می‌شوند مگر اینکه گرفته شوند. این به شما اجازه می‌دهد خطاها را در سطح مناسب مدیریت کنید.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>func parse_number(s) {
+    let n = int(s);
+    if n == nil {
+        throw Error(f"'{s}' is not a valid number");
+    }
+    return n;
+}
+
+func process_input(input) {
+    let num = parse_number(input);
+    return num * 2;
+}
+
+try {
+    let result = process_input("42");
+    println(result); // 84
+} catch (e) {
+    println(f"Failed: {e}");
+}
+
+try {
+    let result = process_input("abc");
+    println(result); // never reached
+} catch (e) {
+    println(f"Failed: {e}"); // Failed: 'abc' is not a valid number
+}</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; نکته</div><p>برای شکست‌های مورد انتظار ترجیحاً مقادیر خطا (مانند <code>nil</code>) را برگردانید و برای خطاهای غیرمنتظره یا برنامه‌نویسی از <code>throw</code> استفاده کنید. این کار مدیریت خطا را صریح و قابل پیش‌بینی نگه می‌دارد.</p></div>
+
+        <!-- ========== Modules and Imports ========== -->
+        <h2 id="modules-and-imports">ماژول‌ها و ایمپورت‌ها</h2>
+        <p>سیستم ماژول Zamin به شما اجازه می‌دهد کد را در چندین فایل تقسیم کرده و کتابخانه‌های مشترک را مجدداً استفاده کنید.</p>
+
+        <h3>ایمپورت ماژول‌ها</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>import math
+import string
+import os
+
+println(math.sqrt(16));   // 4.0
+println(math.pi);         // 3.14159...
+
+let upper = string.to_upper("hello");
+println(upper); // "HELLO"</code></pre>
+
+        <h3>ایمپورت با نام مستعار</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>import math as m
+import string as str
+
+println(m.sqrt(25)); // 5.0
+println(str.to_upper("hi")); // "HI"</code></pre>
+
+        <h3>ایجاد ماژول با Export</h3>
+        <p>موارد را با <code>export</code> علامت‌گذاری کنید تا زمانی که ماژول ایمپورت می‌شود در دسترس باشند.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>// my_module.zamin
+export func greet(name) = f"Hello, {name}!";
+
+export let VERSION = "1.0.0";
+
+struct export User {
+    name,
+    email,
+}</code></pre>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>// main.zamin
+import my_module
+
+println(my_module.greet("Alice")); // "Hello, Alice!"
+println(my_module.VERSION);        // "1.0.0"
+
+let user = my_module.User("Bob", "bob@example.com");</code></pre>
+
+        <h3>مسیرهای بارگذاری ماژول</h3>
+        <p>Zamin ماژول‌ها را به ترتیب در این مکان‌ها جستجو می‌کند:</p>
+        <ol>
+          <li>دایرکتوری فایل جاری</li>
+          <li>دایرکتوری <code>lib/</code> پروژه</li>
+          <li>مسیر کتابخانه استاندارد Zamin</li>
+          <li>مسیرهای مشخص‌شده در تنظیمات <code>zamin.json</code></li>
+        </ol>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; نکته</div><p>از CLI <code>zamin project</code> برای مدیریت وابستگی‌ها و مسیرهای ماژول استفاده کنید. برای جزئیات به <a href="project-management.html">CLI پروژه</a> مراجعه کنید.</p></div>
+
+        <!-- ========== Comments ========== -->
+        <h2 id="comments">نظرات</h2>
+        <p>Zamin از نظرات تک خطی پشتیبانی می‌کند. همه چیز بعد از <code>//</code> تا پایان خط توسط کامپایلر نادیده گرفته می‌شود.</p>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>// This is a comment
+let x = 42; // Inline comment
+
+// Multi-line comments can be done
+// by writing multiple single-line comments
+// like this.</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; نکته</div><p>از نظرات برای توضیح <em>چرایی</em> انجام کاری به روش خاص استفاده کنید، نه <em>چه کاری</em> کد انجام می‌دهد. کد خوب باید خودتوضیح‌دهنده باشد؛ نظرات برای زمینه و قصد هستند.</p></div>
+
+        <!-- ========== Operators ========== -->
+        <h2 id="operators">عملگرها</h2>
+        <p>در زیر مرجع کاملی از تمام عملگرهای Zamin، از بالاترین اولویت به پایین‌ترین، لیست شده است.</p>
+
+        <table>
+          <thead>
+            <tr><th>اولویت</th><th>عملگر</th><th>توضیح</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td><code>**</code></td><td>توان</td></tr>
+            <tr><td>2</td><td><code>~</code>, <code>-</code> (unary)</td><td>NOT بیتی، نفی یکانی</td></tr>
+            <tr><td>3</td><td><code>*</code>, <code>/</code>, <code>//</code>, <code>%</code></td><td>ضرب، تقسیم، تقسیم صحیح، باقی‌مانده</td></tr>
+            <tr><td>4</td><td><code>+</code>, <code>-</code></td><td>جمع، تفریق</td></tr>
+            <tr><td>5</td><td><code>&lt;&lt;</code>, <code>&gt;&gt;</code></td><td>شیفت بیتی به چپ، شیفت بیتی به راست</td></tr>
+            <tr><td>6</td><td><code>&amp;</code></td><td>AND بیتی</td></tr>
+            <tr><td>7</td><td><code>^</code></td><td>XOR بیتی</td></tr>
+            <tr><td>8</td><td><code>|</code></td><td>OR بیتی</td></tr>
+            <tr><td>9</td><td><code>..</code>, <code>..=</code></td><td>بازه (انحصاری)، بازه (شمول)</td></tr>
+            <tr><td>10</td><td><code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&lt;=</code>, <code>&gt;=</code></td><td>مقایسه</td></tr>
+            <tr><td>11</td><td><code>not</code></td><td>NOT منطقی</td></tr>
+            <tr><td>12</td><td><code>and</code></td><td>AND منطقی</td></tr>
+            <tr><td>13</td><td><code>or</code></td><td>OR منطقی</td></tr>
+            <tr><td>14</td><td><code>in</code></td><td>تست عضویت</td></tr>
+            <tr><td>15</td><td><code>=</code>, <code>+=</code>, <code>-=</code>, <code>*=</code>, <code>/=</code>, <code>//=</code>, <code>%=</code>, <code>**=</code></td><td>تخصیص و تخصیص مرکب</td></tr>
+          </tbody>
+        </table>
+
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">Copy</button></div>
+        <pre><code>// Arithmetic
+println(2 ** 10);       // 1024
+println(7 / 2);         // 3.5
+println(7 // 2);        // 3
+println(-5.abs());      // 5
+
+// Comparison
+println(3 == 3);        // true
+println(3 != 4);        // true
+println(1 < 2);         // true
+
+// Logical
+println(true and false); // false
+println(true or false);  // true
+println(not false);      // true
+
+// Membership
+println(3 in [1, 2, 3]); // true
+println("a" in "cat");   // true
+
+// Compound assignment
+let x = 10;
+x += 5;
+x *= 2;
+println(x);  // 30</code></pre>
+
+        <div class="callout callout-tip"><div class="callout-title">&#128161; نکته</div><p>زمانی که در مورد اولویت عملگرها شک دارید، از پرانتز برای صریح کردن قصد خود استفاده کنید. <code>(a + b) * c</code> همیشه واضح‌تر از تکیه بر قوانین اولویت است.</p></div>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/language-guide.html">ویرایش این صفحه در GitHub</a>
+          <span>آخرین به‌روزرسانی: جولای ۲۰۲۶</span>
+        </div>
+        <div class="feedback">
+          <span>آیا این صفحه مفید بود؟</span>
+          <button>&#128077; بله</button>
+          <button>&#128078; خیر</button>
+          <span id="feedback-msg"></span>
+        </div>
+
+      </div>
+      <div class="toc">
+        <div class="toc-title">در این صفحه</div>
+        <a href="#variables-and-types" class="toc-link">متغیرها و انواع</a>
+        <a href="#strings" class="toc-link">رشته‌ها</a>
+        <a href="#numbers" class="toc-link">اعداد</a>
+        <a href="#booleans" class="toc-link">مقادیر بولی</a>
+        <a href="#collections" class="toc-link">مجموعه‌ها</a>
+        <a href="#lists" class="toc-link toc-sub">لیست‌ها</a>
+        <a href="#dicts" class="toc-link toc-sub">دیکت‌ها</a>
+        <a href="#sets" class="toc-link toc-sub">مجموعه‌ها</a>
+        <a href="#tuples" class="toc-link toc-sub">تاپل‌ها</a>
+        <a href="#comprehensions" class="toc-link toc-sub">فهم‌های لیست</a>
+        <a href="#control-flow" class="toc-link">جریان کنترل</a>
+        <a href="#functions" class="toc-link">توابع</a>
+        <a href="#structs" class="toc-link">Structها</a>
+        <a href="#error-handling" class="toc-link">مدیریت خطا</a>
+        <a href="#modules-and-imports" class="toc-link">ماژول‌ها و ایمپورت‌ها</a>
+        <a href="#comments" class="toc-link">نظرات</a>
+        <a href="#operators" class="toc-link">عملگرها</a>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

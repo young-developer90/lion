@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="fa" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OpenCV Guide - Zamin Programming Language</title>
-  <meta name="description" content="Image processing and computer vision in Zamin using OpenCV. Read, transform, filter, detect objects, and display images with a clean API.">
-  <meta property="og:title" content="OpenCV Guide - Zamin">
-  <meta property="og:description" content="Image processing and computer vision in Zamin using the OpenCV bindings.">
+  <title>راهنمای OpenCV - زبان برنامه‌نویسی زمین</title>
+  <meta name="description" content="پردازش تصویر و بینایی کامپیوتر در زمین با استفاده از OpenCV. خواندن، تبدیل، فیلتر، تشخیص اشیا و نمایش تصاویر با API تمیز.">
+  <meta property="og:title" content="راهنمای OpenCV - زمین">
+  <meta property="og:description" content="پردازش تصویر و بینایی کامپیوتر در زمین با استفاده از اتصال‌های OpenCV.">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="assets/style.css">
 </head>
@@ -14,18 +14,18 @@
   <header class="header">
     <div class="header-brand">
       <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
-      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin Docs</a>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> مستندات زمین</a>
     </div>
     <div class="header-search">
       <span class="search-icon">&#128269;</span>
-      <input type="text" id="search-input" placeholder="Search docs... (Ctrl+K)" autocomplete="off">
+      <input type="text" id="search-input" placeholder="جستجوی مستندات... (Ctrl+K)" autocomplete="off">
       <div class="search-results" id="search-results"></div>
     </div>
     <div class="header-actions">
-      <button id="theme-toggle" title="Toggle theme">&#9790;</button>
-      <button id="print-btn" title="Print">&#128424;</button>
+      <button id="theme-toggle" title="تغییر تم">&#9790;</button>
+      <button id="print-btn" title="چاپ">&#128424;</button>
       <div class="lang-dropdown">
-        <button class="lang-btn" id="lang-btn" title="Select language">🌐 EN</button>
+        <button class="lang-btn" id="lang-btn" title="انتخاب زبان">🌐 EN</button>
         <div class="lang-menu" id="lang-menu">
           <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
           <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
@@ -40,27 +40,27 @@
   <div class="main-layout">
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Getting Started</div>
-        <a href="index.html" class="sidebar-link">Overview</a>
-        <a href="getting-started.html" class="sidebar-link">Installation</a>
-        <a href="playground.html" class="sidebar-link">Playground</a>
+        <div class="sidebar-section-title">شروع کار</div>
+        <a href="index.html" class="sidebar-link">نمای کلی</a>
+        <a href="getting-started.html" class="sidebar-link">نصب</a>
+        <a href="playground.html" class="sidebar-link">محیط آزمایش</a>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Language</div>
-        <a href="language-guide.html" class="sidebar-link">Language Guide</a>
-        <a href="standard-library.html" class="sidebar-link">Standard Library</a>
+        <div class="sidebar-section-title">زبان</div>
+        <a href="language-guide.html" class="sidebar-link">راهنمای زبان</a>
+        <a href="standard-library.html" class="sidebar-link">کتابخانه استاندارد</a>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Features</div>
-        <a href="gui-guide.html" class="sidebar-link">GUI Toolkit</a>
+        <div class="sidebar-section-title">قابلیت‌ها</div>
+        <a href="gui-guide.html" class="sidebar-link">ابزارهای GUI</a>
         <a href="opencv-guide.html" class="sidebar-link active">OpenCV</a>
-        <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+        <a href="advanced-guide.html" class="sidebar-link">پیشرفته</a>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Reference</div>
-        <a href="project-management.html" class="sidebar-link">Project CLI</a>
-        <a href="performance.html" class="sidebar-link">Performance</a>
-        <a href="faq.html" class="sidebar-link">FAQ</a>
+        <div class="sidebar-section-title">مرجع</div>
+        <a href="project-management.html" class="sidebar-link">CLI پروژه</a>
+        <a href="performance.html" class="sidebar-link">عملکرد</a>
+        <a href="faq.html" class="sidebar-link">سوالات متداول</a>
       </div>
     </nav>
 
@@ -68,35 +68,35 @@
       <div class="content-inner">
 
         <nav class="breadcrumb">
-          <a href="index.html">Home</a> &gt; <span>OpenCV Guide</span>
+          <a href="index.html">خانه</a> &gt; <span>راهنمای OpenCV</span>
         </nav>
 
         <div class="toc">
-          <div class="toc-title">On this page</div>
-          <a href="#overview">Overview</a>
-          <a href="#quick-start">Quick Start</a>
-          <a href="#image-io">Image I/O</a>
-          <a href="#color-conversion">Color Conversion</a>
-          <a href="#resize-and-transform">Resize and Transform</a>
-          <a href="#filters-and-effects">Filters and Effects</a>
-          <a href="#object-detection">Object Detection</a>
-          <a href="#drawing-and-annotation">Drawing and Annotation</a>
-          <a href="#template-matching">Template Matching</a>
-          <a href="#display">Display (GUI)</a>
+          <div class="toc-title">در این صفحه</div>
+          <a href="#overview">نمای کلی</a>
+          <a href="#quick-start">شروع سریع</a>
+          <a href="#image-io">ورودی/خروجی تصویر</a>
+          <a href="#color-conversion">تبدیل رنگ</a>
+          <a href="#resize-and-transform">تغییر اندازه و تبدیل</a>
+          <a href="#filters-and-effects">فیلترها و افکت‌ها</a>
+          <a href="#object-detection">تشخیص اشیا</a>
+          <a href="#drawing-and-annotation">رسم و حاشیه‌نویسی</a>
+          <a href="#template-matching">تطبیق الگو</a>
+          <a href="#display">نمایش (GUI)</a>
           <a href="#ascii-art">ASCII Art</a>
-          <a href="#complete-example">Complete Example</a>
-          <a href="#constants-reference">Constants Reference</a>
+          <a href="#complete-example">مثال کامل</a>
+          <a href="#constants-reference">مرجع ثابت‌ها</a>
         </div>
 
-        <h1>OpenCV Guide</h1>
-        <p class="subtitle">Image processing and computer vision powered by OpenCV 4/5.</p>
+        <h1>راهنمای OpenCV</h1>
+        <p class="subtitle">پردازش تصویر و بینایی کامپیوتر با OpenCV 4/5.</p>
 
         <!-- Overview -->
-        <h2 id="overview">Overview</h2>
-        <p>The <code>opencv</code> module wraps OpenCV 4/5 to give Zamin programs access to image I/O, color conversion, filtering, transforms, object detection, drawing, and more. It is available behind a feature flag and requires system-level OpenCV development libraries.</p>
-        <p>Build with the <code>opencv</code> feature enabled:</p>
+        <h2 id="overview">نمای کلی</h2>
+        <p>ماژول <code>opencv</code> از OpenCV 4/5 استفاده می‌کند تا به برنامه‌های زمین دسترسی به ورودی/خروجی تصویر، تبدیل رنگ، فیلتر کردن، تبدیل‌ها، تشخیص اشیا، رسم و موارد دیگر بدهد. این ماژول در پشت یک پرچم ویژگی در دسترس است و نیاز به کتابخانه‌های توسعه OpenCV در سطح سیستم دارد.</p>
+        <p>با ویژگی <code>opencv</code> فعال بسازید:</p>
         <pre><code>cargo build --release --features opencv</code></pre>
-        <p>Install OpenCV development libraries on your system:</p>
+        <p>کتابخانه‌های توسعه OpenCV را روی سیستم خود نصب کنید:</p>
         <pre><code><span class="cm"># Debian / Ubuntu</span>
 sudo apt install libopencv-dev
 
@@ -107,41 +107,41 @@ sudo dnf install opencv-devel
 brew install opencv</code></pre>
 
         <!-- Quick Start -->
-        <h2 id="quick-start">Quick Start</h2>
-        <p>Read an image, convert it to grayscale, apply edge detection, and save the result:</p>
+        <h2 id="quick-start">شروع سریع</h2>
+        <p>یک تصویر را بخوانید، به مقیاس خاکستری تبدیل کنید، تشخیص لبه اعمال کنید و نتیجه را ذخیره کنید:</p>
         <pre><code><span class="kw">let</span> img = opencv.<span class="fn">imread</span>(<span class="str">"photo.jpg"</span>)
 <span class="kw">let</span> gray = opencv.<span class="fn">grayscale</span>(img)
 <span class="kw">let</span> edges = opencv.<span class="fn">canny</span>(gray, <span class="num">50.0</span>, <span class="num">150.0</span>)
 opencv.<span class="fn">imwrite</span>(<span class="str">"edges.png"</span>, edges)</code></pre>
-        <p>Run it:</p>
+        <p>اجرا کنید:</p>
         <pre><code>$ zamin run detect.zamin</code></pre>
 
         <!-- Image I/O -->
-        <h2 id="image-io">Image I/O</h2>
+        <h2 id="image-io">ورودی/خروجی تصویر</h2>
         <table>
           <thead>
-            <tr><th>Function</th><th>Description</th></tr>
+            <tr><th>تابع</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>imread(path)</code></td>
-              <td>Read an image from disk. Returns a BGR image matrix.</td>
+              <td>خواندن یک تصویر از دیسک. یک ماتریس تصویر BGR برمی‌گرداند.</td>
             </tr>
             <tr>
               <td><code>imwrite(path, image)</code></td>
-              <td>Write an image to disk. Format inferred from extension.</td>
+              <td>نوشتن یک تصویر روی دیسک. فرمت از پسوند تشخیص داده می‌شود.</td>
             </tr>
             <tr>
               <td><code>imread_gray(path)</code></td>
-              <td>Read an image directly as grayscale.</td>
+              <td>خواندن یک تصویر مستقیماً به صورت مقیاس خاکستری.</td>
             </tr>
             <tr>
               <td><code>shape(image)</code></td>
-              <td>Returns <code>[rows, cols, channels]</code> for the image.</td>
+              <td><code>[rows, cols, channels]</code> را برای تصویر برمی‌گرداند.</td>
             </tr>
             <tr>
               <td><code>copy(image)</code></td>
-              <td>Return a deep copy of the image matrix.</td>
+              <td>یک کپی عمیق از ماتریس تصویر برمی‌گرداند.</td>
             </tr>
           </tbody>
         </table>
@@ -152,19 +152,19 @@ print(opencv.<span class="fn">shape</span>(img))  <span class="cm">// [480, 640,
 opencv.<span class="fn">imwrite</span>(<span class="str">"copy.jpg"</span>, clone)</code></pre>
 
         <!-- Color Conversion -->
-        <h2 id="color-conversion">Color Conversion</h2>
+        <h2 id="color-conversion">تبدیل رنگ</h2>
         <table>
           <thead>
-            <tr><th>Function</th><th>Description</th></tr>
+            <tr><th>تابع</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>cvt_color(image, code)</code></td>
-              <td>Convert color space using a code constant (e.g. <code>opencv.BGR2GRAY</code>).</td>
+              <td>تبدیل فضای رنگ با استفاده از یک ثابت کد (مثلاً <code>opencv.BGR2GRAY</code>).</td>
             </tr>
             <tr>
               <td><code>grayscale(image)</code></td>
-              <td>Auto-detect channel count and convert to single-channel grayscale.</td>
+              <td>تشخیص خودکار تعداد کانال‌ها و تبدیل به مقیاس خاکستری تک‌کاناله.</td>
             </tr>
           </tbody>
         </table>
@@ -173,39 +173,39 @@ opencv.<span class="fn">imwrite</span>(<span class="str">"copy.jpg"</span>, clon
 <span class="kw">let</span> rgb = opencv.<span class="fn">cvt_color</span>(img, opencv.COLOR_BGR2RGB)</code></pre>
 
         <!-- Resize and Transform -->
-        <h2 id="resize-and-transform">Resize and Transform</h2>
+        <h2 id="resize-and-transform">تغییر اندازه و تبدیل</h2>
         <table>
           <thead>
-            <tr><th>Function</th><th>Description</th></tr>
+            <tr><th>تابع</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>resize(image, width, height)</code></td>
-              <td>Resize using linear interpolation.</td>
+              <td>تغییر اندازه با استفاده از درون‌یابی خطی.</td>
             </tr>
             <tr>
               <td><code>resize_fast(image, width, height)</code></td>
-              <td>Resize using nearest-neighbor interpolation (faster, lower quality).</td>
+              <td>تغییر اندازه با استفاده از درون‌یابی نزدیک‌ترین همسایه (سریع‌تر، کیفیت کمتر).</td>
             </tr>
             <tr>
               <td><code>thumbnail(image, max_size)</code></td>
-              <td>Resize preserving aspect ratio so the longest side equals <code>max_size</code>.</td>
+              <td>تغییر اندازه با حفظ نسبت ابعاد به طوری که طولانی‌ترین ضلع برابر <code>max_size</code> شود.</td>
             </tr>
             <tr>
               <td><code>flip(image, code)</code></td>
-              <td>Flip the image. Use <code>FLIP_HORIZONTAL</code>, <code>FLIP_VERTICAL</code>, or <code>FLIP_BOTH</code>.</td>
+              <td>برگرداندن تصویر. از <code>FLIP_HORIZONTAL</code>، <code>FLIP_VERTICAL</code>، یا <code>FLIP_BOTH</code> استفاده کنید.</td>
             </tr>
             <tr>
               <td><code>rotate(image, code)</code></td>
-              <td>Rotate 90&deg; increments. Use <code>ROTATE_90_CLOCKWISE</code>, <code>ROTATE_180</code>, or <code>ROTATE_90_COUNTERCLOCKWISE</code>.</td>
+              <td>چرخش ۹۰ درجه. از <code>ROTATE_90_CLOCKWISE</code>، <code>ROTATE_180</code>، یا <code>ROTATE_90_COUNTERCLOCKWISE</code> استفاده کنید.</td>
             </tr>
             <tr>
               <td><code>crop(image, x, y, w, h)</code></td>
-              <td>Crop a rectangular region starting at pixel (x, y).</td>
+              <td>برش یک ناحیه مستطیلی از پیکسل (x, y).</td>
             </tr>
             <tr>
               <td><code>letterbox(image, target_w, target_h, bg_r?, bg_g?, bg_b?)</code></td>
-              <td>Resize and pad to fill the target dimensions, adding a background color (default black).</td>
+              <td>تغییر اندازه و padding برای پر کردن ابعاد هدف، با افزودن رنگ پس‌زمینه (پیش‌فرض سیاه).</td>
             </tr>
           </tbody>
         </table>
@@ -218,59 +218,59 @@ opencv.<span class="fn">imwrite</span>(<span class="str">"copy.jpg"</span>, clon
 <span class="kw">let</span> padded = opencv.<span class="fn">letterbox</span>(img, <span class="num">640</span>, <span class="num">640</span>, <span class="num">114</span>, <span class="num">114</span>, <span class="num">114</span>)</code></pre>
 
         <!-- Filters and Effects -->
-        <h2 id="filters-and-effects">Filters and Effects</h2>
+        <h2 id="filters-and-effects">فیلترها و افکت‌ها</h2>
         <table>
           <thead>
-            <tr><th>Function</th><th>Description</th></tr>
+            <tr><th>تابع</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>gaussian_blur(image, kx, ky, sigma)</code></td>
-              <td>Apply Gaussian blur with kernel size (kx, ky) and sigma.</td>
+              <td>اعمال محوکنندگی گاوسی با اندازه هسته (kx, ky) و سیگما.</td>
             </tr>
             <tr>
               <td><code>blur(image, ksize)</code></td>
-              <td>Apply a simple box blur with the given kernel size.</td>
+              <td>اعمال یک محوکنندگی جعبه‌ای ساده با اندازه هسته داده شده.</td>
             </tr>
             <tr>
               <td><code>canny(image, low, high)</code></td>
-              <td>Canny edge detection with low and high thresholds.</td>
+              <td>تشخیص لبه Canny با آستانه پایین و بالا.</td>
             </tr>
             <tr>
               <td><code>edges(image)</code></td>
-              <td>Canny edge detection with automatically computed thresholds.</td>
+              <td>تشخیص لبه Canny با آستانه‌های محاسبه‌شده خودکار.</td>
             </tr>
             <tr>
               <td><code>threshold(image, thresh, maxval, type)</code></td>
-              <td>Apply binary thresholding. Use constants like <code>THRESH_BINARY</code>.</td>
+              <td>اعمال آستانه‌گذاری دودویی. از ثابت‌هایی مانند <code>THRESH_BINARY</code> استفاده کنید.</td>
             </tr>
             <tr>
               <td><code>brightness(image, delta)</code></td>
-              <td>Adjust brightness by adding <code>delta</code> to every pixel.</td>
+              <td>تنظیم روشنایی با افزودن <code>delta</code> به هر پیکسل.</td>
             </tr>
             <tr>
               <td><code>contrast(image, alpha)</code></td>
-              <td>Adjust contrast. <code>alpha &gt; 1.0</code> increases, <code>alpha &lt; 1.0</code> decreases.</td>
+              <td>تنظیم کنتراست. <code>alpha &gt; 1.0</code> افزایش، <code>alpha &lt; 1.0</code> کاهش.</td>
             </tr>
             <tr>
               <td><code>invert(image)</code></td>
-              <td>Invert all pixel values (negative image).</td>
+              <td>معکوس کردن همه مقادیر پیکسل (تصویر منفی).</td>
             </tr>
             <tr>
               <td><code>sepia(image)</code></td>
-              <td>Apply a sepia tone effect.</td>
+              <td>اعمال افکت رنگ سپیا.</td>
             </tr>
             <tr>
               <td><code>pixelate(image, block)</code></td>
-              <td>Pixelate the image using blocks of the given size.</td>
+              <td>پیکسل‌سازی تصویر با استفاده از بلوک‌های اندازه داده شده.</td>
             </tr>
             <tr>
               <td><code>equalize_hist(image)</code></td>
-              <td>Equalize the histogram to improve contrast on grayscale images.</td>
+              <td>هم‌سازی هیستوگرام برای بهبود کنتراست در تصاویر مقیاس خاکستری.</td>
             </tr>
             <tr>
               <td><code>normalize(image, alpha?, beta?, norm_type?)</code></td>
-              <td>Normalize pixel values. Defaults to 0-1 range with L2 norm.</td>
+              <td>نرمال‌سازی مقادیر پیکسل. پیش‌فرض محدوده 0-1 با نرم L2.</td>
             </tr>
           </tbody>
         </table>
@@ -284,23 +284,23 @@ opencv.<span class="fn">imwrite</span>(<span class="str">"copy.jpg"</span>, clon
 <span class="kw">let</span> pix = opencv.<span class="fn">pixelate</span>(img, <span class="num">8</span>)</code></pre>
 
         <!-- Object Detection -->
-        <h2 id="object-detection">Object Detection</h2>
+        <h2 id="object-detection">تشخیص اشیا</h2>
         <table>
           <thead>
-            <tr><th>Function</th><th>Description</th></tr>
+            <tr><th>تابع</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>detect_cascade(image, cascade_path, ...)</code></td>
-              <td>Detect objects using a Haar cascade classifier XML file. Returns a list of bounding rectangles <code>[x, y, w, h]</code>.</td>
+              <td>تشخیص اشیا با استفاده از یک فایل XML طبقه‌بند Haar cascade. یک لیست از مستطیل‌های مرزی <code>[x, y, w, h]</code> برمی‌گرداند.</td>
             </tr>
             <tr>
               <td><code>detect_people(image, ...)</code></td>
-              <td>Detect people using the HOG pedestrian detector. Returns bounding rectangles.</td>
+              <td>تشخیص افراد با استفاده از آشکارساز عابر HOG. مستطیل‌های مرزی برمی‌گرداند.</td>
             </tr>
             <tr>
               <td><code>detect_dnn(image, model_path, ...)</code></td>
-              <td>Detect objects using a DNN model (e.g. YOLO, MobileNet). Returns bounding rectangles with confidence scores.</td>
+              <td>تشخیص اشیا با استفاده از یک مدل DNN (مثلاً YOLO، MobileNet). مستطیل‌های مرزی با نمرات اطمینان برمی‌گرداند.</td>
             </tr>
           </tbody>
         </table>
@@ -322,19 +322,19 @@ opencv.<span class="fn">imwrite</span>(<span class="str">"copy.jpg"</span>, clon
 opencv.<span class="fn">imwrite</span>(<span class="str">"detected.jpg"</span>, img)</code></pre>
 
         <!-- Drawing and Annotation -->
-        <h2 id="drawing-and-annotation">Drawing and Annotation</h2>
+        <h2 id="drawing-and-annotation">رسم و حاشیه‌نویسی</h2>
         <table>
           <thead>
-            <tr><th>Function</th><th>Description</th></tr>
+            <tr><th>تابع</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>draw_rect(image, x, y, w, h, r?, g?, b?, thickness?)</code></td>
-              <td>Draw a rectangle. Defaults: color green, thickness 1.</td>
+              <td>رسم یک مستطیل. پیش‌فرض: رنگ سبز، ضخامت ۱.</td>
             </tr>
             <tr>
               <td><code>draw_text(image, text, x, y, scale?, r?, g?, b?, thickness?)</code></td>
-              <td>Draw text at position (x, y). Defaults: scale 1.0, color white, thickness 1.</td>
+              <td>رسم متن در موقعیت (x, y). پیش‌فرض: scale 1.0، رنگ سفید، ضخامت ۱.</td>
             </tr>
           </tbody>
         </table>
@@ -344,15 +344,15 @@ opencv.<span class="fn">draw_text</span>(img, <span class="str">"Detected!"</spa
 opencv.<span class="fn">imwrite</span>(<span class="str">"annotated.jpg"</span>, img)</code></pre>
 
         <!-- Template Matching -->
-        <h2 id="template-matching">Template Matching</h2>
+        <h2 id="template-matching">تطبیق الگو</h2>
         <table>
           <thead>
-            <tr><th>Function</th><th>Description</th></tr>
+            <tr><th>تابع</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>match_template(image, template, method?)</code></td>
-              <td>Search for a template within an image. Returns the best match location and confidence. Method defaults to <code>TM_CCOEFF_NORMED</code>.</td>
+              <td>جستجوی یک الگو درون یک تصویر. مکان بهترین تطبیق و اطمینان را برمی‌گرداند. روش پیش‌فرض <code>TM_CCOEFF_NORMED</code> است.</td>
             </tr>
           </tbody>
         </table>
@@ -362,24 +362,24 @@ opencv.<span class="fn">imwrite</span>(<span class="str">"annotated.jpg"</span>,
 print(<span class="str">"Best match at: </span>{result.location}<span class="str">, score: </span>{result.score}<span class="str">"</span>)</code></pre>
 
         <!-- Display (GUI) -->
-        <h2 id="display">Display (GUI)</h2>
-        <p>For quick visualization, the opencv module provides display functions that use OpenCV's <code>highgui</code> module.</p>
+        <h2 id="display">نمایش (GUI)</h2>
+        <p>برای نمایش سریع، ماژول opencv توابع نمایشی را ارائه می‌دهد که از ماژول <code>highgui</code> OpenCV استفاده می‌کنند.</p>
         <table>
           <thead>
-            <tr><th>Function</th><th>Description</th></tr>
+            <tr><th>تابع</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>imshow(name, image)</code></td>
-              <td>Display an image in a named window.</td>
+              <td>نمایش یک تصویر در یک پنجره نام‌گذاری شده.</td>
             </tr>
             <tr>
               <td><code>wait_key(delay)</code></td>
-              <td>Wait for a key press for <code>delay</code> milliseconds. Pass <code>0</code> to wait indefinitely.</td>
+              <td>منتظر فشار کلید به مدت <code>delay</code> میلی‌ثانیه. برای انتظار نامحدود <code>0</code> را وارد کنید.</td>
             </tr>
             <tr>
               <td><code>destroy_all_windows()</code></td>
-              <td>Close all open display windows.</td>
+              <td>بستن همه پنجره‌های نمایش باز.</td>
             </tr>
           </tbody>
         </table>
@@ -390,19 +390,19 @@ opencv.<span class="fn">destroy_all_windows</span>()</code></pre>
 
         <!-- ASCII Art -->
         <h2 id="ascii-art">ASCII Art</h2>
-        <p>Convert images to ASCII art for terminal output or creative effects.</p>
+        <p>تبدیل تصاویر به ASCII art برای خروجی ترمینال یا افکت‌های خلاقانه.</p>
         <table>
           <thead>
-            <tr><th>Function</th><th>Description</th></tr>
+            <tr><th>تابع</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>to_ascii(image, width?)</code></td>
-              <td>Convert an image to ASCII art. Optional <code>width</code> controls output width (default 80).</td>
+              <td>تبدیل یک تصویر به ASCII art. <code>width</code> اختیاری عرض خروجی را کنترل می‌کند (پیش‌فرض ۸۰).</td>
             </tr>
             <tr>
               <td><code>read_ascii(path, width?)</code></td>
-              <td>Read an image from disk and convert to ASCII in one step.</td>
+              <td>خواندن یک تصویر از دیسک و تبدیل به ASCII در یک مرحله.</td>
             </tr>
           </tbody>
         </table>
@@ -415,8 +415,8 @@ print(art)
 print(art2)</code></pre>
 
         <!-- Complete Example -->
-        <h2 id="complete-example">Complete Example</h2>
-        <p>A full working example that creates a synthetic image, applies multiple operations, saves results, and prints ASCII art:</p>
+        <h2 id="complete-example">مثال کامل</h2>
+        <p>یک مثال کامل که یک تصویر مصنوعی ایجاد می‌کند، چندین عملیات اعمال می‌کند، نتایج را ذخیره می‌کند و ASCII art چاپ می‌کند:</p>
         <pre><code><span class="kw">let</span> opencv = <span class="fn">require</span>(<span class="str">"opencv"</span>)
 
 <span class="cm">// Create a synthetic 400x300 image with color gradient</span>
@@ -485,86 +485,86 @@ print(<span class="str">"\nImage shape: </span>{opencv.<span class="fn">shape</s
 print(<span class="str">"Done!"</span>)</code></pre>
 
         <!-- Constants Reference -->
-        <h2 id="constants-reference">Constants Reference</h2>
+        <h2 id="constants-reference">مرجع ثابت‌ها</h2>
 
-        <h3>Color Conversion Codes</h3>
+        <h3>کدهای تبدیل رنگ</h3>
         <table>
           <thead>
-            <tr><th>Constant</th><th>Description</th></tr>
+            <tr><th>ثابت</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>opencv.BGR2GRAY</code></td><td>Convert BGR to grayscale</td></tr>
-            <tr><td><code>opencv.COLOR_BGR2RGB</code></td><td>Convert BGR to RGB</td></tr>
-            <tr><td><code>opencv.COLOR_RGB2BGR</code></td><td>Convert RGB to BGR</td></tr>
-            <tr><td><code>opencv.COLOR_BGR2HSV</code></td><td>Convert BGR to HSV</td></tr>
-            <tr><td><code>opencv.COLOR_BGR2LAB</code></td><td>Convert BGR to CIE Lab</td></tr>
-            <tr><td><code>opencv.COLOR_GRAY2BGR</code></td><td>Convert grayscale to 3-channel BGR</td></tr>
+            <tr><td><code>opencv.BGR2GRAY</code></td><td>تبدیل BGR به مقیاس خاکستری</td></tr>
+            <tr><td><code>opencv.COLOR_BGR2RGB</code></td><td>تبدیل BGR به RGB</td></tr>
+            <tr><td><code>opencv.COLOR_RGB2BGR</code></td><td>تبدیل RGB به BGR</td></tr>
+            <tr><td><code>opencv.COLOR_BGR2HSV</code></td><td>تبدیل BGR به HSV</td></tr>
+            <tr><td><code>opencv.COLOR_BGR2LAB</code></td><td>تبدیل BGR به CIE Lab</td></tr>
+            <tr><td><code>opencv.COLOR_GRAY2BGR</code></td><td>تبدیل مقیاس خاکستری به BGR سه‌کاناله</td></tr>
           </tbody>
         </table>
 
-        <h3>Threshold Types</h3>
+        <h3>انواع آستانه</h3>
         <table>
           <thead>
-            <tr><th>Constant</th><th>Description</th></tr>
+            <tr><th>ثابت</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>opencv.THRESH_BINARY</code></td><td>Pixels &gt; threshold set to maxval, else 0</td></tr>
-            <tr><td><code>opencv.THRESH_BINARY_INV</code></td><td>Inverse of THRESH_BINARY</td></tr>
-            <tr><td><code>opencv.THRESH_TRUNC</code></td><td>Pixels &gt; threshold set to threshold, else unchanged</td></tr>
-            <tr><td><code>opencv.THRESH_TOZERO</code></td><td>Pixels &gt; threshold unchanged, else set to 0</td></tr>
-            <tr><td><code>opencv.THRESH_TOZERO_INV</code></td><td>Pixels &gt; threshold set to 0, else unchanged</td></tr>
+            <tr><td><code>opencv.THRESH_BINARY</code></td><td>پیکسل‌های &gt; آستانه به maxval تنظیم می‌شوند، در غیر این صورت ۰</td></tr>
+            <tr><td><code>opencv.THRESH_BINARY_INV</code></td><td>معکوس THRESH_BINARY</td></tr>
+            <tr><td><code>opencv.THRESH_TRUNC</code></td><td>پیکسل‌های &gt; آستانه به آستانه تنظیم می‌شوند، در غیر این صورت بدون تغییر</td></tr>
+            <tr><td><code>opencv.THRESH_TOZERO</code></td><td>پیکسل‌های &gt; آستانه بدون تغییر، در غیر این صورت به ۰ تنظیم می‌شوند</td></tr>
+            <tr><td><code>opencv.THRESH_TOZERO_INV</code></td><td>پیکسل‌های &gt; آستانه به ۰ تنظیم می‌شوند، در غیر این صورت بدون تغییر</td></tr>
           </tbody>
         </table>
 
-        <h3>Flip Codes</h3>
+        <h3>کدهای برگرداندن</h3>
         <table>
           <thead>
-            <tr><th>Constant</th><th>Description</th></tr>
+            <tr><th>ثابت</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>opencv.FLIP_HORIZONTAL</code></td><td>Flip left-to-right (code 1)</td></tr>
-            <tr><td><code>opencv.FLIP_VERTICAL</code></td><td>Flip top-to-bottom (code 0)</td></tr>
-            <tr><td><code>opencv.FLIP_BOTH</code></td><td>Flip both axes (code -1)</td></tr>
+            <tr><td><code>opencv.FLIP_HORIZONTAL</code></td><td>برگرداندن چپ-به-راست (کد ۱)</td></tr>
+            <tr><td><code>opencv.FLIP_VERTICAL</code></td><td>برگرداندن بالا-به-پایین (کد ۰)</td></tr>
+            <tr><td><code>opencv.FLIP_BOTH</code></td><td>برگرداندن هر دو محور (کد ۱-)</td></tr>
           </tbody>
         </table>
 
-        <h3>Rotation Codes</h3>
+        <h3>کدهای چرخش</h3>
         <table>
           <thead>
-            <tr><th>Constant</th><th>Description</th></tr>
+            <tr><th>ثابت</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>opencv.ROTATE_90_CLOCKWISE</code></td><td>Rotate 90&deg; clockwise</td></tr>
-            <tr><td><code>opencv.ROTATE_180</code></td><td>Rotate 180&deg;</td></tr>
-            <tr><td><code>opencv.ROTATE_90_COUNTERCLOCKWISE</code></td><td>Rotate 90&deg; counter-clockwise</td></tr>
+            <tr><td><code>opencv.ROTATE_90_CLOCKWISE</code></td><td>چرخش ۹۰ درجه در جهت عقربه‌های ساعت</td></tr>
+            <tr><td><code>opencv.ROTATE_180</code></td><td>چرخش ۱۸۰ درجه</td></tr>
+            <tr><td><code>opencv.ROTATE_90_COUNTERCLOCKWISE</code></td><td>چرخش ۹۰ درجه در خلاف جهت عقربه‌های ساعت</td></tr>
           </tbody>
         </table>
 
-        <h3>Template Matching Methods</h3>
+        <h3>روش‌های تطبیق الگو</h3>
         <table>
           <thead>
-            <tr><th>Constant</th><th>Description</th></tr>
+            <tr><th>ثابت</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>opencv.TM_SQDIFF</code></td><td>Squared difference</td></tr>
-            <tr><td><code>opencv.TM_SQDIFF_NORMED</code></td><td>Normalized squared difference</td></tr>
-            <tr><td><code>opencv.TM_CCORR</code></td><td>Cross-correlation</td></tr>
-            <tr><td><code>opencv.TM_CCORR_NORMED</code></td><td>Normalized cross-correlation</td></tr>
-            <tr><td><code>opencv.TM_CCOEFF</code></td><td>Cross-correlation coefficient</td></tr>
-            <tr><td><code>opencv.TM_CCOEFF_NORMED</code></td><td>Normalized cross-correlation coefficient (default)</td></tr>
+            <tr><td><code>opencv.TM_SQDIFF</code></td><td>اختلاف مربع</td></tr>
+            <tr><td><code>opencv.TM_SQDIFF_NORMED</code></td><td>اختلاف مربع نرمال‌شده</td></tr>
+            <tr><td><code>opencv.TM_CCORR</code></td><td>همبستگی متقابل</td></tr>
+            <tr><td><code>opencv.TM_CCORR_NORMED</code></td><td>همبستگی متقابل نرمال‌شده</td></tr>
+            <tr><td><code>opencv.TM_CCOEFF</code></td><td>ضریب همبستگی متقابل</td></tr>
+            <tr><td><code>opencv.TM_CCOEFF_NORMED</code></td><td>ضریب همبستگی متقابل نرمال‌شده (پیش‌فرض)</td></tr>
           </tbody>
         </table>
 
         <!-- Page Meta -->
         <div class="page-meta">
-          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/opencv-guide.html" target="_blank">Edit this page on GitHub</a>
-          <span>Last updated: July 2026</span>
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/opencv-guide.html" target="_blank">ویرایش این صفحه در گیت‌هاب</a>
+          <span>آخرین به‌روزرسانی: جولای ۲۰۲۶</span>
         </div>
         <!-- Feedback -->
         <div class="feedback">
-          <span>Was this page helpful?</span>
-          <button>&#128077; Yes</button>
-          <button>&#128078; No</button>
+          <span>آیا این صفحه مفید بود؟</span>
+          <button>&#128077; بله</button>
+          <button>&#128078; خیر</button>
           <span id="feedback-msg"></span>
         </div>
       </div>

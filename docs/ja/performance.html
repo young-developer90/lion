@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>パフォーマンス - Zamin プログラミング言語</title>
+  <meta name="description" content="パフォーマンスベンチマーク、VM アーキテクチャの詳細、最適化手法、高速な Zamin コードを書くためのヒント。">
+  <meta property="og:title" content="パフォーマンス - Zamin">
+  <meta property="og:description" content="Zamin 言語 VM のベンチマーク、最適化手法、パフォーマンスに関するヒント。">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin ドキュメント</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="ドキュメントを検索... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="テーマ切替">&#9790;</button>
+      <button id="print-btn" title="印刷">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="言語を選択">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">はじめに</div>
+        <a href="index.html" class="sidebar-link">概要</a>
+        <a href="getting-started.html" class="sidebar-link">インストール</a>
+        <a href="playground.html" class="sidebar-link">プレイグラウンド</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">言語</div>
+        <a href="language-guide.html" class="sidebar-link">言語ガイド</a>
+        <a href="standard-library.html" class="sidebar-link">標準ライブラリ</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">機能</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI ツールキット</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">高度な機能</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">リファレンス</div>
+        <a href="project-management.html" class="sidebar-link">プロジェクト管理</a>
+        <a href="performance.html" class="sidebar-link active">パフォーマンス</a>
+        <a href="faq.html" class="sidebar-link">よくある質問</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">ホーム</a><span class="sep">/</span><span>パフォーマンス</span>
+        </div>
+
+        <h1>パフォーマンス</h1>
+        <p>Zamin は速度を重視して設計されています。このページでは、VM アーキテクチャ、ベンチマーク比較、最適化手法、効率的な Zamin コードを書くための実践的なヒントを紹介します。</p>
+
+        <h2 id="overview">概要</h2>
+        <p>Zamin のランタイムは、次の 3 つの主要コンポーネントで構成されています。</p>
+        <ul>
+          <li><strong>バイトコードコンパイル</strong> - ソースコードは実行前にコンパクトなバイトコードにコンパイルされます。コンパイラはコンパイル時に定数畳み込み、デッドコード除去、ピープホール最適化を実行します。</li>
+          <li><strong>レジスタベース VM</strong> - 仮想マシンはレジスタベースの命令セットを使用してバイトコードを実行し、スタックベースの設計と比較してメモリトラフィックを削減します。</li>
+          <li><strong>マーク＆スイープガベージコレクタ</strong> - 世代別、非移動型の GC で、インクリメンタルなコレクションフェーズによりポーズ時間を最小限に抑えながら、メモリオーバーヘッドを低く抑えます。</li>
+        </ul>
+
+        <h2 id="benchmarks">Python 3 とのベンチマーク比較</h2>
+        <p>同じマシン上で Zamin と Python 3 を比較した実用的なベンチマーク。計測には <code>time</code> を使用（ウォールクロック計測）。値が小さいほど良い。</p>
+        <table>
+          <thead>
+            <tr><th>ベンチマーク</th><th>Zamin</th><th>Python 3</th><th>比率</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>再帰 fib(32)</td><td>1.51s</td><td>0.35s</td><td>4.3x</td></tr>
+            <tr><td>整数ループ (500万回)</td><td><strong>0.47s</strong></td><td>0.53s</td><td><strong>0.9x</strong></td></tr>
+            <tr><td>文字列連結 (10万回)</td><td>3.14s</td><td>0.23s</td><td>13.4x</td></tr>
+            <tr><td>リスト追加 (50万回)</td><td>0.13s</td><td>0.09s</td><td>1.5x</td></tr>
+          </tbody>
+        </table>
+        <p>Zamin はタイトな整数ループで優れた性能を発揮し、多くの場合 CPython に匹敵またはそれを上回りますが、バイトコードインタプリタのオーバーヘッドにより文字列操作やリスト操作では低速です。</p>
+
+        <h2 id="vm-core-benchmarks">最適化の影響</h2>
+        <p>ピープホールオプティマイザと特殊化された整数オペコードは、コア VM プリミティブに大幅な高速化をもたらします。</p>
+        <table>
+          <thead>
+            <tr><th>最適化</th><th>影響</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Raw byte dispatch</td><td>関数ポインタテーブルと比較して命令ディスパッチが 15～25% 高速化</td></tr>
+            <tr><td>特殊化された整数オペコード</td><td>ホットな整数ループでのボックス化と型チェックを回避</td></tr>
+            <tr><td>定数畳み込み</td><td>定数式のランタイム評価を排除</td></tr>
+            <tr><td>Jump threading</td><td>無条件ジャンプの連鎖を短縮</td></tr>
+            <tr><td>デッドコード除去</td><td>return/throw 後の到達不可能な分岐を削除</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="optimization-techniques">最適化手法</h2>
+
+        <h3>Raw Byte Dispatch</h3>
+        <p>VM メインループは、関数ポインタディスパッチテーブルの代わりに raw byte dispatch（GCC/Clang では computed gotos、それ以外では switch ベースのフォールバック）を使用します。これにより命令ごとに間接呼び出しが排除され、すべてのワークロードで一貫して 15～25% の改善が得られます。</p>
+
+        <h3>特殊化された整数オペコード</h3>
+        <p>頻繁に使用される整数演算には、汎用オペランドディスパッチを回避する専用のオペコードがあります。例えば <code>OP_ADD_INT_IMM</code> はボックス化や型チェックを行わずに整数レジスタに小さな定数を加算し、<code>OP_LOAD_INT_CONST</code> はコンパイル時定数をレジスタに直接ロードします。</p>
+
+        <h3>ピープホールオプティマイザ</h3>
+        <p>バイトコードコンパイラはピープホールオプティマイザを実行し、次の処理を行います。</p>
+        <ul>
+          <li><strong>定数畳み込み</strong> - 定数式のコンパイル時評価</li>
+          <li><strong>デッドコード除去</strong> - 到達不可能な分岐と未使用の代入の削除</li>
+          <li><strong>強度低減</strong> - 高コストな操作をより安価な同等処理に置き換え（例：<code>x * 2</code> を <code>x &lt;&lt; 1</code> に）</li>
+          <li><strong>Jump chaining</strong> - 無条件ジャンプの連鎖を単一のターゲットに短縮</li>
+          <li><strong>オペコードマージ</strong> - load と store のシーケンスを単一の fused 操作に結合</li>
+        </ul>
+
+        <h2 id="tips">パフォーマンスのヒント</h2>
+        <ul>
+          <li><strong>連結には f-string を使用</strong> - <code>"Hello {name}"</code> は <code>"Hello " + name</code> よりも高速です。中間的な文字列の割り当てを回避できるためです。</li>
+          <li><strong>リストを事前に割り当て</strong> - 最終的なサイズがわかっている場合は <code>list.new(capacity)</code> を使用して、繰り返しの再割り当てを回避します。</li>
+          <li><strong>ローカル変数を優先</strong> - VM ではローカル変数へのアクセスはグローバル変数へのアクセスより約 10 倍高速です。</li>
+          <li><strong>インデックスループよりもイテレータを使用</strong> - イテレータベースのループは各反復での境界チェックを回避します。</li>
+          <li><strong>ループ内での繰り返し割り当てを回避</strong> - 不変の計算はループ本体の外に移動します。文字列やリストは一度作成して再利用します。</li>
+          <li><strong>本番環境では <code>zamin build</code> を使用</strong> - スタンドアロンバイナリをビルドすると、インタプリタでは実行できない追加の AOT 最適化が有効になります。</li>
+          <li><strong>最適化の前にプロファイリング</strong> - <code>zamin run --disassemble</code> を使用してバイトコードを検査し、ホットスポットを特定します。</li>
+        </ul>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/performance.html">GitHub でこのページを編集</a>
+          <span>最終更新: 2026年7月</span>
+        </div>
+        <div class="feedback">
+          <span>役に立ちましたか？</span>
+          <button>&#128077; はい</button>
+          <button>&#128078; いいえ</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

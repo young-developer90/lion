@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ページが見つかりません - Zamin プログラミング言語</title>
+  <meta name="description" content="お探しのページは存在しません。">
+  <meta property="og:title" content="ページが見つかりません - Zamin">
+  <meta property="og:description" content="お探しのページは存在しません。">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin ドキュメント</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="ドキュメントを検索... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="テーマ切替">&#9790;</button>
+      <button id="print-btn" title="印刷">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="言語を選択">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">はじめに</div>
+        <a href="index.html" class="sidebar-link">概要</a>
+        <a href="getting-started.html" class="sidebar-link">インストール</a>
+        <a href="playground.html" class="sidebar-link">プレイグラウンド</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">言語</div>
+        <a href="language-guide.html" class="sidebar-link">言語ガイド</a>
+        <a href="standard-library.html" class="sidebar-link">標準ライブラリ</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">機能</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI ツールキット</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">高度な機能</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">リファレンス</div>
+        <a href="project-management.html" class="sidebar-link">プロジェクト CLI</a>
+        <a href="performance.html" class="sidebar-link">パフォーマンス</a>
+        <a href="faq.html" class="sidebar-link">よくある質問</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">ホーム</a><span class="sep">/</span><span>404</span>
+        </div>
+
+        <div style="text-align: center; padding: 4rem 1rem;">
+          <h1 style="font-size: 6rem; margin: 0; color: var(--color-primary, #e74c3c);">404</h1>
+          <h2 style="margin-top: 1rem;">ページが見つかりません</h2>
+          <p style="margin-top: 1rem; opacity: 0.7;">お探しのページは存在しないか、移動されました。</p>
+          <a href="index.html" style="display: inline-block; margin-top: 2rem; padding: 0.75rem 1.5rem; background: var(--color-primary, #e74c3c); color: white; text-decoration: none; border-radius: 6px; font-weight: 600;">ドキュメントトップに戻る</a>
+        </div>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/404.html">GitHub でこのページを編集</a>
+          <span>最終更新日: 2026年7月</span>
+        </div>
+        <div class="feedback">
+          <span>役に立ちましたか？</span>
+          <button>&#128077; はい</button>
+          <button>&#128078; いいえ</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

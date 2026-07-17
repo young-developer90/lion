@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zamin プログラミング言語</title>
+  <meta name="description" content="Zamin は、高速で読みやすいプログラミング言語で、強力な標準ライブラリ、組み込み GUI ツールキット、クロスプラットフォーム対応を備えています。">
+  <meta property="og:title" content="Zamin プログラミング言語">
+  <meta property="og:description" content="高速で読みやすいプログラミング言語で、強力な標準ライブラリ、組み込み GUI ツールキット、クロスプラットフォーム対応を備えています。">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin ドキュメント</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="ドキュメントを検索... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="テーマ切替">&#9790;</button>
+      <button id="print-btn" title="印刷">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="言語を選択">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">はじめに</div>
+        <a href="index.html" class="sidebar-link active">概要</a>
+        <a href="getting-started.html" class="sidebar-link">インストール</a>
+        <a href="playground.html" class="sidebar-link">プレイグラウンド</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">言語</div>
+        <a href="language-guide.html" class="sidebar-link">言語ガイド</a>
+        <a href="standard-library.html" class="sidebar-link">標準ライブラリ</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">機能</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI ツールキット</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">高度な機能</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">リファレンス</div>
+        <a href="project-management.html" class="sidebar-link">プロジェクト CLI</a>
+        <a href="performance.html" class="sidebar-link">パフォーマンス</a>
+        <a href="faq.html" class="sidebar-link">よくある質問</a>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="content">
+      <div class="content-inner">
+
+        <!-- Hero -->
+        <section class="hero">
+          <h1>Zamin</h1>
+          <p class="tagline">高速で読みやすいプログラミング言語</p>
+          <p>Zamin は Python ライクな構文と軽量なバイトコード VM を組み合わせています。整数主体のループでは Python に匹敵する速度を実現し、25 以上の組み込み標準ライブラリモジュール、ネイティブ GUI ツールキット、シームレスな C および Python 連携を備え、実用的なプロジェクトに対応します。</p>
+          <div class="hero-actions">
+            <a href="getting-started.html" class="btn btn-primary">はじめに</a>
+            <a href="language-guide.html" class="btn btn-secondary">言語ガイド</a>
+            <a href="playground.html" class="btn btn-secondary">プレイグラウンド</a>
+          </div>
+        </section>
+
+        <!-- Features -->
+        <section class="features">
+          <h2>Zamin の特徴</h2>
+          <div class="feature-grid">
+            <div class="feature-card">
+              <div class="feature-icon">&#9889;</div>
+              <h3>バイトコード VM</h3>
+              <p>レジスタベースのバイトコード VM は、raw ディスパッチ、特化された整数オペコード、ピープホール最適化を備えています。整数ループで CPython に匹敵し、25 以上の組み込みモジュールをすぐに利用できます。</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#128221;</div>
+              <h3>読みやすい構文</h3>
+              <p>最初から自然に感じられる Python ライクな構文。インデントベースのブロック、クリーンな式、わかりやすい型アノテーションにより、コードの読み取りと保守が容易です。</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#128230;</div>
+              <h3>オールインワン</h3>
+              <p>25 以上の標準ライブラリモジュールをすぐに利用可能。ファイル I/O、ネットワーキング、JSON、正規表現、数学、日時など、日常的なタスクに外部パッケージマネージャーは不要です。</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#127760;</div>
+              <h3>クロスプラットフォーム</h3>
+              <p>単一のコードベースで Linux、macOS、Windows に対応。Zamin コンパイラとランタイムは完全にポータブルで、プロジェクトをどこにでも持ち運べます。</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#128268;</div>
+              <h3>拡張性</h3>
+              <p>パフォーマンスが重要なコードには C 拡張を記述し、Python ライブラリを直接呼び出し、NVIDIA CUDA で GPU アクセラレーションを利用できます。Zamin は既存のエコシステムと連携します。</p>
+            </div>
+            <div class="feature-card">
+              <div class="feature-icon">&#128444;</div>
+              <h3>組み込み GUI</h3>
+              <p>Windows では Sol GUI ツールキット、Linux では Luna を使用してネイティブデスクトップアプリケーションを作成。ウィジェット、レイアウト、イベント処理、スタイリングが標準機能として利用できます。</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Quick Example -->
+        <section class="quick-example">
+          <h2>クイック例</h2>
+          <p>Zamin のコードを少しご紹介します：</p>
+          <pre><code><span class="kw">func</span> greet(name) {
+    print(<span class="str">"Hello, </span>{name}<span class="str">!"</span>);
+}
+
+<span class="kw">func</span> fibonacci(n) {
+    <span class="kw">if</span> n &lt;= <span class="num">1</span> {
+        <span class="kw">return</span> n;
+    }
+    <span class="kw">return</span> fibonacci(n - <span class="num">1</span>) + fibonacci(n - <span class="num">2</span>);
+}
+
+greet(<span class="str">"World"</span>);
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="num">0</span>..<span class="num">10</span> {
+    print(<span class="str">"fib(</span>{i}<span class="str">) = </span>{fibonacci(i)}<span class="str">"</span>);
+}</code></pre>
+        </section>
+
+        <!-- Performance -->
+        <section class="performance">
+          <h2>パフォーマンス</h2>
+          <p>Zamin のレジスタベースのバイトコード VM は、JIT にヒントを得た最適化により、一般的なワークロードで優れたパフォーマンスを発揮します：</p>
+          <div class="benchmark-results">
+            <div class="benchmark-item">
+              <div class="benchmark-label">整数ループ（500万回）vs Python 3</div>
+              <div class="benchmark-bar-container">
+                <div class="benchmark-bar" style="width: 100%;">0.9x &mdash; Python と同等</div>
+              </div>
+            </div>
+            <div class="benchmark-item">
+              <div class="benchmark-label">リスト追加（50万回）vs Python 3</div>
+              <div class="benchmark-bar-container">
+                <div class="benchmark-bar" style="width: 60%;">1.5倍遅い</div>
+              </div>
+            </div>
+            <div class="benchmark-item">
+              <div class="benchmark-label">再帰 fib(32) vs Python 3</div>
+              <div class="benchmark-bar-container">
+                <div class="benchmark-bar" style="width: 33%;">4.3倍遅い</div>
+              </div>
+            </div>
+            <div class="benchmark-item">
+              <div class="benchmark-label">文字列結合（10万回）vs Python 3</div>
+              <div class="benchmark-bar-container">
+                <div class="benchmark-bar" style="width: 10%;">13.4倍遅い</div>
+              </div>
+            </div>
+          </div>
+          <p><a href="performance.html">詳細なベンチマークを見る &rarr;</a></p>
+        </section>
+
+        <!-- Documentation Pages -->
+        <section class="doc-pages">
+          <h2>ドキュメント</h2>
+          <div class="doc-grid">
+            <a href="getting-started.html" class="doc-card">
+              <h3>はじめに</h3>
+              <p>Zamin をインストールして最初のプログラムを作成しましょう。</p>
+            </a>
+            <a href="language-guide.html" class="doc-card">
+              <h3>言語ガイド</h3>
+              <p>型、関数、制御フローなど。</p>
+            </a>
+            <a href="standard-library.html" class="doc-card">
+              <h3>標準ライブラリ</h3>
+              <p>25 以上の組み込みモジュールをすべて探索。</p>
+            </a>
+            <a href="gui-guide.html" class="doc-card">
+              <h3>GUI ツールキット</h3>
+              <p>Sol と Luna でネイティブデスクトップアプリを構築。</p>
+            </a>
+            <a href="opencv-guide.html" class="doc-card">
+              <h3>OpenCV 連携</h3>
+              <p>Zamin での画像処理とコンピュータビジョン。</p>
+            </a>
+            <a href="advanced-guide.html" class="doc-card">
+              <h3>高度なトピック</h3>
+              <p>C 拡張、Python 連携、CUDA。</p>
+            </a>
+            <a href="project-management.html" class="doc-card">
+              <h3>プロジェクト CLI</h3>
+              <p>Zamin プロジェクトの作成、ビルド、管理。</p>
+            </a>
+            <a href="performance.html" class="doc-card">
+              <h3>パフォーマンス</h3>
+              <p>ベンチマークと最適化テクニック。</p>
+            </a>
+            <a href="faq.html" class="doc-card">
+              <h3>よくある質問</h3>
+              <p>よくある質問と回答。</p>
+            </a>
+            <a href="playground.html" class="doc-card">
+              <h3>プレイグラウンド</h3>
+              <p>ブラウザで Zamin コードを書き、実行、共有。</p>
+            </a>
+          </div>
+        </section>
+
+        <!-- Page Meta -->
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/index.html" target="_blank">GitHub でこのページを編集</a>
+          <span>最終更新日: 2026年7月</span>
+        </div>
+        <!-- Feedback -->
+        <div class="feedback">
+          <span>役に立ちましたか？</span>
+          <button>&#128077; はい</button>
+          <button>&#128078; いいえ</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="fa" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مدیریت پروژه - زبان برنامه‌نویسی زمین</title>
+  <meta name="description" content="مرجع کامل CLI زمین: ساختاردهی پروژه، اجرای کد، REPL، فرمت‌دهی، تست و مانیفست zamin.json.">
+  <meta property="og:title" content="CLI پروژه - زمین">
+  <meta property="og:description" content="دستورات CLI زمین، ساختار پروژه، قالب مانیفست، تست و مرجع REPL.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> مستندات زمین</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="جستجوی مستندات... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="تغییر تم">&#9790;</button>
+      <button id="print-btn" title="چاپ">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="انتخاب زبان">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">شروع کار</div>
+        <a href="index.html" class="sidebar-link">نمای کلی</a>
+        <a href="getting-started.html" class="sidebar-link">نصب</a>
+        <a href="playground.html" class="sidebar-link">محیط آزمایش</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">زبان</div>
+        <a href="language-guide.html" class="sidebar-link">راهنمای زبان</a>
+        <a href="standard-library.html" class="sidebar-link">کتابخانه استاندارد</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">قابلیت‌ها</div>
+        <a href="gui-guide.html" class="sidebar-link">ابزارهای GUI</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">پیشرفته</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">مرجع</div>
+        <a href="project-management.html" class="sidebar-link active">CLI پروژه</a>
+        <a href="performance.html" class="sidebar-link">عملکرد</a>
+        <a href="faq.html" class="sidebar-link">سوالات متداول</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">خانه</a><span class="sep">/</span><span>مدیریت پروژه</span>
+        </div>
+
+        <h1>مدیریت پروژه</h1>
+        <p>زمین با یک زنجیره ابزار کامل CLI برای ایجاد، اجرا، فرمت‌دهی و تست پروژه‌ها ارائه می‌شود. این صفحه هر دستور و قالب مانیفست پروژه را پوشش می‌دهد.</p>
+
+        <h2 id="cli-commands">دستورات CLI</h2>
+        <table>
+          <thead>
+            <tr><th>دستور</th><th>توضیحات</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>zamin run &lt;file&gt; [--disassemble]</code></td><td>اجرای یک فایل منبع زمین. از <code>--disassemble</code> برای چاپ بایت‌کد قبل از اجرا استفاده کنید.</td></tr>
+            <tr><td><code>zamin repl</code></td><td>شروع حلقه تعاملی خواندن-ارزیابی-چاپ (REPL).</td></tr>
+            <tr><td><code>zamin version</code></td><td>چاپ نسخه زمین، تاریخ ساخت و نسخه LLVM.</td></tr>
+            <tr><td><code>zamin fmt &lt;file&gt;</code></td><td>فرمت‌دهی یک فایل منبع زمین در محل.</td></tr>
+            <tr><td><code>zamin test [filter]</code></td><td>اجرای همه تست‌ها یا فقط تست‌های منطبق با <code>filter</code>.</td></tr>
+            <tr><td><code>zamin new &lt;name&gt;</code></td><td>ایجاد ساختار دایرکتوری یک پروژه جدید با چیدمان استاندارد.</td></tr>
+            <tr><td><code>zamin init</code></td><td>مقداردهی یک مانیفست <code>zamin.json</code> در دایرکتوری جاری.</td></tr>
+            <tr><td><code>zamin build</code></td><td>ساخت پروژه به صورت یک فایل اجرایی مستقل.</td></tr>
+            <tr><td><code>zamin-rs &lt;file&gt;</code></td><td>اجراگر سریع - کامپایل و اجرای یک فایل در یک مرحله.</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="project-structure">ساختار پروژه</h2>
+        <p>با دستور زیر یک پروژه جدید ایجاد کنید:</p>
+        <pre><code>zamin new my_project</code></pre>
+        <p>این دستور چیدمان زیر را تولید می‌کند:</p>
+        <pre><code>my_project/
+├── zamin.json
+├── src/
+│   └── main.zamin
+├── tests/
+│   └── main_test.zamin
+└── modules/</code></pre>
+        <p>همچنین می‌توانید یک مانیفست را در یک دایرکتوری موجود مقداردهی کنید:</p>
+        <pre><code>mkdir my_project &amp;&amp; cd my_project
+zamin init</code></pre>
+
+        <h2 id="zamin-json">مانیفست zamin.json</h2>
+        <p>فایل <code>zamin.json</code> پروژه شما را توصیف می‌کند. در اینجا قالب کامل با تمام فیلدهای پشتیبانی‌شده آمده است:</p>
+        <pre><code>{
+  "name": "my_project",
+  "version": "1.0.0",
+  "description": "A short description of the project.",
+  "author": "Your Name",
+  "license": "MIT",
+  "entry": "src/main.zamin",
+  "dependencies": {
+    "http": "^1.0.0",
+    "json": "^2.1.0"
+  },
+  "dev_dependencies": {
+    "test_utils": "^0.5.0"
+  },
+  "scripts": {
+    "start": "zamin run src/main.zamin",
+    "test": "zamin test",
+    "fmt": "zamin fmt src/"
+  },
+  "modules_path": "modules/",
+  "target": "linux-x86_64",
+  "optimization": "release"
+}</code></pre>
+        <table>
+          <thead>
+            <tr><th>فیلد</th><th>نوع</th><th>توضیحات</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>string</td><td>نام پروژه</td></tr>
+            <tr><td><code>version</code></td><td>string</td><td>نسخه معنایی</td></tr>
+            <tr><td><code>description</code></td><td>string</td><td>توضیحات کوتاه</td></tr>
+            <tr><td><code>author</code></td><td>string</td><td>نام نویسنده</td></tr>
+            <tr><td><code>license</code></td><td>string</td><td>شناسه مجوز (SPDX)</td></tr>
+            <tr><td><code>entry</code></td><td>string</td><td>فایل نقطه ورود (پیش‌فرض: <code>src/main.zamin</code>)</td></tr>
+            <tr><td><code>dependencies</code></td><td>object</td><td>وابستگی‌های زمان اجرا</td></tr>
+            <tr><td><code>dev_dependencies</code></td><td>object</td><td>وابستگی‌های فقط توسعه</td></tr>
+            <tr><td><code>scripts</code></td><td>object</td><td>اسکریپت‌های نام‌گذاری شده قابل اجرا با <code>zamin run --script &lt;name&gt;</code></td></tr>
+            <tr><td><code>modules_path</code></td><td>string</td><td>مسیر بارگذاری ماژول‌های بومی (پیش‌فرض: <code>modules/</code>)</td></tr>
+            <tr><td><code>target</code></td><td>string</td><td>سه‌تایی هدف ساخت</td></tr>
+            <tr><td><code>optimization</code></td><td>string</td><td><code>"debug"</code> یا <code>"release"</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="repl">REPL</h2>
+        <p>REPL تعاملی را با دستور زیر شروع کنید:</p>
+        <pre><code>zamin repl</code></pre>
+        <p>REPL از دستورات داخلی زیر پشتیبانی می‌کند:</p>
+        <table>
+          <thead>
+            <tr><th>دستور</th><th>توضیحات</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>exit</code></td><td>خروج از REPL</td></tr>
+            <tr><td><code>help</code></td><td>نمایش دستورات و میانبرهای موجود</td></tr>
+            <tr><td><code>history</code></td><td>چاپ تاریخچه دستورات جلسه جاری</td></tr>
+          </tbody>
+        </table>
+
+        <h3>تکمیل خودکار با Tab</h3>
+        <p>کلید <code>Tab</code> را فشار دهید تا کلمات کلیدی، توابع داخلی و شناسه‌های قبلاً استفاده شده به صورت خودکار تکمیل شوند. برای دیدن همه گزینه‌های ممکن، <code>Tab</code> را دو بار فشار دهید.</p>
+
+        <h2 id="formatter">فرمت‌دهنده</h2>
+        <p>زمین شامل یک فرمت‌دهنده کد داخلی است. از آن برای اعمال سبک یکسان استفاده کنید:</p>
+        <pre><code>zamin fmt src/main.zamin</code></pre>
+        <p>همچنین می‌توانید همه فایل‌های یک دایرکتوری را فرمت کنید:</p>
+        <pre><code>zamin fmt src/</code></pre>
+        <p>فرمت‌دهنده idempotent است - اجرای چندباره آن خروجی یکسانی تولید می‌کند. به تورفتگی موجود احترام می‌گذارد و ترتیب importها را تغییر نمی‌دهد.</p>
+
+        <h2 id="testing">تست</h2>
+        <p>زمین یک چارچوب تست داخلی دارد. با استفاده از ماژول <code>test</code> تست بنویسید:</p>
+        <pre><code>use test
+
+func test_addition() {
+    test.assert_eq(1 + 1, 2, "1 + 1 should equal 2");
+    test.assert(2 + 2 == 4, "2 + 2 should equal 4");
+}
+
+func test_string_reverse() {
+    let input = "hello";
+    let reversed = input.reverse();
+    test.assert_eq(reversed, "olleh", "reverse of 'hello' is 'olleh'");
+}
+
+func test_error_handling() {
+    test.assert_raises(func() {
+        let x = nil;
+        x.value();
+    }, "accessing nil should raise an error");
+}</code></pre>
+        <p>تست‌های خود را با دستور زیر اجرا کنید:</p>
+        <pre><code>zamin test</code></pre>
+        <p>فقط تست‌هایی که نامشان با یک فیلتر مطابقت دارد اجرا کنید:</p>
+        <pre><code>zamin test addition</code></pre>
+        <p>این دستور فقط <code>test_addition</code> را اجرا می‌کند. فیلتر به عنوان زیررشته در برابر همه نام‌های توابع تست تطبیق داده می‌شود.</p>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/project-management.html">ویرایش این صفحه در گیت‌هاب</a>
+          <span>آخرین به‌روزرسانی: جولای ۲۰۲۶</span>
+        </div>
+        <div class="feedback">
+          <span>آیا این صفحه مفید بود؟</span>
+          <button>&#128077; بله</button>
+          <button>&#128078; خیر</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

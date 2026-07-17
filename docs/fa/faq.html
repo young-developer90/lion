@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fa" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سوالات متداول - زبان برنامه‌نویسی زمین</title>
+  <meta name="description" content="سوالات متداول درباره زبان برنامه‌نویسی زمین شامل نصب، نحو، کتابخانه استاندارد، عملکرد و ابزارها.">
+  <meta property="og:title" content="سوالات متداول - زمین">
+  <meta property="og:description" content="سوالات متداول درباره زبان برنامه‌نویسی زمین شامل نصب، نحو، کتابخانه استاندارد، عملکرد و ابزارها.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> مستندات زمین</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="جستجوی مستندات... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="تغییر تم">&#9790;</button>
+      <button id="print-btn" title="چاپ">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="انتخاب زبان">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">شروع کار</div>
+        <a href="index.html" class="sidebar-link">نمای کلی</a>
+        <a href="getting-started.html" class="sidebar-link">نصب</a>
+        <a href="playground.html" class="sidebar-link">محیط آزمایش</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">زبان</div>
+        <a href="language-guide.html" class="sidebar-link">راهنمای زبان</a>
+        <a href="standard-library.html" class="sidebar-link">کتابخانه استاندارد</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">قابلیت‌ها</div>
+        <a href="gui-guide.html" class="sidebar-link">ابزارهای GUI</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">پیشرفته</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">مرجع</div>
+        <a href="project-management.html" class="sidebar-link">CLI پروژه</a>
+        <a href="performance.html" class="sidebar-link">عملکرد</a>
+        <a href="faq.html" class="sidebar-link active">سوالات متداول</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">خانه</a><span class="sep">/</span><span>سوالات متداول</span>
+        </div>
+
+        <h1>سوالات متداول</h1>
+        <p>پرسش‌ها و پاسخ‌های رایج درباره زبان برنامه‌نویسی زمین.</p>
+
+        <h2 id="install">چگونه زمین را نصب کنم؟</h2>
+        <p>زمین را از روی منبع بسازید (تنها روش نصب پشتیبانی‌شده):</p>
+        <pre><code>git clone https://github.com/young-developer90/zamin.git
+cd zamin
+cargo build --release</code></pre>
+        <p>فایل باینری در <code>target/release/zamin</code> قرار خواهد گرفت. آن را به <code>PATH</code> خود اضافه کنید.</p>
+
+        <h2 id="concat-strings">چگونه رشته‌ها را به هم بچسبانم؟</h2>
+        <p>از عملگر <code>+</code> استفاده کنید (هر دو عملوند باید رشته باشند) یا عملگر <code>..</code> (غیررشته‌ها را به رشته تبدیل می‌کند).</p>
+        <pre><code>let greeting = "Hello" + " " + "World";
+print(greeting);  // "Hello World"
+
+// Use .. to coerce non-strings to strings
+let n = 42;
+print("The answer is " .. n);  // "The answer is 42"
+
+// f-strings are preferred for interpolation
+let name = "Alice";
+print("Hello {name}");</code></pre>
+
+        <h2 id="let-vs-const">تفاوت let و const چیست؟</h2>
+        <p><code>let</code> یک متغیر قابل تغییر اعلام می‌کند. <code>const</code> یک ثابت غیرقابل تغییر اعلام می‌کند که باید در زمان کامپایل مقداردهی شود.</p>
+        <pre><code>let x = 10
+x = 20  // OK
+
+const PI = 3.14159
+PI = 3.0  // Error: cannot reassign constant</code></pre>
+
+        <h2 id="read-files">چگونه فایل‌ها را بخوانم؟</h2>
+        <p>از ماژول کتابخانه استاندارد <code>fs</code> استفاده کنید:</p>
+        <pre><code>let content = fs.read("data.txt");
+print(content);
+
+// Write to a file
+fs.write("output.txt", "Hello, Zamin!");</code></pre>
+
+        <h2 id="http-requests">چگونه درخواست HTTP بفرستم؟</h2>
+        <p>از ماژول <code>http</code> استفاده کنید:</p>
+        <pre><code>let resp = http.get("https://api.example.com/data");
+print(resp.status);    // 200
+print(resp.body);      // response body string
+
+// POST with JSON body
+let resp2 = http.post("https://api.example.com/submit",
+    json.stringify({"name": "Alice", "email": "alice@example.com"})
+);
+print(resp2.status);</code></pre>
+
+        <h2 id="error-handling">چگونه خطاها را مدیریت کنم؟</h2>
+        <p>زمین از <code>try</code>/<code>catch</code> برای مدیریت خطا و <code>throw</code> برای ایجاد خطا استفاده می‌کند:</p>
+        <pre><code>try {
+    let content = fs.read("nonexistent.txt");
+} catch (e) {
+    print(f"Error: {e}");
+}
+
+// Throw errors explicitly
+func validate(n) {
+    if n &lt; 0 {
+        throw Error("negative value not allowed");
+    }
+    return n;
+}
+
+try {
+    validate(-1);
+} catch (e) {
+    print(f"Caught: {e}");
+}</code></pre>
+
+        <h2 id="regex">چگونه از عبارت‌های منظم استفاده کنم؟</h2>
+        <p>از ماژول <code>re</code> استفاده کنید:</p>
+        <pre><code>let text = "Contact: user@example.com, admin@test.com";
+
+let first = re.find(r"[\w.]+@[\w.]+", text);
+print(first);                          // "user@example.com"
+
+let all = re.find_all(r"[\w.]+@[\w.]+", text);
+print(all);                            // ["user@example.com", "admin@test.com"]
+
+// Check if pattern matches
+print(re.is_match(r"\d+", "abc 123"));  // true
+
+// Replace matches
+let cleaned = re.sub(r"\d+", "#", "abc 123 def 456");
+print(cleaned);                         // "abc # def 456"
+
+// Extract capture groups
+let caps = re.captures(r"(\w+)@(\w+)", "user@example.com");
+print(caps);                            // ["user@example.com", "user", "example.com"]</code></pre>
+
+        <h2 id="json-parse">چگونه JSON را تجزیه کنم؟</h2>
+        <p>از ماژول <code>json</code> استفاده کنید:</p>
+        <pre><code>let data = json.parse('{"name": "Alice", "age": 30}');
+print(data["name"]);   // "Alice"
+print(data["age"]);    // 30
+
+// Serialize to JSON string
+let obj = {"name": "Bob", "age": 25};
+let str = json.stringify(obj);
+print(str);             // {"name":"Bob","age":25}
+
+// Pretty-print with indentation
+print(json.pretty(obj));</code></pre>
+
+        <h2 id="create-project">چگونه یک پروژه ایجاد کنم؟</h2>
+        <p>از دستور <code>zamin new</code> استفاده کنید:</p>
+        <pre><code>zamin new my_project
+cd my_project
+zamin run src/main.zamin</code></pre>
+        <p>این دستور ساختار استاندارد پروژه را با دایرکتوری‌های <code>zamin.json</code>، <code>src/main.zamin</code>، <code>tests/</code> و <code>modules/</code> ایجاد می‌کند.</p>
+
+        <h2 id="run-tests">چگونه تست‌ها را اجرا کنم؟</h2>
+        <p>توابع تست را با ماژول <code>test</code> بنویسید، سپس <code>zamin test</code> را اجرا کنید:</p>
+        <pre><code>use test
+
+func test_addition() {
+    test.assert_eq(1 + 1, 2);
+}
+
+func test_string_upper() {
+    test.assert_eq("hello".upper(), "HELLO");
+}</code></pre>
+        <pre><code>zamin test</code></pre>
+        <p>فیلتر تست‌ها با نام: <code>zamin test addition</code>.</p>
+
+        <h2 id="multithreading">آیا زمین از چندنخی پشتیبانی می‌کند؟</h2>
+        <p>زمین از یک ماشین مجازی تک‌رشته‌ای با همزمانی مشارکتی از طریق فیبر‌ها (coroutine‌های سبک) استفاده می‌کند. هر فیبر در همان رشته اجرا می‌شود و کنترل را به صراحت واگذار می‌کند و امکان زمان‌بندی وظایف همزمان بدون مشکلات همگام‌سازی حالت مشترک را فراهم می‌کند.</p>
+        <p>برای کارهای محدود به CPU، زمین می‌تواند فرآیندهای مستقل را از طریق ماژول <code>subprocess</code> ایجاد کند. موازی‌سازی واقعی در چندین رشته OS از طریق API جاسازی Rust هنگام فراخوانی زمین از یک برنامه Rust چندرشته‌ای در دسترس است.</p>
+
+        <h2 id="gui-linux">چگونه از GUI در Linux استفاده کنم؟</h2>
+        <p>زمین شامل یک ابزار GUI داخلی است که روی Linux از طریق GTK4 کار می‌کند. وابستگی‌های سیستم مورد نیاز را نصب کنید:</p>
+        <pre><code># Ubuntu/Debian
+sudo apt install libgtk-4-dev
+
+# Fedora
+sudo dnf install gtk4-devel</code></pre>
+        <p>سپس از ماژول <code>luna</code> استفاده کنید (با <code>--features luna</code> بسازید):</p>
+        <pre><code>let win = luna.Leo("My App", 800, 600);
+let label = luna.Label(win, "Hello, Linux!");
+luna.pack(label);
+luna.mainloop(win);</code></pre>
+        <p>برای جزئیات کامل به <a href="gui-guide.html">راهنمای GUI</a> مراجعه کنید.</p>
+
+        <h2 id="opencv-usage">چگونه از OpenCV استفاده کنم؟</h2>
+        <p>زمین OpenCV را از طریق ماژول <code>cv</code> پوشش می‌دهد. ابتدا OpenCV را روی سیستم خود نصب کنید، سپس:</p>
+        <pre><code>use cv
+
+let img = cv.imread("photo.jpg")
+let gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+let edges = cv.canny(gray, 50, 150)
+cv.imwrite("edges.jpg", edges)
+print("Saved edges.jpg")</code></pre>
+        <p>برای جزئیات کامل به <a href="opencv-guide.html">راهنمای OpenCV</a> مراجعه کنید.</p>
+
+        <h2 id="slow-program">چرا برنامه من کند است؟</h2>
+        <p>علل و رفع‌های رایج:</p>
+        <ul>
+          <li><strong>الحاق رشته در حلقه‌ها</strong> — به جای <code>+</code> مکرر روی رشته‌ها از f-strings یا <code>list.join()</code> استفاده کنید.</li>
+          <li><strong>دسترسی به متغیر سراسری</strong> — متغیرهای محلی حدود ۱۰ برابر سریع‌تر هستند. در حلقه‌های فشرده، متغیرهای سراسری را در متغیرهای محلی کش کنید.</li>
+          <li><strong>تخصیص مکرر لیست</strong> — از <code>list.new(capacity)</code> برای پیش‌تخصیص استفاده کنید.</li>
+          <li><strong>ساخت بهینه‌نشده</strong> — برای ساخت‌های release با بهینه‌سازی‌های AOT از <code>zamin build</code> استفاده کنید.</li>
+          <li><strong>الگوریتم نابهینه</strong> — ابتدا با <code>zamin run --disassemble</code> پروفایل کنید تا بایت‌کد بررسی شود، سپس بهبودهای الگوریتمی را در نظر بگیرید.</li>
+        </ul>
+        <p>برای بنچمارک‌های دقیق و تکنیک‌های بهینه‌سازی به صفحه <a href="performance.html">عملکرد</a> مراجعه کنید.</p>
+
+        <h2 id="contribute">چگونه می‌توانم در زمین مشارکت کنم؟</h2>
+        <p>زمین متن‌باز با مجوز MIT است. برای مشارکت:</p>
+        <ul>
+          <li><strong>گزارش باگ</strong> — در <a href="https://github.com/young-developer90/zamin/issues">github.com/young-developer90/zamin/issues</a> issue باز کنید</li>
+          <li><strong>ارسال کد</strong> — مخزن را fork کنید، یک شاخه ویژگی ایجاد کنید و pull request باز کنید</li>
+          <li><strong>بهبود مستندات</strong> — تمام مستندات در دایرکتوری <code>docs/</code> به صورت فایل‌های HTML قرار دارند</li>
+          <li><strong>اشتراک بازخورد</strong> — درخواست‌های ویژگی و پیشنهادات در issue tracker خوش‌آمد هستند</li>
+        </ul>
+        <p>برای دستورالعمل‌های ساخت و ساختار پروژه به <a href="https://github.com/young-developer90/zamin">README</a> مراجعه کنید.</p>
+
+        <h2 id="embed-rust">چگونه زمین را در برنامه Rust خود جاسازی کنم؟</h2>
+        <p>زمین در <a href="https://crates.io/crates/zamin">crates.io</a> منتشر شده است. آن را به عنوان وابستگی اضافه کنید و از API جاسازی استفاده کنید:</p>
+        <pre><code>// Cargo.toml
+[dependencies]
+zamin = "1.7.3"</code></pre>
+        <pre><code>// main.rs
+func main() {
+    zamin::execute_source(r#"
+        print("Hello from embedded Zamin!");
+    "#).unwrap();
+
+    zamin::execute_file("scripts/plugin.zamin").unwrap();
+}</code></pre>
+        <p>برای مرجع کامل API به بخش <a href="advanced-guide.html#embedding-in-rust">جاسازی در Rust</a> مراجعه کنید.</p>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/faq.html">ویرایش این صفحه در گیت‌هاب</a>
+          <span>آخرین به‌روزرسانی: جولای ۲۰۲۶</span>
+        </div>
+        <div class="feedback">
+          <span>مفید بود؟</span>
+          <button>&#128077; بله</button>
+          <button>&#128078; خیر</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

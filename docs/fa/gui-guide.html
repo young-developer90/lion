@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="fa" data-theme="light">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GUI Toolkit Guide - Zamin Programming Language</title>
-  <meta name="description" content="Build native desktop applications with Zamin's GUI toolkits: Sol on Windows and Luna on Linux. Widgets, layouts, events, and complete examples.">
-  <meta property="og:title" content="GUI Guide - Zamin">
-  <meta property="og:description" content="Build native desktop applications with the Sol (Windows) and Luna (Linux) GUI toolkits.">
+  <title>راهنمای ابزارهای GUI - زبان برنامه‌نویسی زمین</title>
+  <meta name="description" content="با ابزارهای GUI زمین برنامه‌های دسکتاپ بومی بسازید: Sol در ویندوز و Luna در لینوکس. ویجت‌ها، چیدمان‌ها، رویدادها و مثال‌های کامل.">
+  <meta property="og:title" content="راهنمای GUI - زمین">
+  <meta property="og:description" content="برنامه‌های دسکتاپ بومی با ابزارهای GUI Sol (ویندوز) و Luna (لینوکس) بسازید.">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="assets/style.css">
 </head>
@@ -14,18 +14,18 @@
   <header class="header">
     <div class="header-brand">
       <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
-      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin Docs</a>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> مستندات زمین</a>
     </div>
     <div class="header-search">
       <span class="search-icon">&#128269;</span>
-      <input type="text" id="search-input" placeholder="Search docs... (Ctrl+K)" autocomplete="off">
+      <input type="text" id="search-input" placeholder="جستجوی مستندات... (Ctrl+K)" autocomplete="off">
       <div class="search-results" id="search-results"></div>
     </div>
     <div class="header-actions">
-      <button id="theme-toggle" title="Toggle theme">&#9790;</button>
-      <button id="print-btn" title="Print">&#128424;</button>
+      <button id="theme-toggle" title="تغییر تم">&#9790;</button>
+      <button id="print-btn" title="چاپ">&#128424;</button>
       <div class="lang-dropdown">
-        <button class="lang-btn" id="lang-btn" title="Select language">🌐 EN</button>
+        <button class="lang-btn" id="lang-btn" title="انتخاب زبان">🌐 EN</button>
         <div class="lang-menu" id="lang-menu">
           <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
           <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
@@ -40,27 +40,27 @@
   <div class="main-layout">
     <nav class="sidebar" id="sidebar">
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Getting Started</div>
-        <a href="index.html" class="sidebar-link">Overview</a>
-        <a href="getting-started.html" class="sidebar-link">Installation</a>
-        <a href="playground.html" class="sidebar-link">Playground</a>
+        <div class="sidebar-section-title">شروع کار</div>
+        <a href="index.html" class="sidebar-link">نمای کلی</a>
+        <a href="getting-started.html" class="sidebar-link">نصب</a>
+        <a href="playground.html" class="sidebar-link">محیط آزمایش</a>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Language</div>
-        <a href="language-guide.html" class="sidebar-link">Language Guide</a>
-        <a href="standard-library.html" class="sidebar-link">Standard Library</a>
+        <div class="sidebar-section-title">زبان</div>
+        <a href="language-guide.html" class="sidebar-link">راهنمای زبان</a>
+        <a href="standard-library.html" class="sidebar-link">کتابخانه استاندارد</a>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Features</div>
-        <a href="gui-guide.html" class="sidebar-link active">GUI Toolkit</a>
+        <div class="sidebar-section-title">قابلیت‌ها</div>
+        <a href="gui-guide.html" class="sidebar-link active">ابزارهای GUI</a>
         <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
-        <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+        <a href="advanced-guide.html" class="sidebar-link">پیشرفته</a>
       </div>
       <div class="sidebar-section">
-        <div class="sidebar-section-title">Reference</div>
-        <a href="project-management.html" class="sidebar-link">Project CLI</a>
-        <a href="performance.html" class="sidebar-link">Performance</a>
-        <a href="faq.html" class="sidebar-link">FAQ</a>
+        <div class="sidebar-section-title">مرجع</div>
+        <a href="project-management.html" class="sidebar-link">CLI پروژه</a>
+        <a href="performance.html" class="sidebar-link">عملکرد</a>
+        <a href="faq.html" class="sidebar-link">سوالات متداول</a>
       </div>
     </nav>
 
@@ -68,68 +68,68 @@
       <div class="content-inner">
 
         <nav class="breadcrumb">
-          <a href="index.html">Home</a> &gt; <span>GUI Toolkit Guide</span>
+          <a href="index.html">خانه</a> &gt; <span>راهنمای ابزارهای GUI</span>
         </nav>
 
         <div class="toc">
-          <div class="toc-title">On this page</div>
-          <a href="#overview">Overview</a>
-          <a href="#quick-start">Quick Start</a>
-          <a href="#widget-reference">Widget Reference</a>
-          <a href="#leo-window">Leo (Window)</a>
+          <div class="toc-title">در این صفحه</div>
+          <a href="#overview">نمای کلی</a>
+          <a href="#quick-start">شروع سریع</a>
+          <a href="#widget-reference">مرجع ویجت‌ها</a>
+          <a href="#leo-window">Leo (پنجره)</a>
           <a href="#frame">Frame</a>
           <a href="#label">Label</a>
           <a href="#button">Button</a>
           <a href="#entry">Entry</a>
-          <a href="#layout-management">Layout Management</a>
-          <a href="#widget-operations">Widget Operations</a>
-          <a href="#example-calculator">Example: Calculator</a>
-          <a href="#example-text-editor">Example: Text Editor</a>
-          <a href="#platform-notes">Platform Notes</a>
+          <a href="#layout-management">مدیریت چیدمان</a>
+          <a href="#widget-operations">عملیات ویجت‌ها</a>
+          <a href="#example-calculator">مثال: ماشین حساب</a>
+          <a href="#example-text-editor">مثال: ویرایشگر متن</a>
+          <a href="#platform-notes">یادداشت‌های پلتفرم</a>
         </div>
 
-        <h1>GUI Toolkit Guide</h1>
-        <p class="subtitle">Build native desktop applications with Zamin's cross-platform GUI toolkits.</p>
+        <h1>راهنمای ابزارهای GUI</h1>
+        <p class="subtitle">برنامه‌های دسکتاپ بومی با ابزارهای GUI چندپلتفرمی زمین بسازید.</p>
 
         <!-- Overview -->
-        <h2 id="overview">Overview</h2>
-        <p>Zamin ships with two GUI toolkits that share the same API surface, so code written for one works on the other with no changes:</p>
+        <h2 id="overview">نمای کلی</h2>
+        <p>زمین با دو ابزار GUI ارائه می‌شود که از API یکسانی استفاده می‌کنند، بنابراین کد نوشته شده برای یکی بدون تغییر روی دیگری کار می‌کند:</p>
         <ul>
-          <li><strong>Sol</strong> (Windows) &mdash; A Win32-based toolkit that ships as a built-in module on Windows. No external dependencies are required.</li>
-          <li><strong>Luna</strong> (Linux) &mdash; A GTK4-based toolkit available behind the <code>luna</code> feature flag. Requires GTK4 development libraries on the host system.</li>
+          <li><strong>Sol</strong> (ویندوز) &mdash; یک ابزار مبتنی بر Win32 که به صورت ماژول داخلی در ویندوز ارائه می‌شود. هیچ وابستگی خارجی نیاز ندارد.</li>
+          <li><strong>Luna</strong> (لینوکس) &mdash; یک ابزار مبتنی بر GTK4 که در پشت پرچم ویژگی <code>luna</code> در دسترس است. نیاز به کتابخانه‌های توسعه GTK4 در سیستم میزبان دارد.</li>
         </ul>
-        <p>Both toolkits expose the same function names and widget constructors. You pick the one that matches your platform, and the rest of your code stays the same.</p>
+        <p>هر دو ابزار نام‌های تابع و سازنده‌های ویجت یکسانی را ارائه می‌دهند. شما ابزار متناسب با پلتفرم خود را انتخاب می‌کنید و بقیه کد شما یکسان می‌ماند.</p>
         <div class="callout callout-info">
-          <div class="callout-title">&#128161; Note</div>
-          <p>On Windows, <code>sol()</code> is always available. On Linux, use <code>luna()</code> and build with <code>--features luna</code>.</p>
+          <div class="callout-title">&#128161; توجه</div>
+          <p>در ویندوز، <code>sol()</code> همیشه در دسترس است. در لینوکس، از <code>luna()</code> استفاده کنید و با <code>--features luna</code> بسازید.</p>
         </div>
 
         <!-- Quick Start -->
-        <h2 id="quick-start">Quick Start</h2>
-        <p>Here is a minimal GUI application that displays a window with a label:</p>
+        <h2 id="quick-start">شروع سریع</h2>
+        <p>در اینجا یک برنامه GUI حداقلی که یک پنجره با یک برچسب نمایش می‌دهد:</p>
         <pre><code><span class="kw">let</span> gui = sol()  <span class="cm">// or luna() on Linux</span>
 <span class="kw">let</span> win = gui.<span class="fn">Leo</span>(<span class="str">"My App"</span>, <span class="num">400</span>, <span class="num">300</span>)
 <span class="kw">let</span> label = gui.<span class="fn">Label</span>(win, <span class="str">"Hello, Zamin!"</span>)
 gui.<span class="fn">pack</span>(label)
 gui.<span class="fn">mainloop</span>(win)</code></pre>
-        <p>Save this as <code>app.zamin</code> and run it:</p>
+        <p>این را به عنوان <code>app.zamin</code> ذخیره کنید و اجرا کنید:</p>
         <pre><code>$ zamin run app.zamin</code></pre>
-        <p>A window titled "My App" appears with the text "Hello, Zamin!" centered inside it.</p>
+        <p>یک پنجره با عنوان "My App" با متن "Hello, Zamin!" در وسط ظاهر می‌شود.</p>
 
         <!-- Widget Reference -->
-        <h2 id="widget-reference">Widget Reference</h2>
+        <h2 id="widget-reference">مرجع ویجت‌ها</h2>
 
         <!-- Leo (Window) -->
-        <h3 id="leo-window">Leo (Window)</h3>
-        <p>The top-level window that holds all other widgets.</p>
+        <h3 id="leo-window">Leo (پنجره)</h3>
+        <p>پنجره سطح بالا که همه ویجت‌های دیگر را در خود نگه می‌دارد.</p>
         <table>
           <thead>
-            <tr><th>Signature</th><th>Description</th></tr>
+            <tr><th>امضا</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>Leo(title?, width?, height?)</code></td>
-              <td>Creates a new top-level window. Defaults to 640&times;480 if width/height are omitted.</td>
+              <td>یک پنجره سطح بالا جدید ایجاد می‌کند. اگر عرض/ارتفاع حذف شوند، پیش‌فرض 640&times;480 است.</td>
             </tr>
           </tbody>
         </table>
@@ -138,15 +138,15 @@ gui.<span class="fn">mainloop</span>(win)</code></pre>
 
         <!-- Frame -->
         <h3 id="frame">Frame</h3>
-        <p>A container widget used to group and organize child widgets.</p>
+        <p>یک ویجت ظرف برای گروه‌بندی و سازماندهی ویجت‌های فرزند.</p>
         <table>
           <thead>
-            <tr><th>Signature</th><th>Description</th></tr>
+            <tr><th>امضا</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>Frame(parent)</code></td>
-              <td>Creates a frame inside the given parent widget.</td>
+              <td>یک فریم در داخل ویجت والد داده شده ایجاد می‌کند.</td>
             </tr>
           </tbody>
         </table>
@@ -157,15 +157,15 @@ gui.<span class="fn">pack</span>(frame)</code></pre>
 
         <!-- Label -->
         <h3 id="label">Label</h3>
-        <p>Displays static text. Does not accept user input.</p>
+        <p>متن ایستا نمایش می‌دهد. ورودی کاربر را نمی‌پذیرد.</p>
         <table>
           <thead>
-            <tr><th>Signature</th><th>Description</th></tr>
+            <tr><th>امضا</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>Label(parent, text?)</code></td>
-              <td>Creates a label with the given text inside the parent widget.</td>
+              <td>یک برچسب با متن داده شده در داخل ویجت والد ایجاد می‌کند.</td>
             </tr>
           </tbody>
         </table>
@@ -176,15 +176,15 @@ gui.<span class="fn">pack</span>(lbl)</code></pre>
 
         <!-- Button -->
         <h3 id="button">Button</h3>
-        <p>A clickable button that triggers a callback when pressed.</p>
+        <p>یک دکمه قابل کلیک که با فشار دادن یک callback را فعال می‌کند.</p>
         <table>
           <thead>
-            <tr><th>Signature</th><th>Description</th></tr>
+            <tr><th>امضا</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>Button(parent, text?, callback?)</code></td>
-              <td>Creates a button with optional label and click handler.</td>
+              <td>یک دکمه با برچسب و handler کلی اختیاری ایجاد می‌کند.</td>
             </tr>
           </tbody>
         </table>
@@ -198,19 +198,19 @@ gui.<span class="fn">pack</span>(lbl)</code></pre>
 <span class="kw">let</span> btn = gui.<span class="fn">Button</span>(win, <span class="str">"Click Me"</span>, on_click)
 gui.<span class="fn">pack</span>(btn)
 gui.<span class="fn">mainloop</span>(win)</code></pre>
-        <p>Callbacks are plain Zamin functions. They can accept arguments or be closures that capture local state.</p>
+        <p>Callbackها توابع معمولی زمین هستند. می‌توانند آرگومان بپذیرند یا closureهایی باشند که وضعیت محلی را ضبط می‌کنند.</p>
 
         <!-- Entry -->
         <h3 id="entry">Entry</h3>
-        <p>A single-line text input field for user input.</p>
+        <p>یک فیلد ورود متن تک‌خطی برای ورودی کاربر.</p>
         <table>
           <thead>
-            <tr><th>Signature</th><th>Description</th></tr>
+            <tr><th>امضا</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>Entry(parent)</code></td>
-              <td>Creates a text input field inside the parent widget.</td>
+              <td>یک فیلد ورود متن در داخل ویجت والد ایجاد می‌کند.</td>
             </tr>
           </tbody>
         </table>
@@ -220,18 +220,18 @@ gui.<span class="fn">mainloop</span>(win)</code></pre>
 gui.<span class="fn">pack</span>(entry)</code></pre>
 
         <!-- Layout Management -->
-        <h2 id="layout-management">Layout Management</h2>
-        <p>Zamin GUI toolkits provide two layout methods for arranging widgets:</p>
+        <h2 id="layout-management">مدیریت چیدمان</h2>
+        <p>ابزارهای GUI زمین دو روش چیدمان برای مرتب‌سازی ویجت‌ها ارائه می‌دهند:</p>
 
         <h3>pack</h3>
         <table>
           <thead>
-            <tr><th>Signature</th><th>Description</th></tr>
+            <tr><th>امضا</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>pack(widget, side?, padx?, pady?)</code></td>
-              <td>Places a widget using the pack geometry manager. <code>side</code> can be <code>"top"</code>, <code>"bottom"</code>, <code>"left"</code>, or <code>"right"</code>. <code>padx</code> and <code>pady</code> add horizontal and vertical padding in pixels.</td>
+              <td>یک ویجت را با استفاده از مدیر هندسی pack قرار می‌دهد. <code>side</code> می‌تواند <code>"top"</code>، <code>"bottom"</code>، <code>"left"</code>، یا <code>"right"</code> باشد. <code>padx</code> و <code>pady</code> به ترتیب فاصله افقی و عمودی را بر حسب پیکسل اضافه می‌کنند.</td>
             </tr>
           </tbody>
         </table>
@@ -241,57 +241,57 @@ gui.<span class="fn">pack</span>(btn, <span class="str">"left"</span>, <span cla
         <h3>place</h3>
         <table>
           <thead>
-            <tr><th>Signature</th><th>Description</th></tr>
+            <tr><th>امضا</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>place(widget, x, y, w?, h?)</code></td>
-              <td>Places a widget at absolute coordinates. <code>w</code> and <code>h</code> set the width and height if desired.</td>
+              <td>یک ویجت را در مختصات مطلق قرار می‌دهد. <code>w</code> و <code>h</code> عرض و ارتفاع را در صورت تمایل تنظیم می‌کنند.</td>
             </tr>
           </tbody>
         </table>
         <pre><code>gui.<span class="fn">place</span>(label, <span class="num">20</span>, <span class="num">50</span>, <span class="num">200</span>, <span class="num">30</span>)</code></pre>
 
         <!-- Widget Operations -->
-        <h2 id="widget-operations">Widget Operations</h2>
-        <p>These functions modify or query widgets after they have been created.</p>
+        <h2 id="widget-operations">عملیات ویجت‌ها</h2>
+        <p>این توابع ویجت‌ها را پس از ایجاد تغییر می‌دهند یا از آنها پرس‌وجو می‌کنند.</p>
 
         <table>
           <thead>
-            <tr><th>Function</th><th>Description</th></tr>
+            <tr><th>تابع</th><th>توضیحات</th></tr>
           </thead>
           <tbody>
             <tr>
               <td><code>config(widget, property, value)</code></td>
-              <td>Set a property on a widget. Common properties: <code>"text"</code>, <code>"command"</code>, <code>"font"</code>, <code>"fg"</code>, <code>"bg"</code>.</td>
+              <td>تنظیم یک ویژگی روی ویجت. ویژگی‌های رایج: <code>"text"</code>، <code>"command"</code>، <code>"font"</code>، <code>"fg"</code>، <code>"bg"</code>.</td>
             </tr>
             <tr>
               <td><code>get(entry)</code></td>
-              <td>Return the current text content of an Entry widget.</td>
+              <td>محتوای متنی جاری یک ویجت Entry را برمی‌گرداند.</td>
             </tr>
             <tr>
               <td><code>insert(entry, pos, text)</code></td>
-              <td>Insert text at the given position in an Entry widget.</td>
+              <td>متن را در موقعیت داده شده در یک ویجت Entry درج می‌کند.</td>
             </tr>
             <tr>
               <td><code>delete(entry, start, end?)</code></td>
-              <td>Delete characters from <code>start</code> to <code>end</code> in an Entry widget. If <code>end</code> is omitted, deletes one character.</td>
+              <td>کاراکترها را از <code>start</code> تا <code>end</code> در یک ویجت Entry حذف می‌کند. اگر <code>end</code> حذف شود، یک کاراکتر حذف می‌کند.</td>
             </tr>
             <tr>
               <td><code>title(window, text)</code></td>
-              <td>Change the title of a window.</td>
+              <td>عنوان یک پنجره را تغییر می‌دهد.</td>
             </tr>
             <tr>
               <td><code>geometry(window, w, h)</code></td>
-              <td>Resize a window to the given width and height.</td>
+              <td>اندازه یک پنجره را به عرض و ارتفاع داده شده تغییر می‌دهد.</td>
             </tr>
             <tr>
               <td><code>destroy(widget)</code></td>
-              <td>Remove a widget from the layout and free its resources.</td>
+              <td>یک ویجت را از چیدمان حذف کرده و منابع آن را آزاد می‌کند.</td>
             </tr>
             <tr>
               <td><code>messagebox(text, title?)</code></td>
-              <td>Show a modal message dialog with the given text and optional title.</td>
+              <td>یک دیالوگ پیام modal با متن داده شده و عنوان اختیاری نمایش می‌دهد.</td>
             </tr>
           </tbody>
         </table>
@@ -302,8 +302,8 @@ gui.<span class="fn">title</span>(win, <span class="str">"New Title"</span>)
 gui.<span class="fn">messagebox</span>(<span class="str">"Operation complete!"</span>, <span class="str">"Info"</span>)</code></pre>
 
         <!-- Example: Calculator -->
-        <h2 id="example-calculator">Example: Calculator</h2>
-        <p>A complete calculator application with a display field and arithmetic buttons:</p>
+        <h2 id="example-calculator">مثال: ماشین حساب</h2>
+        <p>یک برنامه ماشین حساب کامل با فیلد نمایش و دکمه‌های حسابی:</p>
         <pre><code><span class="kw">let</span> gui = sol()
 <span class="kw">let</span> win = gui.<span class="fn">Leo</span>(<span class="str">"Calculator"</span>, <span class="num">280</span>, <span class="num">350</span>)
 
@@ -367,8 +367,8 @@ gui.<span class="fn">pack</span>(ops, <span class="str">"top"</span>)
 gui.<span class="fn">mainloop</span>(win)</code></pre>
 
         <!-- Example: Text Editor -->
-        <h2 id="example-text-editor">Example: Text Editor</h2>
-        <p>A basic text editor with an input field, open button, and save button:</p>
+        <h2 id="example-text-editor">مثال: ویرایشگر متن</h2>
+        <p>یک ویرایشگر متن پایه با فیلد ورودی، دکمه باز کردن و دکمه ذخیره:</p>
         <pre><code><span class="kw">let</span> gui = sol()
 <span class="kw">let</span> win = gui.<span class="fn">Leo</span>(<span class="str">"Text Editor"</span>, <span class="num">600</span>, <span class="num">400</span>)
 
@@ -419,19 +419,19 @@ gui.<span class="fn">pack</span>(save_btn, <span class="str">"left"</span>, <spa
 gui.<span class="fn">mainloop</span>(win)</code></pre>
 
         <!-- Platform Notes -->
-        <h2 id="platform-notes">Platform Notes</h2>
+        <h2 id="platform-notes">یادداشت‌های پلتفرم</h2>
 
-        <h3>Sol (Windows)</h3>
+        <h3>Sol (ویندوز)</h3>
         <ul>
-          <li>Built on top of the Win32 API directly &mdash; no external dependencies or runtime libraries required.</li>
-          <li>Ships as a built-in module on Windows builds of Zamin.</li>
-          <li>Supports standard Windows look-and-feel with native widget rendering.</li>
+          <li>مستقیماً بر روی Win32 API ساخته شده است &mdash; بدون وابستگی‌های خارجی یا کتابخانه‌های زمان اجرا.</li>
+          <li>به عنوان یک ماژول داخلی در ساخت‌های ویندوزی زمین ارائه می‌شود.</li>
+          <li>از ظاهر و حس استاندارد ویندوز با رندر بومی ویجت پشتیبانی می‌کند.</li>
         </ul>
 
-        <h3>Luna (Linux)</h3>
+        <h3>Luna (لینوکس)</h3>
         <ul>
-          <li>Built on GTK4 for modern Linux desktop environments.</li>
-          <li>Requires GTK4 development libraries to be installed:</li>
+          <li>بر اساس GTK4 برای محیط‌های دسکتاپ مدرن لینوکس ساخته شده است.</li>
+          <li>نیازمند نصب کتابخانه‌های توسعه GTK4 است:</li>
         </ul>
         <pre><code><span class="cm"># Debian / Ubuntu</span>
 sudo apt install libgtk-4-dev
@@ -442,30 +442,30 @@ sudo dnf install gtk4-devel
 <span class="cm"># Arch</span>
 sudo pacman -S gtk4</code></pre>
         <ul>
-          <li>Build Zamin with the <code>luna</code> feature enabled:</li>
+          <li>زمین را با ویژگی <code>luna</code> فعال بسازید:</li>
         </ul>
         <pre><code>cargo build --release --features luna</code></pre>
 
         <h3>macOS</h3>
         <ul>
-          <li>macOS support is planned for a future release. On macOS today, you can use the standard library modules to build command-line tools.</li>
+          <li>پشتیبانی از macOS برای نسخه آینده برنامه‌ریزی شده است. امروز در macOS می‌توانید از ماژول‌های کتابخانه استاندارد برای ساخت ابزارهای خط فرمان استفاده کنید.</li>
         </ul>
 
         <div class="callout callout-tip">
-          <div class="callout-title">&#10004; Tip</div>
-          <p>Since both Sol and Luna share the same API, you can write your GUI code once and compile it for different platforms by selecting the appropriate toolkit constructor at the top of your file.</p>
+          <div class="callout-title">&#10004; نکته</div>
+          <p>از آنجایی که Sol و Luna از API یکسانی استفاده می‌کنند، می‌توانید کد GUI خود را یک بار بنویسید و با انتخاب سازنده ابزار مناسب در بالای فایل، آن را برای پلتفرم‌های مختلف کامپایل کنید.</p>
         </div>
 
         <!-- Page Meta -->
         <div class="page-meta">
-          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/gui-guide.html" target="_blank">Edit this page on GitHub</a>
-          <span>Last updated: July 2026</span>
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/gui-guide.html" target="_blank">ویرایش این صفحه در گیت‌هاب</a>
+          <span>آخرین به‌روزرسانی: جولای ۲۰۲۶</span>
         </div>
         <!-- Feedback -->
         <div class="feedback">
-          <span>Was this page helpful?</span>
-          <button>&#128077; Yes</button>
-          <button>&#128078; No</button>
+          <span>آیا این صفحه مفید بود؟</span>
+          <button>&#128077; بله</button>
+          <button>&#128078; خیر</button>
           <span id="feedback-msg"></span>
         </div>
       </div>

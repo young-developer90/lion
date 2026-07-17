@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>はじめに - Zamin プログラミング言語</title>
+  <meta name="description" content="Zamin をインストールして最初のプログラムを作成しましょう。前提条件、ソースからのビルド、REPL、プロジェクトセットアップについて学びます。">
+  <meta property="og:title" content="はじめに - Zamin">
+  <meta property="og:description" content="Zamin をインストールして最初のプログラムを作成しましょう。前提条件、ソースからのビルド、REPL、プロジェクトセットアップについて学びます。">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin ドキュメント</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="ドキュメントを検索... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="テーマ切替">&#9790;</button>
+      <button id="print-btn" title="印刷">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="言語を選択">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">はじめに</div>
+        <a href="index.html" class="sidebar-link">概要</a>
+        <a href="getting-started.html" class="sidebar-link active">インストール</a>
+        <a href="playground.html" class="sidebar-link">プレイグラウンド</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">言語</div>
+        <a href="language-guide.html" class="sidebar-link">言語ガイド</a>
+        <a href="standard-library.html" class="sidebar-link">標準ライブラリ</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">機能</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI ツールキット</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">高度な機能</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">リファレンス</div>
+        <a href="project-management.html" class="sidebar-link">プロジェクト CLI</a>
+        <a href="performance.html" class="sidebar-link">パフォーマンス</a>
+        <a href="faq.html" class="sidebar-link">よくある質問</a>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="content">
+      <div class="content-inner">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a href="index.html">ホーム</a> &gt; <span>はじめに</span>
+        </nav>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+          <div class="toc-title">このページの内容</div>
+          <a href="#prerequisites">前提条件</a>
+          <a href="#installation">インストール</a>
+          <a href="#verify-installation">インストールの確認</a>
+          <a href="#your-first-script">最初のスクリプト</a>
+          <a href="#using-the-repl">REPL の使用</a>
+          <a href="#project-setup">プロジェクトセットアップ</a>
+        </div>
+
+        <h1>はじめに</h1>
+        <p>このガイドでは、Zamin をソースからインストールし、セットアップを確認し、最初のスクリプトを作成し、大規模なプロジェクトを整理する方法を説明します。</p>
+
+        <h2 id="prerequisites">前提条件</h2>
+        <p>Zamin をビルドする前に、システムに以下のものがインストールされていることを確認してください：</p>
+        <ul>
+          <li><strong>Rust 1.80+</strong> &mdash; Zamin は Rust で書かれています。<a href="https://rustup.rs">rustup</a> からインストールしてください：</li>
+        </ul>
+        <pre><code>curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh</code></pre>
+        <ul>
+          <li><strong>Git</strong> &mdash; リポジトリのクローンに必要です。</li>
+          <li><strong>C コンパイラ</strong> &mdash; Linux/macOS では GCC または Clang、Windows では MSVC。ネイティブ拡張とオプション機能に必要です。</li>
+        </ul>
+
+        <h2 id="installation">インストール</h2>
+        <h3>クローンとビルド</h3>
+        <p>リポジトリをクローンし、リリースモードで Zamin をビルドします：</p>
+        <pre><code>git clone https://github.com/young-developer90/zamin.git
+cd zamin
+cargo build --release</code></pre>
+        <p>コンパイルされたバイナリは <code>target/release/zamin</code> にあります。便利なように <code>PATH</code> に追加してください：</p>
+        <pre><code>export PATH="$PWD/target/release:$PATH"</code></pre>
+
+        <h3>オプション機能</h3>
+        <p>Zamin は追加機能を有効にするオプションの機能フラグをサポートしています：</p>
+        <pre><code>cargo build --release --features opencv</code></pre>
+        <table>
+          <thead>
+            <tr><th>機能</th><th>説明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>opencv</code></td><td>画像処理とコンピュータビジョンのための OpenCV バインディングを有効化</td></tr>
+            <tr><td><code>luna</code></td><td>Linux 用の Luna GUI ツールキットを有効化</td></tr>
+            <tr><td><code>python</code></td><td>Python ライブラリを直接呼び出すための Python 連携を有効化</td></tr>
+          </tbody>
+        </table>
+        <p>複数の機能を組み合わせることもできます：</p>
+        <pre><code>cargo build --release --features "opencv,luna,python"</code></pre>
+
+        <h2 id="verify-installation">インストールの確認</h2>
+        <p>Zamin がインストールされて動作することを確認します：</p>
+        <pre><code>$ zamin version
+zamin 1.7.3</code></pre>
+        <p>インタラクティブ REPL を起動して、ランタイムが機能することを確認します：</p>
+        <pre><code>$ zamin repl
+Zamin 1.7.3 (interactive)
+Type "help" for more information.
+zamin&gt;</code></pre>
+
+        <h2 id="your-first-script">最初のスクリプト</h2>
+        <p><code>hello.zamin</code> というファイルを作成し、以下の内容を記述します：</p>
+        <pre><code>print("Hello, Zamin!")</code></pre>
+        <p>実行します：</p>
+        <pre><code>$ zamin run hello.zamin
+Hello, Zamin!</code></pre>
+        <p>もう少し面白いものを試してみましょう。<code>hello.zamin</code> の内容を次のように置き換えてください：</p>
+        <pre><code><span class="kw">func</span> greet(name) {
+    print(<span class="str">"Hello, </span>{name}<span class="str">!"</span>);
+}
+
+<span class="kw">func</span> fibonacci(n) {
+    <span class="kw">if</span> n &lt;= <span class="num">1</span> {
+        <span class="kw">return</span> n;
+    }
+    <span class="kw">return</span> fibonacci(n - <span class="num">1</span>) + fibonacci(n - <span class="num">2</span>);
+}
+
+greet(<span class="str">"World"</span>);
+
+<span class="kw">for</span> i <span class="kw">in</span> <span class="num">0</span>..<span class="num">10</span> {
+    print(<span class="str">"fib(</span>{i}<span class="str">) = </span>{fibonacci(i)}<span class="str">"</span>);
+}</code></pre>
+
+        <h2 id="using-the-repl">REPL の使用</h2>
+        <p>Zamin REPL は、言語機能の実験やコードスニペットのテストに最適です：</p>
+        <pre><code>$ zamin repl
+Zamin 1.7.3 (interactive)
+Type "help" for more information.
+zamin&gt; print("Hello!")
+Hello!
+zamin&gt; 2 + 2
+4
+zamin&gt; func add(a, b) { a + b }
+zamin&gt; add(10, 20)
+30
+zamin&gt; [1, 2, 3].map(func(x) { x * 2 })
+[2, 4, 6]
+zamin&gt; .exit</code></pre>
+
+        <h2 id="project-setup">プロジェクトセットアップ</h2>
+        <p>大規模なアプリケーションには、Zamin の組み込みプロジェクトスキャフォールディングを使用します：</p>
+        <pre><code>$ zamin new myproject
+Created new project "myproject"
+  src/main.zamin
+  zamin.json</code></pre>
+        <p>これにより、以下の構造のプロジェクトディレクトリが生成されます：</p>
+        <pre><code>myproject/
+├── zamin.json
+└── src/
+    └── main.zamin</code></pre>
+
+        <h3>zamin.json</h3>
+        <p><code>zamin.json</code> ファイルはプロジェクトのメタデータとビルド設定を定義します：</p>
+        <pre><code>{
+  "name": "myproject",
+  "version": "1.0.0",
+  "entry": "src/main.zamin",
+  "dependencies": [],
+  "features": []
+}</code></pre>
+
+        <h3>src/main.zamin</h3>
+        <p>アプリケーションのエントリポイント：</p>
+        <pre><code>print(<span class="str">"Welcome to myproject!"</span>)</code></pre>
+        <p>プロジェクトをビルドして実行します：</p>
+        <pre><code>$ cd myproject
+$ zamin run
+Welcome to myproject!</code></pre>
+        <p>プロジェクト管理の詳細については、<a href="project-management.html">プロジェクト CLI</a> リファレンスを参照してください。</p>
+
+        <!-- Page Meta -->
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/getting-started.html" target="_blank">GitHub でこのページを編集</a>
+          <span>最終更新日: 2026年7月</span>
+        </div>
+        <!-- Feedback -->
+        <div class="feedback">
+          <span>役に立ちましたか？</span>
+          <button>&#128077; はい</button>
+          <button>&#128078; いいえ</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="assets/script.js"></script>
+</body>
+</html>

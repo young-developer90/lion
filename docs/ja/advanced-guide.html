@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>高度な機能 - Zamin プログラミング言語</title>
+  <meta name="description" content="Zamin プログラミング言語の高度なガイド：C 拡張、Python 相互運用、CUDA GPU アクセラレーション、Rust への埋め込み、LSP サポート。">
+  <meta property="og:title" content="高度な機能 - Zamin">
+  <meta property="og:description" content="C 拡張、Python 相互運用、CUDA/GPU アクセラレーション、Rust への埋め込み、LSP サーバーのドキュメント。">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin ドキュメント</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="ドキュメントを検索... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="テーマ切替">&#9790;</button>
+      <button id="print-btn" title="印刷">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="Select language">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">はじめに</div>
+        <a href="index.html" class="sidebar-link">概要</a>
+        <a href="getting-started.html" class="sidebar-link">インストール</a>
+        <a href="playground.html" class="sidebar-link">プレイグラウンド</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">言語</div>
+        <a href="language-guide.html" class="sidebar-link">言語ガイド</a>
+        <a href="standard-library.html" class="sidebar-link">標準ライブラリ</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">機能</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI ツールキット</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link active">高度な機能</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">リファレンス</div>
+        <a href="project-management.html" class="sidebar-link">Project CLI</a>
+        <a href="performance.html" class="sidebar-link">パフォーマンス</a>
+        <a href="faq.html" class="sidebar-link">よくある質問</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">ホーム</a><span class="sep">/</span><span>高度な機能</span>
+        </div>
+
+        <h1>高度な機能ガイド</h1>
+        <p>このガイドでは、C による Zamin の拡張、Python との相互運用、CUDA による GPU アクセラレーション、Rust アプリケーションへの Zamin の埋め込み、ビルトイン LSP サーバーの使用など、Zamin 言語の高度な機能について説明します。</p>
+
+        <h2 id="c-extensions">C 拡張</h2>
+        <p>Zamin は、パフォーマンスが重要なコードや既存の C ライブラリのラッピングのために、ネイティブ C 拡張をサポートしています。拡張は共有オブジェクトとしてコンパイルされ、実行時に自動的にロードされます。</p>
+
+        <h3>ヘッダーファイル</h3>
+        <p>C ソースにメインヘッダーをインクルードします：</p>
+        <pre><code>#include "zamin.h"</code></pre>
+        <p>ヘッダーは Zamin ソースツリーの <code>include/zamin.h</code> にあります。</p>
+
+        <h3>Zamin の型</h3>
+        <p>Zamin は <code>ZaminValue</code> 共用体で使用するために、以下の C 型定数を公開しています：</p>
+        <table>
+          <thead>
+            <tr><th>定数</th><th>説明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>ZAMIN_NIL</code></td><td>Nil / null 値</td></tr>
+            <tr><td><code>ZAMIN_INT</code></td><td>整数（64 ビット符号付き）</td></tr>
+            <tr><td><code>ZAMIN_FLOAT</code></td><td>倍精度浮動小数点数</td></tr>
+            <tr><td><code>ZAMIN_BOOL</code></td><td>ブーリアン true/false</td></tr>
+            <tr><td><code>ZAMIN_STRING</code></td><td>ヒープ割り当て文字列</td></tr>
+          </tbody>
+        </table>
+
+        <h3>ZaminValue 構造体</h3>
+        <p><code>ZaminValue</code> 構造体は、C/Zamin 境界を越えられるすべての値を表すタグ付き共用体です：</p>
+        <pre><code>typedef struct {
+    int type;
+    union {
+        int64_t i;
+        double f;
+        int b;
+        const char *s;
+    } as;
+} ZaminValue;</code></pre>
+
+        <h3>ZaminModuleFunc 構造体</h3>
+        <p>エクスポートされる各関数は <code>ZaminModuleFunc</code> エントリで記述されます：</p>
+        <pre><code>typedef struct {
+    const char *name;
+    ZaminValue (*func)(int argc, ZaminValue *argv);
+    int arity;  // -1 for variadic
+} ZaminModuleFunc;</code></pre>
+
+        <h3>モジュールのエクスポート</h3>
+        <p>すべての C 拡張は、<code>ZaminModuleFunc</code> 配列を返し、提供されたポインタを介してカウントを設定する <code>zamin_module_init</code> 関数をエクスポートする必要があります：</p>
+        <pre><code> ZaminModuleFunc *zamin_module_init(int *count) {
+    static ZaminModuleFunc funcs[] = { ... };
+    *count = sizeof(funcs) / sizeof(funcs[0]);
+    return funcs;
+}</code></pre>
+
+        <h3>ビルド</h3>
+        <p>拡張を共有ライブラリとしてコンパイルします：</p>
+        <pre><code>gcc -shared -fPIC -O2 -I../include -o mymod.so mymod.c</code></pre>
+        <p>生成された <code>.so</code> ファイルをプロジェクトの <code>modules/</code> ディレクトリに配置します。<code>use mymod</code> と書くと Zamin が自動的にロードします。</p>
+
+        <h3>完全な例：math_ext</h3>
+        <pre><code>#include "zamin.h"
+
+static ZaminValue math_add(int argc, ZaminValue *argv) {
+    if (argc != 2) {
+        return (ZaminValue){ ZAMIN_NIL, { .i = 0 } };
+    }
+    int64_t a = argv[0].as.i;
+    int64_t b = argv[1].as.i;
+    return (ZaminValue){ ZAMIN_INT, { .i = a + b } };
+}
+
+static ZaminValue math_multiply(int argc, ZaminValue *argv) {
+    if (argc != 2) {
+        return (ZaminValue){ ZAMIN_NIL, { .i = 0 } };
+    }
+    int64_t a = argv[0].as.i;
+    int64_t b = argv[1].as.i;
+    return (ZaminValue){ ZAMIN_INT, { .i = a * b } };
+}
+
+ZaminModuleFunc *zamin_module_init(int *count) {
+    static ZaminModuleFunc funcs[] = {
+        { "add",      math_add,      2 },
+        { "multiply",  math_multiply,  2 },
+    };
+    *count = sizeof(funcs) / sizeof(funcs[0]);
+    return funcs;
+}</code></pre>
+        <p>Zamin での使用：</p>
+        <pre><code>use math_ext
+
+let result = math_ext.add(10, 20)
+print(result)  // 30
+
+let product = math_ext.multiply(6, 7)
+print(product)  // 42</code></pre>
+
+        <h2 id="python-interop">Python 相互運用</h2>
+        <p>Zamin は <code>python</code> 機能を有効にしてコンパイルすると、Python モジュールを直接呼び出せます。これにより、Zamin コードから広大な Python エコシステムを再利用できます。</p>
+
+        <h3>Python サポート付きビルド</h3>
+        <pre><code>cargo build --features python</code></pre>
+
+        <h3>Python モジュールのインポート</h3>
+        <p><code>py.import()</code> を使用して Python モジュールをスコープに取り込みます：</p>
+        <pre><code>let np = py.import("numpy")
+
+let arr = np.array([1, 2, 3, 4, 5])
+print(arr.mean())  // 3.0</code></pre>
+
+        <h3>Python バージョンの確認</h3>
+        <pre><code>print(py.version())  // e.g. "3.14.0"</code></pre>
+
+        <h3>型マーシャリング</h3>
+        <p>Zamin は 2 つの言語間で自動的に型を変換します：</p>
+        <table>
+          <thead>
+            <tr><th>Zamin の型</th><th>Python の型</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>int</code></td><td><code>int</code></td></tr>
+            <tr><td><code>float</code></td><td><code>float</code></td></tr>
+            <tr><td><code>string</code></td><td><code>str</code></td></tr>
+            <tr><td><code>bool</code></td><td><code>bool</code></td></tr>
+            <tr><td><code>list</code></td><td><code>list</code></td></tr>
+            <tr><td><code>nil</code></td><td><code>None</code></td></tr>
+            <tr><td><code>dict</code></td><td><code>dict</code></td></tr>
+          </tbody>
+        </table>
+
+        <h3>例</h3>
+        <p><code>requests</code> を使用して URL を取得：</p>
+        <pre><code>let requests = py.import("requests")
+
+let resp = requests.get("https://httpbin.org/json")
+print(resp.status_code)
+print(resp.json())</code></pre>
+
+        <p><code>numpy</code> を使用した行列演算：</p>
+        <pre><code>let np = py.import("numpy")
+
+let a = np.array([[1, 2], [3, 4]])
+let b = np.array([[5, 6], [7, 8]])
+let c = np.dot(a, b)
+print(c)
+// [[19 22]
+//  [43 50]]</code></pre>
+
+        <h2 id="cuda">CUDA / GPU アクセラレーション</h2>
+        <p>Zamin は CUDA が利用可能な場合、NVIDIA GPU を計算に活用できます。ビルドシステムは <code>build.rs</code> を介してコンパイル中に CUDA を自動検出します。</p>
+
+        <h3>自動検出</h3>
+        <p><code>cargo build</code> 中に、<code>build.rs</code> が <code>nvcc</code> コンパイラと CUDA ツールキットを確認します。見つかった場合、GPU モジュールは自動的にコンパイルおよびリンクされます。追加のフラグは必要ありません。</p>
+
+        <h3>LINUM モジュール</h3>
+        <p><code>LINUM</code>（Zamin Numerical）モジュールは、GPU アクセラレーションによるニューラルネットワークプリミティブを提供します：</p>
+        <ul>
+          <li><code>linum.tensor()</code> - GPU テンソルの作成</li>
+          <li><code>linum.matmul()</code> - GPU での行列乗算</li>
+          <li><code>linum.relu()</code> / <code>linum.sigmoid()</code> - 活性化関数</li>
+          <li><code>linum.softmax()</code> - 分類用ソフトマックス</li>
+          <li><code>linum.cross_entropy()</code> - 損失関数</li>
+        </ul>
+
+        <h3>GPU メモリ API</h3>
+        <pre><code>print(linum.gpu_name())        // "NVIDIA GeForce RTX 4090"
+print(linum.gpu_memory())      // 24576 (MB)
+print(linum.gpu_memory_used()) // 512 (MB)</code></pre>
+
+        <h3>例：ニューラルネットワーク</h3>
+        <pre><code>use linum
+
+let model = linum.Sequential([
+    linum.Linear(784, 256),
+    linum.ReLU(),
+    linum.Linear(256, 128),
+    linum.ReLU(),
+    linum.Linear(128, 10),
+    linum.Softmax()
+])
+
+let optimizer = linum.Adam(model.parameters(), lr: 0.001)
+let loss_fn = linum.CrossEntropyLoss()
+
+for epoch in 0..10 {
+    let pred = model.forward(train_data)
+    let loss = loss_fn(pred, train_labels)
+    optimizer.zero_grad()
+    loss.backward()
+    optimizer.step()
+    print("Epoch {epoch}, Loss: {loss.item():.4f}")
+}</code></pre>
+
+        <h2 id="embedding-in-rust">Rust への埋め込み</h2>
+        <p>Zamin はライブラリとして Rust アプリケーションに埋め込むことができます。これはツール、IDE、またはスクリプト機能が必要なアプリケーションの構築に役立ちます。</p>
+
+        <h3>Cargo.toml 依存関係</h3>
+        <pre><code>[dependencies]
+zamin = { path = "../zamin" }</code></pre>
+
+        <h3>API</h3>
+        <p>2 つの主要な関数が提供されています：</p>
+        <ul>
+          <li><code>zamin::execute_source(code: &amp;str)</code> - Zamin ソース文字列を実行</li>
+          <li><code>zamin::execute_file(path: &amp;str)</code> - ディスクから Zamin ファイルを実行</li>
+        </ul>
+
+        <h3>完全な Rust 埋め込み例</h3>
+        <pre><code>func main() {
+    // Execute a Zamin source string
+    zamin::execute_source(r#"
+        let greeting = "Hello from Zamin!"
+        print(greeting)
+        let result = 2 + 3
+        print("2 + 3 = {result}")
+    "#).expect("Failed to execute Zamin source");
+
+    // Execute a Zamin file
+    zamin::execute_file("scripts/app.zamin").expect("Failed to execute file");
+
+    // Access Zamin values from Rust
+    let mut vm = zamin::Vm::new();
+    vm.execute("let x = 42").unwrap();
+    let value = vm.get_global("x").unwrap();
+    println!("Zamin returned: {:?}", value);
+}</code></pre>
+
+        <h2 id="lsp-server">LSP サーバー</h2>
+        <p>Zamin にはビルトインの Language Server Protocol (LSP) 実装が含まれており、LSP をサポートする任意のエディタで IDE 機能を提供します。</p>
+
+        <h3>zamin-lsp バイナリ</h3>
+        <p>Zamin をビルドすると、<code>zamin-lsp</code> バイナリが出力ディレクトリに作成されます。これは LSP プロトコルを使用して stdio で通信します。</p>
+
+        <h3>機能</h3>
+        <ul>
+          <li><strong>補完</strong> - キーワード、組み込み関数、モジュール API、ユーザー定義変数のコンテキスト認識型自動補完</li>
+          <li><strong>ホバー</strong> - すべてのシンボルに対する型情報とドキュメントのホバー表示</li>
+          <li><strong>診断</strong> - リアルタイムの構文エラー、型の不一致、未定義参照</li>
+        </ul>
+
+        <h3>VS Code 拡張</h3>
+        <p>VS Code 拡張が利用可能です。マーケットプレイスからインストールし、<code>settings.json</code> に以下を追加してください：</p>
+        <pre><code>{
+  "zamin.server.path": "/path/to/zamin-lsp"
+}</code></pre>
+
+        <p>拡張はシンタックスハイライト、エラー波線、自動補完ポップアップ、ホバードキュメントをすぐに提供します。</p>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/advanced-guide.html">GitHub でこのページを編集</a>
+          <span>最終更新: 2026年7月</span>
+        </div>
+        <div class="feedback">
+          <span>このページは役に立ちましたか？</span>
+          <button>&#128077; はい</button>
+          <button>&#128078; いいえ</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

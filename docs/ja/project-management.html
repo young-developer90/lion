@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プロジェクト管理 - Zamin プログラミング言語</title>
+  <meta name="description" content="Zamin CLI の完全リファレンス：プロジェクトスキャフォールディング、コードの実行、REPL、フォーマット、テスト、zamin.json マニフェスト。">
+  <meta property="og:title" content="プロジェクト CLI - Zamin">
+  <meta property="og:description" content="Zamin CLI コマンド、プロジェクト構造、マニフェスト形式、テスト、REPL リファレンス。">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin ドキュメント</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="ドキュメントを検索... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="テーマ切替">&#9790;</button>
+      <button id="print-btn" title="印刷">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="言語を選択">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">はじめに</div>
+        <a href="index.html" class="sidebar-link">概要</a>
+        <a href="getting-started.html" class="sidebar-link">インストール</a>
+        <a href="playground.html" class="sidebar-link">プレイグラウンド</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">言語</div>
+        <a href="language-guide.html" class="sidebar-link">言語ガイド</a>
+        <a href="standard-library.html" class="sidebar-link">標準ライブラリ</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">機能</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI ツールキット</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">高度な機能</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">リファレンス</div>
+        <a href="project-management.html" class="sidebar-link active">プロジェクト管理</a>
+        <a href="performance.html" class="sidebar-link">パフォーマンス</a>
+        <a href="faq.html" class="sidebar-link">よくある質問</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">ホーム</a><span class="sep">/</span><span>プロジェクト管理</span>
+        </div>
+
+        <h1>プロジェクト管理</h1>
+        <p>Zamin には、プロジェクトの作成、実行、フォーマット、テストのための完全な CLI ツールチェーンが付属しています。このページでは、すべてのコマンドとプロジェクトマニフェスト形式について説明します。</p>
+
+        <h2 id="cli-commands">CLI コマンド</h2>
+        <table>
+          <thead>
+            <tr><th>コマンド</th><th>説明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>zamin run &lt;file&gt; [--disassemble]</code></td><td>Zamin ソースファイルを実行します。<code>--disassemble</code> を指定すると、実行前にバイトコードを表示します。</td></tr>
+            <tr><td><code>zamin repl</code></td><td>インタラクティブな REPL（Read-Eval-Print Loop）を起動します。</td></tr>
+            <tr><td><code>zamin version</code></td><td>Zamin のバージョン、ビルド日、LLVM バージョンを表示します。</td></tr>
+            <tr><td><code>zamin fmt &lt;file&gt;</code></td><td>Zamin ソースファイルをインプレースでフォーマットします。</td></tr>
+            <tr><td><code>zamin test [filter]</code></td><td>すべてのテスト、または <code>filter</code> に一致するテストのみを実行します。</td></tr>
+            <tr><td><code>zamin new &lt;name&gt;</code></td><td>標準レイアウトで新しいプロジェクトディレクトリをスキャフォールドします。</td></tr>
+            <tr><td><code>zamin init</code></td><td>カレントディレクトリに <code>zamin.json</code> マニフェストを初期化します。</td></tr>
+            <tr><td><code>zamin build</code></td><td>プロジェクトをスタンドアロン実行可能ファイルにビルドします。</td></tr>
+            <tr><td><code>zamin-rs &lt;file&gt;</code></td><td>クイックランナー - 1 つのファイルをコンパイルして 1 ステップで実行します。</td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="project-structure">プロジェクト構造</h2>
+        <p>新しいプロジェクトを作成するには：</p>
+        <pre><code>zamin new my_project</code></pre>
+        <p>これにより、次のレイアウトが生成されます。</p>
+        <pre><code>my_project/
+├── zamin.json
+├── src/
+│   └── main.zamin
+├── tests/
+│   └── main_test.zamin
+└── modules/</code></pre>
+        <p>既存のディレクトリにマニフェストを初期化することもできます。</p>
+        <pre><code>mkdir my_project &amp;&amp; cd my_project
+zamin init</code></pre>
+
+        <h2 id="zamin-json">zamin.json マニフェスト</h2>
+        <p><code>zamin.json</code> ファイルはプロジェクトを記述します。以下は、サポートされているすべてのフィールドを含む完全な形式です。</p>
+        <pre><code>{
+  "name": "my_project",
+  "version": "1.0.0",
+  "description": "A short description of the project.",
+  "author": "Your Name",
+  "license": "MIT",
+  "entry": "src/main.zamin",
+  "dependencies": {
+    "http": "^1.0.0",
+    "json": "^2.1.0"
+  },
+  "dev_dependencies": {
+    "test_utils": "^0.5.0"
+  },
+  "scripts": {
+    "start": "zamin run src/main.zamin",
+    "test": "zamin test",
+    "fmt": "zamin fmt src/"
+  },
+  "modules_path": "modules/",
+  "target": "linux-x86_64",
+  "optimization": "release"
+}</code></pre>
+        <table>
+          <thead>
+            <tr><th>フィールド</th><th>型</th><th>説明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>string</td><td>プロジェクト名</td></tr>
+            <tr><td><code>version</code></td><td>string</td><td>セマンティックバージョン</td></tr>
+            <tr><td><code>description</code></td><td>string</td><td>短い説明</td></tr>
+            <tr><td><code>author</code></td><td>string</td><td>作者名</td></tr>
+            <tr><td><code>license</code></td><td>string</td><td>ライセンス識別子（SPDX）</td></tr>
+            <tr><td><code>entry</code></td><td>string</td><td>エントリポイントファイル（デフォルト：<code>src/main.zamin</code>）</td></tr>
+            <tr><td><code>dependencies</code></td><td>object</td><td>実行時依存関係</td></tr>
+            <tr><td><code>dev_dependencies</code></td><td>object</td><td>開発時のみの依存関係</td></tr>
+            <tr><td><code>scripts</code></td><td>object</td><td><code>zamin run --script &lt;name&gt;</code> で実行可能な名前付きスクリプト</td></tr>
+            <tr><td><code>modules_path</code></td><td>string</td><td>ネイティブモジュールをロードするパス（デフォルト：<code>modules/</code>）</td></tr>
+            <tr><td><code>target</code></td><td>string</td><td>ビルドターゲットトリプル</td></tr>
+            <tr><td><code>optimization</code></td><td>string</td><td><code>"debug"</code> または <code>"release"</code></td></tr>
+          </tbody>
+        </table>
+
+        <h2 id="repl">REPL</h2>
+        <p>インタラクティブ REPL を起動するには：</p>
+        <pre><code>zamin repl</code></pre>
+        <p>REPL では次の組み込みコマンドが使用できます。</p>
+        <table>
+          <thead>
+            <tr><th>コマンド</th><th>説明</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>exit</code></td><td>REPL を終了</td></tr>
+            <tr><td><code>help</code></td><td>使用可能なコマンドとショートカットを表示</td></tr>
+            <tr><td><code>history</code></td><td>現在のセッションのコマンド履歴を表示</td></tr>
+          </tbody>
+        </table>
+
+        <h3>タブ補完</h3>
+        <p><code>Tab</code> キーを押すと、キーワード、組み込み関数、以前に使用した識別子が自動補完されます。<code>Tab</code> を 2 回押すと、すべての候補が表示されます。</p>
+
+        <h2 id="formatter">フォーマッタ</h2>
+        <p>Zamin には組み込みのコードフォーマッタが含まれています。一貫したスタイルを適用するには：</p>
+        <pre><code>zamin fmt src/main.zamin</code></pre>
+        <p>ディレクトリ内のすべてのファイルをフォーマットすることもできます。</p>
+        <pre><code>zamin fmt src/</code></pre>
+        <p>フォーマッタはべき等です。複数回実行しても同じ出力が得られます。既存のインデントは保持され、インポートの順序は変更されません。</p>
+
+        <h2 id="testing">テスト</h2>
+        <p>Zamin には組み込みのテストフレームワークがあります。<code>test</code> モジュールを使用してテストを記述します。</p>
+        <pre><code>use test
+
+func test_addition() {
+    test.assert_eq(1 + 1, 2, "1 + 1 should equal 2");
+    test.assert(2 + 2 == 4, "2 + 2 should equal 4");
+}
+
+func test_string_reverse() {
+    let input = "hello";
+    let reversed = input.reverse();
+    test.assert_eq(reversed, "olleh", "reverse of 'hello' is 'olleh'");
+}
+
+func test_error_handling() {
+    test.assert_raises(func() {
+        let x = nil;
+        x.value();
+    }, "accessing nil should raise an error");
+}</code></pre>
+        <p>テストを実行するには：</p>
+        <pre><code>zamin test</code></pre>
+        <p>名前がフィルタに一致するテストのみを実行するには：</p>
+        <pre><code>zamin test addition</code></pre>
+        <p>これにより <code>test_addition</code> のみが実行されます。フィルタはすべてのテスト関数名に対して部分一致でチェックされます。</p>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/project-management.html">GitHub でこのページを編集</a>
+          <span>最終更新: 2026年7月</span>
+        </div>
+        <div class="feedback">
+          <span>役に立ちましたか？</span>
+          <button>&#128077; はい</button>
+          <button>&#128078; いいえ</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>

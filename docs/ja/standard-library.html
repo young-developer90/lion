@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="ja" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>標準ライブラリ - Zamin プログラミング言語</title>
+  <meta name="description" content="Zamin 標準ライブラリの全モジュールの完全リファレンス">
+  <meta property="og:title" content="標準ライブラリ - Zamin">
+  <meta property="og:description" content="Zamin 標準ライブラリの全モジュールの完全リファレンス：math, fs, json, http, regex など。">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin ドキュメント</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="ドキュメントを検索... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="テーマ切替">&#9790;</button>
+      <button id="print-btn" title="印刷">&#128424;</button>
+      <div class="lang-dropdown">
+        <button class="lang-btn" id="lang-btn" title="Select language">🌐 EN</button>
+        <div class="lang-menu" id="lang-menu">
+          <a href="#" data-lang="en" class="lang-option active">🇺🇸 English (US)</a>
+          <a href="#" data-lang="fa" class="lang-option">🇮🇷 فارسی</a>
+          <a href="#" data-lang="ja" class="lang-option">🇯🇵 日本語</a>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <div class="main-layout">
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">はじめに</div>
+        <a href="index.html" class="sidebar-link">概要</a>
+        <a href="getting-started.html" class="sidebar-link">インストール</a>
+        <a href="playground.html" class="sidebar-link">プレイグラウンド</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">言語</div>
+        <a href="language-guide.html" class="sidebar-link">言語ガイド</a>
+        <a href="standard-library.html" class="sidebar-link active">標準ライブラリ</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">機能</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI ツールキット</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">高度な機能</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">リファレンス</div>
+        <a href="project-management.html" class="sidebar-link">Project CLI</a>
+        <a href="performance.html" class="sidebar-link">パフォーマンス</a>
+        <a href="faq.html" class="sidebar-link">よくある質問</a>
+      </div>
+    </nav>
+    <main class="content">
+      <div class="content-inner">
+        <div class="breadcrumb">
+          <a href="index.html">ホーム</a><span class="sep">/</span><span>標準ライブラリ</span>
+        </div>
+
+        <h1>標準ライブラリリファレンス</h1>
+        <p>Zamin には包括的な標準ライブラリが付属しています。組み込み関数はグローバルに利用可能で、その他のすべてのモジュールはインポートなしで使用できます。このページでは、標準ライブラリのすべてのモジュールとすべての関数を説明します。</p>
+
+        <!-- ============================================================ -->
+        <!-- TABLE OF CONTENTS -->
+        <!-- ============================================================ -->
+        <div class="toc">
+          <div class="toc-title">目次</div>
+          <a href="#built-in-functions">組み込み関数</a>
+          <a href="#math-module"><code>math</code> モジュール</a>
+          <a href="#string-module"><code>string</code> モジュール</a>
+          <a href="#fs-module"><code>fs</code> モジュール</a>
+          <a href="#os-module"><code>os</code> モジュール</a>
+          <a href="#json-module"><code>json</code> モジュール</a>
+          <a href="#re-module"><code>re</code> モジュール</a>
+          <a href="#http-module"><code>http</code> モジュール</a>
+          <a href="#url-module"><code>url</code> モジュール</a>
+          <a href="#csv-module"><code>csv</code> モジュール</a>
+          <a href="#datetime-module"><code>datetime</code> モジュール</a>
+          <a href="#stats-module"><code>stats</code> モジュール</a>
+          <a href="#hashlib-module"><code>hashlib</code> モジュール</a>
+          <a href="#logging-module"><code>logging</code> モジュール</a>
+          <a href="#subprocess-module"><code>subprocess</code> モジュール</a>
+          <a href="#path-module"><code>path</code> モジュール</a>
+          <a href="#collections-module"><code>collections</code> モジュール</a>
+          <a href="#itertools-module"><code>itertools</code> モジュール</a>
+          <a href="#test-module"><code>test</code> モジュール</a>
+          <a href="#time-module"><code>time</code> モジュール</a>
+          <a href="#rand-module"><code>rand</code> モジュール</a>
+          <a href="#matrix-module"><code>matrix</code> モジュール</a>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- BUILT-IN FUNCTIONS -->
+        <!-- ============================================================ -->
+        <h2 id="built-in-functions">組み込み関数</h2>
+        <p>以下の関数はインポートなしですべての Zamin スクリプトでグローバルに利用可能です。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>print</code></td><td><code>print(*args)</code></td><td>すべての引数を stdout に改行なしで出力します。複数の引数は連続して出力されます。</td></tr>
+            <tr><td><code>println</code></td><td><code>println(*args)</code></td><td><code>print</code> と同じですが、すべての引数の後に改行を追加します。</td></tr>
+            <tr><td><code>input</code></td><td><code>input(prompt?)</code></td><td>オプションのプロンプトを表示し、stdin から 1 行読み取り、トリミングされた文字列として返します。</td></tr>
+            <tr><td><code>type</code></td><td><code>type(val)</code></td><td><code>val</code> の型名を文字列として返します（例：<code>"int"</code>、<code>"string"</code>、<code>"list"</code>）。</td></tr>
+            <tr><td><code>len</code></td><td><code>len(val)</code></td><td>文字列、リスト、辞書、セットの長さを返します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>print("Hello, Zamin!");
+print("the answer is", 42);
+println("this has a newline");
+
+let name = input("Enter your name: ");
+print(f"Hello, {name}!");
+
+print(type(42));          // int
+print(type("hello"));     // string
+print(type([1, 2, 3]));   // list
+print(type(true));        // bool
+
+print(len("hello"));      // 5
+print(len([1, 2, 3]));    // 3</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- MATH MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="math-module"><code>math</code> モジュール</h2>
+        <p>数学関数と定数。すべての三角関数はラジアンを使用します。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>sqrt</code></td><td><code>math.sqrt(x)</code></td><td><code>x</code> の平方根を返します。</td></tr>
+            <tr><td><code>pow</code></td><td><code>math.pow(x, y)</code></td><td><code>x</code> の <code>y</code> 乗を返します。</td></tr>
+            <tr><td><code>abs</code></td><td><code>math.abs(x)</code></td><td><code>x</code> の絶対値を返します。</td></tr>
+            <tr><td><code>sin</code></td><td><code>math.sin(x)</code></td><td><code>x</code>（ラジアン）の正弦を返します。</td></tr>
+            <tr><td><code>cos</code></td><td><code>math.cos(x)</code></td><td><code>x</code>（ラジアン）の余弦を返します。</td></tr>
+            <tr><td><code>tan</code></td><td><code>math.tan(x)</code></td><td><code>x</code>（ラジアン）の正接を返します。</td></tr>
+            <tr><td><code>pi</code></td><td><code>math.pi</code></td><td>円周率 pi（3.14159...）。</td></tr>
+            <tr><td><code>e</code></td><td><code>math.e</code></td><td>オイラー数 e（2.71828...）。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>print(math.sqrt(25));            // 5.0
+print(math.pow(2, 10));          // 1024.0
+print(math.abs(-42));            // 42.0
+
+print(math.sin(math.pi / 2));    // 1.0
+print(math.cos(0));              // 1.0
+print(math.tan(math.pi / 4));    // ~1.0
+
+print(math.pi);                  // 3.141592653589793
+print(math.e);                   // 2.718281828459045</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- STRING MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="string-module"><code>string</code> モジュール</h2>
+        <p>文字列操作用の関数。すべての関数は最初の引数として文字列を受け取ります。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>len</code></td><td><code>string.len(s)</code></td><td><code>s</code> のバイト長を返します。</td></tr>
+            <tr><td><code>upper</code></td><td><code>string.upper(s)</code></td><td><code>s</code> の大文字コピーを返します。</td></tr>
+            <tr><td><code>lower</code></td><td><code>string.lower(s)</code></td><td><code>s</code> の小文字コピーを返します。</td></tr>
+            <tr><td><code>trim</code></td><td><code>string.trim(s)</code></td><td><code>s</code> の先頭と末尾の空白を削除します。</td></tr>
+            <tr><td><code>trim_start</code></td><td><code>string.trim_start(s)</code></td><td><code>s</code> の先頭の空白を削除します。</td></tr>
+            <tr><td><code>trim_end</code></td><td><code>string.trim_end(s)</code></td><td><code>s</code> の末尾の空白を削除します。</td></tr>
+            <tr><td><code>split</code></td><td><code>string.split(s, delim?)</code></td><td><code>s</code> を <code>delim</code>（デフォルト：空白）で分割します。リストを返します。</td></tr>
+            <tr><td><code>join</code></td><td><code>string.join(list, sep?)</code></td><td>リストのアイテムをオプションの区切り文字で結合して文字列にします。</td></tr>
+            <tr><td><code>contains</code></td><td><code>string.contains(s, sub)</code></td><td><code>s</code> が <code>sub</code> を含む場合 <code>true</code> を返します。</td></tr>
+            <tr><td><code>starts_with</code></td><td><code>string.starts_with(s, prefix)</code></td><td><code>s</code> が <code>prefix</code> で始まる場合 <code>true</code> を返します。</td></tr>
+            <tr><td><code>ends_with</code></td><td><code>string.ends_with(s, suffix)</code></td><td><code>s</code> が <code>suffix</code> で終わる場合 <code>true</code> を返します。</td></tr>
+            <tr><td><code>replace</code></td><td><code>string.replace(s, from, to)</code></td><td><code>s</code> 内の <code>from</code> のすべての出現を <code>to</code> に置き換えます。</td></tr>
+            <tr><td><code>reverse</code></td><td><code>string.reverse(s)</code></td><td><code>s</code> の反転コピーを返します。</td></tr>
+            <tr><td><code>repeat</code></td><td><code>string.repeat(s, n)</code></td><td><code>s</code> を <code>n</code> 回繰り返したものを返します。</td></tr>
+            <tr><td><code>substring</code></td><td><code>string.substring(s, start, end?)</code></td><td><code>start</code> から <code>end</code>（または文字列の末尾）までの部分文字列を返します。</td></tr>
+            <tr><td><code>bytes</code></td><td><code>string.bytes(s)</code></td><td><code>s</code> の整数バイト値のリストを返します。</td></tr>
+            <tr><td><code>from_bytes</code></td><td><code>string.from_bytes(list)</code></td><td>整数のリストを文字列に変換します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>print(string.len("hello"));                          // 5
+print(string.upper("hello"));                        // "HELLO"
+print(string.lower("HELLO"));                        // "hello"
+print(string.trim("  hi  "));                        // "hi"
+print(string.trim_start("  hi  "));                  // "hi  "
+print(string.trim_end("  hi  "));                    // "  hi"
+
+print(string.split("a,b,c", ","));                   // ["a", "b", "c"]
+print(string.split("hello world"));                  // ["hello", "world"]
+print(string.join(["a", "b", "c"], ", "));           // "a, b, c"
+
+print(string.contains("hello world", "world"));      // true
+print(string.starts_with("hello", "hel"));           // true
+print(string.ends_with("hello", "llo"));             // true
+print(string.replace("a-b-c", "-", ":"));            // "a:b:c"
+
+print(string.reverse("abc"));                        // "cba"
+print(string.repeat("x", 3));                        // "xxx"
+print(string.substring("hello", 1, 4));              // "ell"
+
+let bytes = string.bytes("ABC");                     // [65, 66, 67]
+print(string.from_bytes(bytes));                     // "ABC"</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- FS MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="fs-module"><code>fs</code> モジュール</h2>
+        <p>ファイルの読み書きのためのファイルシステム操作。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>read</code></td><td><code>fs.read(path)</code></td><td><code>path</code> のファイル全体を読み取り、その内容を文字列として返します。</td></tr>
+            <tr><td><code>write</code></td><td><code>fs.write(path, content)</code></td><td><code>path</code> のファイルに <code>content</code> を書き込み、既存の内容を上書きします。<code>true</code> を返します。</td></tr>
+            <tr><td><code>exists</code></td><td><code>fs.exists(path)</code></td><td><code>path</code> がディスク上に存在する場合 <code>true</code> を返します。</td></tr>
+            <tr><td><code>mkdir</code></td><td><code>fs.mkdir(path)</code></td><td><code>path</code> にディレクトリ（親を含む）を作成します。<code>true</code> を返します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>fs.write("hello.txt", "Hello, Zamin!");
+let content = fs.read("hello.txt");
+print(content);                         // Hello, Zamin!
+
+print(fs.exists("hello.txt"));          // true
+print(fs.exists("missing.txt"));        // false
+
+fs.mkdir("output/data");
+fs.write("output/data/result.txt", "done");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- OS MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="os-module"><code>os</code> モジュール</h2>
+        <p>オペレーティングシステムとの連携：環境変数、引数、シェルコマンド。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>cwd</code></td><td><code>os.cwd()</code></td><td>現在の作業ディレクトリを文字列として返します。</td></tr>
+            <tr><td><code>args</code></td><td><code>os.args()</code></td><td>コマンドライン引数のリストを返します。</td></tr>
+            <tr><td><code>getenv</code></td><td><code>os.getenv(name)</code></td><td>環境変数 <code>name</code> の値を返します。設定されていない場合は <code>nil</code> を返します。</td></tr>
+            <tr><td><code>name</code></td><td><code>os.name()</code></td><td>OS 名を返します（例：<code>"linux"</code>、<code>"windows"</code>）。</td></tr>
+            <tr><td><code>system</code></td><td><code>os.system(cmd)</code></td><td>システムシェルを介して <code>cmd</code> を実行します。終了コードを返します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>print(os.cwd());                        // /home/user/project
+print(os.name());                       // "linux"
+
+let args = os.args();
+print(f"You are running: {args[0]}");
+
+let home = os.getenv("HOME");
+print(f"Home dir: {home}");
+
+let status = os.system("echo hello");
+print(f"Exit code: {status}");           // 0</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- JSON MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="json-module"><code>json</code> モジュール</h2>
+        <p>JSON のパースとシリアライゼーション。文字列、数値、ブーリアン、null、配列、オブジェクトをサポートします。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>parse</code></td><td><code>json.parse(s)</code></td><td>JSON 文字列を Zamin の値（辞書、リストなど）にパースします。</td></tr>
+            <tr><td><code>loads</code></td><td><code>json.loads(s)</code></td><td><code>json.parse</code> のエイリアス。</td></tr>
+            <tr><td><code>stringify</code></td><td><code>json.stringify(val)</code></td><td>Zamin の値を JSON 文字列に変換します。</td></tr>
+            <tr><td><code>dumps</code></td><td><code>json.dumps(val)</code></td><td><code>json.stringify</code> のエイリアス。</td></tr>
+            <tr><td><code>dump</code></td><td><code>json.dump(val, path)</code></td><td><code>val</code> を JSON として <code>path</code> のファイルに書き込みます。</td></tr>
+            <tr><td><code>load</code></td><td><code>json.load(path)</code></td><td><code>path</code> の JSON ファイルを読み取りパースします。</td></tr>
+            <tr><td><code>pretty</code></td><td><code>json.pretty(val, indent?)</code></td><td>設定可能なインデント（デフォルト：2 スペース）で整形された JSON 文字列を返します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let data = json.parse('{"name": "Zamin", "version": 1.0}');
+print(data["name"]);                    // Zamin
+
+let encoded = json.stringify(data);
+print(encoded);                         // {"name":"Zamin","version":1.0}
+
+let pretty = json.pretty(data);
+print(pretty);
+// {
+//   "name": "Zamin",
+//   "version": 1.0
+// }
+
+json.dump(data, "config.json");
+let loaded = json.load("config.json");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- RE MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="re-module"><code>re</code> モジュール</h2>
+        <p>Rust の正規表現構文を使用した正規表現サポート。パターンは繰り返し使用するためにキャッシュされます。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>find</code></td><td><code>re.find(pattern, text)</code></td><td><code>text</code> 内の <code>pattern</code> の最初の一致を返します。見つからない場合は <code>nil</code>。</td></tr>
+            <tr><td><code>is_match</code></td><td><code>re.is_match(pattern, text)</code></td><td><code>pattern</code> が <code>text</code> のどこかに一致する場合 <code>true</code> を返します。</td></tr>
+            <tr><td><code>split</code></td><td><code>re.split(pattern, text)</code></td><td><code>text</code> を正規表現 <code>pattern</code> で分割します。リストを返します。</td></tr>
+            <tr><td><code>sub</code></td><td><code>re.sub(pattern, replacement, text)</code></td><td><code>pattern</code> の最初の一致を <code>replacement</code> で置き換えます。</td></tr>
+            <tr><td><code>sub_all</code></td><td><code>re.sub_all(pattern, replacement, text)</code></td><td><code>pattern</code> のすべての一致を <code>replacement</code> で置き換えます。</td></tr>
+            <tr><td><code>find_all</code></td><td><code>re.find_all(pattern, text)</code></td><td><code>text</code> 内の <code>pattern</code> のすべての一致のリストを返します。</td></tr>
+            <tr><td><code>captures</code></td><td><code>re.captures(pattern, text)</code></td><td>キャプチャグループ（グループ 0 を含む）のリストを返します。見つからない場合は <code>nil</code>。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let text = "Contact: user@example.com, admin@test.com";
+
+let emails = re.find_all(r"[\w.]+@[\w.]+", text);
+print(emails);                          // ["user@example.com", "admin@test.com"]
+
+let first = re.find(r"\d+", "abc 123 def 456");
+print(first);                           // "123"
+
+print(re.is_match(r"\d+", "abc 123"));  // true
+
+let cleaned = re.sub(r"\d+", "#", "abc 123 def 456");
+print(cleaned);                         // "abc # def 456"
+
+let all_clean = re.sub_all(r"\d+", "#", "abc 123 def 456");
+print(all_clean);                       // "abc # def #"
+
+let parts = re.split(r"[,;]", "a,b;c");
+print(parts);                           // ["a", "b", "c"]
+
+let caps = re.captures(r"(\w+)@(\w+)", "user@example.com");
+print(caps);                           // ["user@example.com", "user", "example.com"]</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- HTTP MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="http-module"><code>http</code> モジュール</h2>
+        <p>リクエストを行うための HTTP クライアント。すべての関数は、<code>status</code>（int）、<code>headers</code>（dict）、<code>body</code>（string）キーを持つレスポンス辞書を返します。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>get</code></td><td><code>http.get(url)</code></td><td><code>url</code> に GET リクエストを送信します。レスポンス辞書を返します。</td></tr>
+            <tr><td><code>post</code></td><td><code>http.post(url, body)</code></td><td><code>url</code> に <code>body</code>（文字列）を含む POST リクエストを送信します。レスポンス辞書を返します。</td></tr>
+            <tr><td><code>request</code></td><td><code>http.request(method, url, headers?, body?)</code></td><td>任意の HTTP メソッドでリクエストを送信します。<code>headers</code> は辞書、<code>body</code> は文字列です。</td></tr>
+          </tbody>
+        </table>
+        <h3>レスポンス辞書</h3>
+        <table>
+          <thead><tr><th>キー</th><th>型</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>status</code></td><td><code>int</code></td><td>HTTP ステータスコード（例：200、404）。</td></tr>
+            <tr><td><code>headers</code></td><td><code>dict</code></td><td>レスポンスヘッダーのキーと値のペア。</td></tr>
+            <tr><td><code>body</code></td><td><code>string</code></td><td>レスポンスボディの文字列。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let resp = http.get("https://api.github.com/repos/young-developer90/zamin");
+print(resp.status);                     // 200
+print(resp.body);                       // JSON string
+
+let resp2 = http.post("https://httpbin.org/post",
+    json.stringify({"key": "value"})
+);
+print(resp2.status);
+
+let resp3 = http.request("GET", "https://httpbin.org/get",
+    {"Accept": "application/json"}
+);
+print(resp3.headers["content-type"]);</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- URL MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="url-module"><code>url</code> モジュール</h2>
+        <p>URL のパース、エンコード、デコード、結合。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>parse</code></td><td><code>url.parse(url_string)</code></td><td>URL 文字列をパースし、<code>scheme</code>、<code>host</code>、<code>path</code>、<code>query</code>、<code>fragment</code>、<code>port</code>、<code>query_params</code> キーの辞書を返します。</td></tr>
+            <tr><td><code>encode</code></td><td><code>url.encode(text)</code></td><td>指定されたテキストを URL エンコードします（パーセントエンコーディング）。</td></tr>
+            <tr><td><code>decode</code></td><td><code>url.decode(text)</code></td><td>指定されたパーセントエンコードされたテキストを URL デコードします。</td></tr>
+            <tr><td><code>join</code></td><td><code>url.join(base, relative)</code></td><td>ベース URL に対して相対 URL を解決します。結合された URL 文字列を返します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let parsed = url.parse("https://example.com:8080/path?q=1#section");
+print(parsed["scheme"]);                // "https"
+print(parsed["host"]);                  // "example.com"
+print(parsed["port"]);                  // 8080
+print(parsed["path"]);                  // "/path"
+
+let encoded = url.encode("hello world&foo=bar");
+print(encoded);                         // "hello%20world%26foo%3Dbar"
+print(url.decode(encoded));             // "hello world&foo=bar"
+
+let joined = url.join("https://example.com/api", "users/1");
+print(joined);                          // "https://example.com/api/users/1"</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- CSV MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="csv-module"><code>csv</code> モジュール</h2>
+        <p>CSV のパースとシリアライゼーション。引用符で囲まれたフィールドとエスケープされたカンマをサポートします。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>parse</code></td><td><code>csv.parse(text)</code></td><td>CSV テキストを行のリスト（各行は文字列のリスト）にパースします。</td></tr>
+            <tr><td><code>parse_header</code></td><td><code>csv.parse_header(text)</code></td><td>最初の行をヘッダーとして CSV テキストをパースします。辞書のリストを返します。</td></tr>
+            <tr><td><code>stringify</code></td><td><code>csv.stringify(rows)</code></td><td>行のリスト（リストまたは辞書）を CSV テキストに変換します。</td></tr>
+            <tr><td><code>load</code></td><td><code>csv.load(path)</code></td><td><code>path</code> の CSV ファイルを読み取りパースします。</td></tr>
+            <tr><td><code>save</code></td><td><code>csv.save(path, rows)</code></td><td>行のリストを <code>path</code> の CSV ファイルに保存します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let csv_text = "name,age\nAlice,30\nBob,25";
+let rows = csv.parse(csv_text);
+print(rows);                            // [["name","age"],["Alice","30"],["Bob","25"]]
+
+let records = csv.parse_header(csv_text);
+print(records[0]["name"]);              // "Alice"
+print(records[0]["age"]);               // "30"
+
+let output = csv.stringify([["x", "y"], ["1", "2"], ["3", "4"]]);
+print(output);
+
+csv.save("output.csv", [["a", "b"], ["1", "2"]]);
+let data = csv.load("output.csv");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- DATETIME MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="datetime-module"><code>datetime</code> モジュール</h2>
+        <p>日付と時刻の関数。日時値は <code>year</code>、<code>month</code>、<code>day</code>、<code>hour</code>、<code>minute</code>、<code>second</code>、<code>unix</code> キーを持つ辞書として表されます。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>now</code></td><td><code>datetime.now()</code></td><td>現在の日時を日時辞書として返します。</td></tr>
+            <tr><td><code>from_unix</code></td><td><code>datetime.from_unix(timestamp)</code></td><td>Unix タイムスタンプ（秒）を日時辞書に変換します。</td></tr>
+            <tr><td><code>format</code></td><td><code>datetime.format(dt, fmt)</code></td><td>書式指定子を使用して日時辞書をフォーマットします。文字列を返します。</td></tr>
+            <tr><td><code>parse</code></td><td><code>datetime.parse(s, fmt)</code></td><td>書式指定子を使用して日付文字列をパースします。日時辞書を返します。</td></tr>
+            <tr><td><code>unix</code></td><td><code>datetime.unix(dt)</code></td><td>日時辞書から Unix タイムスタンプを返します。</td></tr>
+          </tbody>
+        </table>
+        <h3>書式指定子</h3>
+        <table>
+          <thead><tr><th>指定子</th><th>意味</th><th>例</th></tr></thead>
+          <tbody>
+            <tr><td><code>%Y</code></td><td>4 桁の年</td><td><code>2026</code></td></tr>
+            <tr><td><code>%y</code></td><td>2 桁の年</td><td><code>26</code></td></tr>
+            <tr><td><code>%m</code></td><td>月（01-12）</td><td><code>07</code></td></tr>
+            <tr><td><code>%d</code></td><td>日（01-31）</td><td><code>16</code></td></tr>
+            <tr><td><code>%H</code></td><td>時（00-23）</td><td><code>14</code></td></tr>
+            <tr><td><code>%M</code></td><td>分（00-59）</td><td><code>30</code></td></tr>
+            <tr><td><code>%S</code></td><td>秒（00-59）</td><td><code>05</code></td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let now = datetime.now();
+print(now["year"]);                     // 2026
+print(now["month"]);                    // 7
+print(now["day"]);                      // 16
+
+let formatted = datetime.format(now, "%Y-%m-%d %H:%M:%S");
+print(formatted);                       // "2026-07-16 14:30:05"
+
+let short = datetime.format(now, "%m/%d/%Y");
+print(short);                           // "07/16/2026"
+
+let parsed = datetime.parse("2026-01-15", "%Y-%m-%d");
+print(parsed["year"]);                  // 2026
+print(parsed["month"]);                 // 1
+
+let ts = datetime.from_unix(1700000000);
+print(datetime.format(ts, "%Y-%m-%d")); // "2023-11-14"
+
+print(datetime.unix(now));              // current timestamp</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- STATS MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="stats-module"><code>stats</code> モジュール</h2>
+        <p>数値リストのための統計関数。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>sum</code></td><td><code>stats.sum(list)</code></td><td>すべての要素の合計を返します。</td></tr>
+            <tr><td><code>mean</code></td><td><code>stats.mean(list)</code></td><td>算術平均を返します。</td></tr>
+            <tr><td><code>median</code></td><td><code>stats.median(list)</code></td><td>中央値を返します。</td></tr>
+            <tr><td><code>mode</code></td><td><code>stats.mode(list)</code></td><td>最頻値のリストを返します。</td></tr>
+            <tr><td><code>variance</code></td><td><code>stats.variance(list)</code></td><td>標本分散を返します。</td></tr>
+            <tr><td><code>std</code></td><td><code>stats.std(list)</code></td><td>標本標準偏差を返します。</td></tr>
+            <tr><td><code>min</code></td><td><code>stats.min(list)</code></td><td>最小値を返します。</td></tr>
+            <tr><td><code>max</code></td><td><code>stats.max(list)</code></td><td>最大値を返します。</td></tr>
+            <tr><td><code>quantile</code></td><td><code>stats.quantile(list, q)</code></td><td><code>q</code> 番目の分位数を返します（q は 0 から 1 の間）。</td></tr>
+            <tr><td><code>covariance</code></td><td><code>stats.covariance(x, y)</code></td><td>2 つのリストの標本共分散を返します。</td></tr>
+            <tr><td><code>correlation</code></td><td><code>stats.correlation(x, y)</code></td><td>2 つのリストのピアソン相関係数を返します。</td></tr>
+            <tr><td><code>normalize</code></td><td><code>stats.normalize(list)</code></td><td>値を [0, 1] の範囲に正規化します。リストを返します。</td></tr>
+            <tr><td><code>standardize</code></td><td><code>stats.standardize(list)</code></td><td>Z スコア標準化（平均 0、分散 1）。リストを返します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let data = [1.0, 2.0, 3.0, 4.0, 5.0];
+
+print(stats.sum(data));                 // 15.0
+print(stats.mean(data));                // 3.0
+print(stats.median(data));              // 3.0
+print(stats.std(data));                 // ~1.5811
+print(stats.variance(data));            // 2.5
+print(stats.min(data));                 // 1.0
+print(stats.max(data));                 // 5.0
+
+print(stats.quantile(data, 0.25));      // 2.0 (25th percentile)
+print(stats.quantile(data, 0.75));      // 4.0 (75th percentile)
+
+let x = [1.0, 2.0, 3.0, 4.0, 5.0];
+let y = [2.0, 4.0, 5.0, 4.0, 5.0];
+print(stats.correlation(x, y));         // ~0.86
+print(stats.covariance(x, y));          // ~1.5
+
+print(stats.normalize(data));           // [0.0, 0.25, 0.5, 0.75, 1.0]
+print(stats.standardize(data));         // z-scored values</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- HASHLIB MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="hashlib-module"><code>hashlib</code> モジュール</h2>
+        <p>暗号学的ハッシュ関数とエンコード/デコードユーティリティ。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>sha256</code></td><td><code>hashlib.sha256(data)</code></td><td><code>data</code> の SHA-256 ハッシュを 16 進数文字列として返します。</td></tr>
+            <tr><td><code>sha512</code></td><td><code>hashlib.sha512(data)</code></td><td><code>data</code> の SHA-512 ハッシュを 16 進数文字列として返します。</td></tr>
+            <tr><td><code>md5</code></td><td><code>hashlib.md5(data)</code></td><td><code>data</code> の MD5 ハッシュを 16 進数文字列として返します。</td></tr>
+            <tr><td><code>sha1</code></td><td><code>hashlib.sha1(data)</code></td><td><code>data</code> の SHA-1 ハッシュを 16 進数文字列として返します。</td></tr>
+            <tr><td><code>base64_encode</code></td><td><code>hashlib.base64_encode(data)</code></td><td><code>data</code> を Base64 エンコードします。</td></tr>
+            <tr><td><code>base64_decode</code></td><td><code>hashlib.base64_decode(data)</code></td><td><code>data</code> を Base64 デコードします。</td></tr>
+            <tr><td><code>hex_encode</code></td><td><code>hashlib.hex_encode(data)</code></td><td><code>data</code> の生のバイトを 16 進数エンコードします。</td></tr>
+            <tr><td><code>hex_decode</code></td><td><code>hashlib.hex_decode(data)</code></td><td>16 進数文字列を生のバイトにデコードします。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>print(hashlib.sha256("hello"));
+// 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+
+print(hashlib.md5("hello"));
+// 5d41402abc4b2a76b9719d911017c592
+
+print(hashlib.sha1("hello"));
+// aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d
+
+let encoded = hashlib.base64_encode("hello");
+print(encoded);                         // "aGVsbG8="
+print(hashlib.base64_decode(encoded));  // "hello"
+
+let hex = hashlib.hex_encode("ABC");
+print(hex);                             // "414243"
+print(hashlib.hex_decode(hex));         // "ABC"</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- LOGGING MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="logging-module"><code>logging</code> モジュール</h2>
+        <p>設定可能なログレベルを持つ構造化ロギング。出力は stderr に送られます。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>debug</code></td><td><code>logging.debug(*args)</code></td><td>DEBUG メッセージをログに記録します（レベルが DEBUG の場合のみ表示）。</td></tr>
+            <tr><td><code>info</code></td><td><code>logging.info(*args)</code></td><td>INFO メッセージをログに記録します（INFO レベル以下の場合に表示）。</td></tr>
+            <tr><td><code>warn</code></td><td><code>logging.warn(*args)</code></td><td>WARN メッセージをログに記録します（WARN レベル以下の場合に表示）。</td></tr>
+            <tr><td><code>error</code></td><td><code>logging.error(*args)</code></td><td>ERROR メッセージをログに記録します（常に表示）。</td></tr>
+            <tr><td><code>set_level</code></td><td><code>logging.set_level(level)</code></td><td>最小ログレベルを設定します。<code>"DEBUG"</code>、<code>"INFO"</code>、<code>"WARN"</code>、<code>"ERROR"</code> を受け付けます。</td></tr>
+            <tr><td><code>basic_config</code></td><td><code>logging.basic_config(level?)</code></td><td>オプションのレベル（デフォルト：DEBUG）でロギングを初期化します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>logging.set_level("DEBUG");
+
+logging.debug("Starting application");
+logging.info("Server running on port 8080");
+logging.warn("Disk space low");
+logging.error("Connection failed");
+
+// Output format: [timestamp][LEVEL] message
+
+logging.set_level("WARN");
+logging.debug("this is hidden");
+logging.warn("this is visible");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- SUBPROCESS MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="subprocess-module"><code>subprocess</code> モジュール</h2>
+        <p>外部コマンドを実行し、その出力をキャプチャします。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>run</code></td><td><code>subprocess.run(cmd)</code></td><td><code>cmd</code> を直接コマンドとして実行します。<code>returncode</code>、<code>stdout</code>、<code>stderr</code> を持つ結果辞書を返します。</td></tr>
+            <tr><td><code>run_shell</code></td><td><code>subprocess.run_shell(cmd)</code></td><td>システムシェル（<code>sh -c</code> または <code>cmd /C</code>）を介して <code>cmd</code> を実行します。結果辞書を返します。</td></tr>
+            <tr><td><code>run_output</code></td><td><code>subprocess.run_output(cmd)</code></td><td><code>cmd</code> を実行し、stdout のみを文字列として返します。</td></tr>
+            <tr><td><code>run_shell_output</code></td><td><code>subprocess.run_shell_output(cmd)</code></td><td>シェルを介して <code>cmd</code> を実行し、stdout のみを文字列として返します。</td></tr>
+          </tbody>
+        </table>
+        <h3>結果辞書</h3>
+        <table>
+          <thead><tr><th>キー</th><th>型</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>returncode</code></td><td><code>int</code></td><td>プロセスの終了コード。</td></tr>
+            <tr><td><code>stdout</code></td><td><code>string</code></td><td>キャプチャされた標準出力。</td></tr>
+            <tr><td><code>stderr</code></td><td><code>string</code></td><td>キャプチャされた標準エラー出力。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let result = subprocess.run("echo hello");
+print(result["returncode"]);            // 0
+print(result["stdout"]);                // "hello\n"
+
+let output = subprocess.run_output("whoami");
+print(output);                          // "current username"
+
+let ls = subprocess.run_shell_output("ls -la");
+print(ls);
+
+let err = subprocess.run_shell("cat /nonexistent");
+print(err["stderr"]);                   // error message
+print(err["returncode"]);               // non-zero</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- PATH MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="path-module"><code>path</code> モジュール</h2>
+        <p>ファイルパス操作とファイルシステム操作。パスは内部的にフォワードスラッシュを使用します。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>join</code></td><td><code>path.join(*parts)</code></td><td>パスコンポーネントを <code>/</code> で結合します。</td></tr>
+            <tr><td><code>basename</code></td><td><code>path.basename(p)</code></td><td>パスの最後のコンポーネント（ファイル名）を返します。</td></tr>
+            <tr><td><code>dirname</code></td><td><code>path.dirname(p)</code></td><td>パスのディレクトリ部分を返します。</td></tr>
+            <tr><td><code>ext</code></td><td><code>path.ext(p)</code></td><td>ファイル拡張子（ドットなし）を返します。</td></tr>
+            <tr><td><code>is_file</code></td><td><code>path.is_file(p)</code></td><td><code>p</code> が通常ファイルの場合 <code>true</code> を返します。</td></tr>
+            <tr><td><code>is_dir</code></td><td><code>path.is_dir(p)</code></td><td><code>p</code> がディレクトリの場合 <code>true</code> を返します。</td></tr>
+            <tr><td><code>size</code></td><td><code>path.size(p)</code></td><td>ファイルサイズをバイト単位で返します。</td></tr>
+            <tr><td><code>rename</code></td><td><code>path.rename(old, new)</code></td><td>ファイルを <code>old</code> から <code>new</code> に名前変更/移動します。</td></tr>
+            <tr><td><code>copy</code></td><td><code>path.copy(src, dst)</code></td><td>ファイルを <code>src</code> から <code>dst</code> にコピーします。</td></tr>
+            <tr><td><code>remove</code></td><td><code>path.remove(p)</code></td><td><code>p</code> のファイルを削除します。</td></tr>
+            <tr><td><code>remove_dir</code></td><td><code>path.remove_dir(p)</code></td><td><code>p</code> のディレクトリを再帰的に削除します。</td></tr>
+            <tr><td><code>list_dir</code></td><td><code>path.list_dir(p?)</code></td><td>ディレクトリ内のファイル名のリストを返します（デフォルト：<code>"."</code>）。</td></tr>
+            <tr><td><code>walk</code></td><td><code>path.walk(p?)</code></td><td>ディレクトリを再帰的に走査します。すべてのファイルパスのリストを返します。</td></tr>
+            <tr><td><code>abs</code></td><td><code>path.abs(p)</code></td><td><code>p</code> の絶対パスを返します。</td></tr>
+            <tr><td><code>split</code></td><td><code>path.split(p)</code></td><td>パスを <code>[directory, basename]</code> に分割します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>print(path.join("dir", "sub", "file.txt"));    // "dir/sub/file.txt"
+print(path.basename("/usr/local/bin/bash"));   // "bash"
+print(path.dirname("/usr/local/bin/bash"));    // "/usr/local/bin"
+print(path.ext("document.txt"));               // "txt"
+print(path.abs("."));                          // "/home/user/project"
+
+let [dir, name] = path.split("/usr/local/bin");
+print(dir);                             // "/usr/local/bin"
+print(name);                            // "bin"
+
+fs.mkdir("test_dir");
+fs.write("test_dir/a.txt", "hello");
+fs.write("test_dir/b.txt", "world");
+
+print(path.is_file("test_dir/a.txt"));  // true
+print(path.is_dir("test_dir"));          // true
+print(path.size("test_dir/a.txt"));      // 5
+
+let files = path.list_dir("test_dir");
+print(files);                           // ["a.txt", "b.txt"]
+
+let all = path.walk(".");
+path.rename("test_dir/a.txt", "test_dir/c.txt");
+path.copy("test_dir/b.txt", "test_dir/d.txt");
+path.remove("test_dir/d.txt");
+path.remove_dir("test_dir");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- COLLECTIONS MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="collections-module"><code>collections</code> モジュール</h2>
+        <p>カウント、グループ化、両端キュー操作のための特殊なコレクション型とユーティリティ。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>Counter</code></td><td><code>collections.Counter(list_or_string)</code></td><td>各要素を頻度数にマッピングする辞書を返します。</td></tr>
+            <tr><td><code>deque</code></td><td><code>collections.deque(list?)</code></td><td>オプションのリストから両端キューを作成します。</td></tr>
+            <tr><td><code>push_left</code></td><td><code>collections.push_left(deque, val)</code></td><td>両端キューの先頭に <code>val</code> をプッシュします。</td></tr>
+            <tr><td><code>pop_left</code></td><td><code>collections.pop_left(deque)</code></td><td>両端キューの先頭要素を削除して返します。</td></tr>
+            <tr><td><code>push_right</code></td><td><code>collections.push_right(deque, val)</code></td><td>両端キューの末尾に <code>val</code> をプッシュします。</td></tr>
+            <tr><td><code>pop_right</code></td><td><code>collections.pop_right(deque)</code></td><td>両端キューの末尾要素を削除して返します。</td></tr>
+            <tr><td><code>group_by</code></td><td><code>collections.group_by(list, key_func)</code></td><td><code>key_func</code> の結果で要素をグループ化します。辞書のリストを返します。</td></tr>
+            <tr><td><code>flatten</code></td><td><code>collections.flatten(list)</code></td><td>ネストされたリストのリストを単一のリストに平坦化します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>// Counter
+let words = ["apple", "banana", "apple", "cherry", "banana", "apple"];
+let counts = collections.Counter(words);
+print(counts);                          // {"apple": 3, "banana": 2, "cherry": 1}
+
+let letters = collections.Counter("hello");
+print(letters);                         // {"h": 1, "e": 1, "l": 2, "o": 1}
+
+// Deque operations
+let dq = collections.deque([1, 2, 3]);
+collections.push_left(dq, 0);
+collections.push_right(dq, 4);
+print(dq);                              // [0, 1, 2, 3, 4]
+print(collections.pop_left(dq));        // 0
+print(collections.pop_right(dq));       // 4
+
+// group_by
+let people = ["Alice", "Bob", "Anna", "Ben"];
+let groups = collections.group_by(people, |name| string.upper(string.substring(name, 0, 1)));
+print(groups);                          // {"A": ["Alice", "Anna"], "B": ["Bob", "Ben"]}
+
+// flatten
+let nested = [[1, 2], [3, [4, 5]], 6];
+print(collections.flatten(nested));     // [1, 2, 3, 4, 5, 6]</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- ITERTOOLS MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="itertools-module"><code>itertools</code> モジュール</h2>
+        <p>イテレータとコレクションを操作するための関数型プログラミングユーティリティ。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>chain</code></td><td><code>itertools.chain(*lists)</code></td><td>複数のリストを 1 つに連結します。</td></tr>
+            <tr><td><code>zip</code></td><td><code>itertools.zip(*lists)</code></td><td>複数のリストをサブリストのリストに圧縮します（最短に合わせて切り詰め）。</td></tr>
+            <tr><td><code>enumerate</code></td><td><code>itertools.enumerate(list)</code></td><td><code>[index, value]</code> ペアのリストを返します。</td></tr>
+            <tr><td><code>map</code></td><td><code>itertools.map(fn, list)</code></td><td>各要素に <code>fn</code> を適用します。新しいリストを返します。</td></tr>
+            <tr><td><code>filter</code></td><td><code>itertools.filter(fn, list)</code></td><td><code>fn</code> が truthy を返す要素を保持します。新しいリストを返します。</td></tr>
+            <tr><td><code>reduce</code></td><td><code>itertools.reduce(fn, list, init?)</code></td><td>二項関数を使用してリストを畳み込みます。オプションの初期値。</td></tr>
+            <tr><td><code>take</code></td><td><code>itertools.take(n, list)</code></td><td>最初の <code>n</code> 要素を返します。</td></tr>
+            <tr><td><code>drop</code></td><td><code>itertools.drop(n, list)</code></td><td>最初の <code>n</code 要素を除くすべてを返します。</td></tr>
+            <tr><td><code>slice</code></td><td><code>itertools.slice(list, start, end, step?)</code></td><td><code>start</code> から <code>end</code> までをオプションのステップでスライスして返します。</td></tr>
+            <tr><td><code>unique</code></td><td><code>itertools.unique(list)</code></td><td>重複を削除し、順序を保持します。</td></tr>
+            <tr><td><code>reverse</code></td><td><code>itertools.reverse(list)</code></td><td>リストの反転コピーを返します。</td></tr>
+            <tr><td><code>count</code></td><td><code>itertools.count(start?, step?)</code></td><td>無限の数のリストを返します（最大 10,000）。デフォルト start=0、step=1。</td></tr>
+            <tr><td><code>repeat</code></td><td><code>itertools.repeat(val, n)</code></td><td><code>val</code> を <code>n</code> 回繰り返したリストを返します。</td></tr>
+            <tr><td><code>product</code></td><td><code>itertools.product(*lists)</code></td><td>複数のリストの直積を計算します。</td></tr>
+            <tr><td><code>any</code></td><td><code>itertools.any(list, fn?)</code></td><td>いずれかの要素が truthy の場合（または <code>fn</code> を通過する場合）<code>true</code> を返します。</td></tr>
+            <tr><td><code>all</code></td><td><code>itertools.all(list, fn?)</code></td><td>すべての要素が truthy の場合（または <code>fn</code> を通過する場合）<code>true</code> を返します。</td></tr>
+            <tr><td><code>sorted</code></td><td><code>itertools.sorted(list, key_fn?)</code></td><td>ソートされたコピーを返します。カスタムソート順序のためのオプションのキー関数。</td></tr>
+            <tr><td><code>identity</code></td><td><code>itertools.identity(val)</code></td><td>引数を変更せずに返します。</td></tr>
+            <tr><td><code>compose</code></td><td><code>itertools.compose(*fns)</code></td><td>関数を右から左に合成します。新しい関数を返します。</td></tr>
+            <tr><td><code>constantly</code></td><td><code>itertools.constantly(val)</code></td><td>常に <code>val</code> を返す関数を返します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>print(itertools.chain([1, 2], [3, 4], [5]));     // [1, 2, 3, 4, 5]
+
+print(itertools.zip([1, 2, 3], ["a", "b", "c"]));
+// [[1, "a"], [2, "b"], [3, "c"]]
+
+print(itertools.enumerate(["a", "b", "c"]));
+// [[0, "a"], [1, "b"], [2, "c"]]
+
+let doubled = itertools.map(|x| x * 2, [1, 2, 3]);
+print(doubled);                          // [2, 4, 6]
+
+let evens = itertools.filter(|x| x % 2 == 0, [1, 2, 3, 4, 5]);
+print(evens);                            // [2, 4]
+
+let total = itertools.reduce(|a, b| a + b, [1, 2, 3, 4], 0);
+print(total);                            // 10
+
+print(itertools.take(3, [1, 2, 3, 4, 5]));     // [1, 2, 3]
+print(itertools.drop(2, [1, 2, 3, 4, 5]));     // [3, 4, 5]
+print(itertools.slice([10, 20, 30, 40, 50], 1, 4)); // [20, 30, 40]
+print(itertools.unique([1, 2, 2, 3, 3, 3]));   // [1, 2, 3]
+print(itertools.reverse([1, 2, 3]));            // [3, 2, 1]
+
+print(itertools.product([1, 2], ["a", "b"]));
+// [[1, "a"], [1, "b"], [2, "a"], [2, "b"]]
+
+print(itertools.any([false, false, true]));     // true
+print(itertools.all([true, true, true]));       // true
+
+print(itertools.sorted([3, 1, 4, 1, 5]));       // [1, 1, 3, 4, 5]
+print(itertools.repeat("x", 4));                // ["x", "x", "x", "x"]
+
+let add5 = itertools.compose(
+    |x| x + 5,
+    |x| x * 2
+);
+print(add5(3));                          // 11  ((3 * 2) + 5)
+
+let always42 = itertools.constantly(42);
+print(always42("anything"));             // 42</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- TEST MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="test-module"><code>test</code> モジュール</h2>
+        <p>単体テストユーティリティ。<code>zamin test</code> で実行すると、<code>tests/</code> ディレクトリ内のすべてのテストが実行されます。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>assert_eq</code></td><td><code>test.assert_eq(expected, actual, msg?)</code></td><td><code>expected</code> が <code>actual</code> と等しいことを検証します。オプションのメッセージ。</td></tr>
+            <tr><td><code>assert_ne</code></td><td><code>test.assert_ne(expected, actual, msg?)</code></td><td><code>expected</code> が <code>actual</code> と等しくないことを検証します。</td></tr>
+            <tr><td><code>assert_true</code></td><td><code>test.assert_true(val, msg?)</code></td><td><code>val</code> が truthy であることを検証します。</td></tr>
+            <tr><td><code>assert_false</code></td><td><code>test.assert_false(val, msg?)</code></td><td><code>val</code> が falsy であることを検証します。</td></tr>
+            <tr><td><code>assert_contains</code></td><td><code>test.assert_contains(container, item, msg?)</code></td><td><code>container</code>（リスト、文字列、辞書、セット）が <code>item</code> を含むことを検証します。</td></tr>
+            <tr><td><code>assert_raises</code></td><td><code>test.assert_raises(fn, expected_msg?, args?)</code></td><td><code>fn</code> の呼び出しがエラーを発生させることを検証します。オプションでエラーメッセージをチェックします。</td></tr>
+            <tr><td><code>run_test</code></td><td><code>test.run_test(name, fn)</code></td><td>テスト関数を名前で実行します。PASS または FAIL を表示します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>func add(a, b) { return a + b; }
+func divide(a, b) {
+    if b == 0 { throw "division by zero"; }
+    return a / b;
+}
+
+// Basic assertions
+test.assert_eq(add(2, 3), 5, "addition works");
+test.assert_eq(add(-1, 1), 0);
+test.assert_ne(add(1, 1), 3);
+test.assert_true(1 + 1 == 2);
+test.assert_false(1 == 2);
+
+// Contains
+test.assert_contains([1, 2, 3], 2);
+test.assert_contains("hello world", "world");
+test.assert_contains({"a": 1}, "a");
+
+// Raises
+test.assert_raises(|| divide(1, 0), "division by zero");
+
+// Named test runner
+test.run_test("addition", func() {
+    test.assert_eq(add(2, 3), 5);
+    test.assert_eq(add(0, 0), 0);
+});</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- TIME MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="time-module"><code>time</code> モジュール</h2>
+        <p>タイムスタンプと遅延のための時間関連関数。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>now</code></td><td><code>time.now()</code></td><td>サブ秒精度の Unix タイムスタンプ（float）として現在時刻を返します。</td></tr>
+            <tr><td><code>unix</code></td><td><code>time.unix()</code></td><td>現在の Unix タイムスタンプを整数（エポックからの秒数）として返します。</td></tr>
+            <tr><td><code>sleep</code></td><td><code>time.sleep(ms)</code></td><td><code>ms</code> ミリ秒間実行を一時停止します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>let start = time.now();
+print(f"Current time: {start}");        // e.g. 1752705600.123
+
+print(time.unix());                     // e.g. 1752705600
+
+time.sleep(1000);                       // sleep for 1 second
+print("Resumed after 1 second");
+
+let elapsed = time.now() - start;
+print(f"Elapsed: {elapsed}s");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- RAND MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="rand-module"><code>rand</code> モジュール</h2>
+        <p>乱数生成とランダム選択。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>int</code></td><td><code>rand.int(min, max)</code></td><td><code>min</code> から <code>max</code> の間（両端含む）のランダムな整数を返します。</td></tr>
+            <tr><td><code>float</code></td><td><code>rand.float()</code></td><td>0.0（含む）から 1.0（含まない）の間のランダムな float を返します。</td></tr>
+            <tr><td><code>choice</code></td><td><code>rand.choice(list)</code></td><td><code>list</code> からランダムな要素を返します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>// Random integer between 1 and 100
+let dice = rand.int(1, 6);
+print(f"You rolled: {dice}");
+
+// Random float [0, 1)
+let r = rand.float();
+print(f"Random: {r}");
+
+// Random choice
+let colors = ["red", "green", "blue"];
+let pick = rand.choice(colors);
+print(f"Picked: {pick}");</code></pre>
+
+        <!-- ============================================================ -->
+        <!-- MATRIX MODULE -->
+        <!-- ============================================================ -->
+        <h2 id="matrix-module"><code>matrix</code> モジュール</h2>
+        <p>数値計算のための基本的な行列作成と初期化。</p>
+        <h3>関数</h3>
+        <table>
+          <thead><tr><th>関数</th><th>シグネチャ</th><th>説明</th></tr></thead>
+          <tbody>
+            <tr><td><code>from_rows</code></td><td><code>matrix.from_rows(rows)</code></td><td>行のリスト（各行は数値のリスト）から行列を作成します。</td></tr>
+            <tr><td><code>zeros</code></td><td><code>matrix.zeros(rows, cols)</code></td><td>ゼロで埋められた行列を作成します。</td></tr>
+            <tr><td><code>ones</code></td><td><code>matrix.ones(rows, cols)</code></td><td>1 で埋められた行列を作成します。</td></tr>
+            <tr><td><code>identity</code></td><td><code>matrix.identity(n)</code></td><td><code>n x n</code> の単位行列を作成します。</td></tr>
+            <tr><td><code>random</code></td><td><code>matrix.random(rows, cols)</code></td><td>0.0 から 1.0 のランダムな値を持つ行列を作成します。</td></tr>
+          </tbody>
+        </table>
+        <h3>例</h3>
+        <div class="code-header"><span>Zamin</span><button class="copy-btn">コピー</button></div>
+        <pre><code>// Create from explicit rows
+let m = matrix.from_rows([
+    [1.0, 2.0, 3.0],
+    [4.0, 5.0, 6.0]
+]);
+print(m);                               // matrix 2x3
+
+// Zero and one matrices
+let z = matrix.zeros(3, 3);             // 3x3 matrix of zeros
+let o = matrix.ones(2, 4);              // 2x4 matrix of ones
+
+// Identity matrix
+let I = matrix.identity(3);             // 3x3 identity matrix
+// [[1, 0, 0],
+//  [0, 1, 0],
+//  [0, 0, 1]]
+
+// Random matrix
+let r = matrix.random(4, 4);            // 4x4 random values</code></pre>
+
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/standard-library.html">GitHub でこのページを編集</a>
+          <span>最終更新: 2026年7月</span>
+        </div>
+        <div class="feedback">
+          <span>このページは役に立ちましたか？</span>
+          <button>&#128077; はい</button>
+          <button>&#128078; いいえ</button>
+          <span id="feedback-msg"></span>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="assets/script.js"></script>
+</body>
+</html>
