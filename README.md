@@ -14,6 +14,14 @@ Zamin is a simple, expressive scripting language with a Rust-based interpreter. 
 print("Hello, Zamin!");
 ```
 
+No installation required — try it now in your browser:
+[**Playground →**](https://young-developer90.github.io/zamin/playground.html)
+
+**Built-in:**
+✓ HTTP ✓ JSON ✓ CSV ✓ Regex ✓ Statistics ✓ Matrix ✓ GUI ✓ OpenCV ✓ Testing ✓ Logging
+
+No package installation required.
+
 ## Documentation
 
 **[Website →](https://young-developer90.github.io/zamin/)** -- full language documentation, guides, and reference.
