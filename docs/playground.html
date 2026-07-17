@@ -30,6 +30,14 @@
       display: flex;
       flex-direction: column;
       min-width: 200px;
+      overflow: hidden;
+      transition: width 0.2s ease, min-width 0.2s ease, opacity 0.2s ease;
+    }
+    .playground-right.collapsed {
+      width: 0 !important;
+      min-width: 0 !important;
+      opacity: 0;
+      pointer-events: none;
     }
 
     .splitter {
@@ -70,6 +78,12 @@
     body.resizing .playground-left,
     body.resizing .playground-right {
       pointer-events: none;
+    }
+    .playground-right.collapsed + .splitter,
+    .playground-right.collapsed ~ .splitter {
+      cursor: default;
+      pointer-events: none;
+      opacity: 0.2;
     }
 
     .playground-toolbar {
@@ -324,6 +338,9 @@
         width: 100% !important;
         min-height: 250px;
       }
+      .playground-right.collapsed {
+        display: none;
+      }
 
       .playground-left {
         width: 100% !important;
@@ -364,29 +381,35 @@
   <div class="main-layout">
     <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">Getting Started</div>
-        <a href="index.html" class="sidebar-link">Overview</a>
-        <a href="getting-started.html" class="sidebar-link">Installation</a>
-        <a href="playground.html" class="sidebar-link active">Playground</a>
+      <div class="sidebar-inner">
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Getting Started</div>
+          <a href="index.html" class="sidebar-link">Overview</a>
+          <a href="getting-started.html" class="sidebar-link">Installation</a>
+          <a href="playground.html" class="sidebar-link active">Playground</a>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Language</div>
+          <a href="language-guide.html" class="sidebar-link">Language Guide</a>
+          <a href="standard-library.html" class="sidebar-link">Standard Library</a>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Features</div>
+          <a href="gui-guide.html" class="sidebar-link">GUI Toolkit</a>
+          <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+          <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">Reference</div>
+          <a href="project-management.html" class="sidebar-link">Project CLI</a>
+          <a href="performance.html" class="sidebar-link">Performance</a>
+          <a href="faq.html" class="sidebar-link">FAQ</a>
+        </div>
       </div>
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">Language</div>
-        <a href="language-guide.html" class="sidebar-link">Language Guide</a>
-        <a href="standard-library.html" class="sidebar-link">Standard Library</a>
-      </div>
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">Features</div>
-        <a href="gui-guide.html" class="sidebar-link">GUI Toolkit</a>
-        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
-        <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
-      </div>
-      <div class="sidebar-section">
-        <div class="sidebar-section-title">Reference</div>
-        <a href="project-management.html" class="sidebar-link">Project CLI</a>
-        <a href="performance.html" class="sidebar-link">Performance</a>
-        <a href="faq.html" class="sidebar-link">FAQ</a>
-      </div>
+      <div class="sidebar-grip" id="sidebar-grip"></div>
+      <button class="sidebar-toggle" id="sidebar-toggle" title="Toggle sidebar">
+        <span class="toggle-icon">&#9654;</span>
+      </button>
     </nav>
 
     <!-- Content -->
@@ -910,21 +933,57 @@
 
     var leftPanel = document.getElementById('playground-left');
     var rightPanel = document.getElementById('playground-right');
+    var outputPanel = document.getElementById('output-container');
+    var outputHeader = document.querySelector('.output-header');
+
+    function setSplit(pct) {
+      pct = Math.max(10, Math.min(95, pct));
+      leftPanel.style.width = (rightPanel.classList.contains('collapsed') ? 100 : pct) + '%';
+      leftPanel.style.flex = 'none';
+      rightPanel.style.width = (rightPanel.classList.contains('collapsed') ? 0 : 100 - pct) + '%';
+      rightPanel.style.flex = 'none';
+    }
 
     function initSplitter() {
       var saved = localStorage.getItem('zamin_playground_split');
-      if (saved) {
-        var pct = parseFloat(saved);
-        if (pct > 20 && pct < 80) {
-          leftPanel.style.width = pct + '%';
-          leftPanel.style.flex = 'none';
-          rightPanel.style.width = (100 - pct) + '%';
-          rightPanel.style.flex = 'none';
-        }
-      }
+      var pct = saved ? parseFloat(saved) : 80;
+      if (pct < 10) pct = 80;
+      setSplit(pct);
+    }
+
+    // Output panel collapse toggle
+    function toggleOutput() {
+      rightPanel.classList.toggle('collapsed');
+      var saved = localStorage.getItem('zamin_playground_split');
+      var pct = saved ? parseFloat(saved) : 80;
+      setSplit(pct);
+      localStorage.setItem('zamin_output_collapsed', rightPanel.classList.contains('collapsed'));
+    }
+
+    // Restore output collapse state
+    if (localStorage.getItem('zamin_output_collapsed') === 'true') {
+      rightPanel.classList.add('collapsed');
+    }
+
+    // Add collapse button to output header
+    var collapseBtn = document.createElement('button');
+    collapseBtn.className = 'btn btn-secondary';
+    collapseBtn.style.cssText = 'padding:0.25rem 0.5rem;font-size:0.75rem;margin-left:auto;';
+    collapseBtn.innerHTML = rightPanel.classList.contains('collapsed') ? '&#9654;' : '&#9664;';
+    collapseBtn.title = 'Toggle output panel';
+    collapseBtn.addEventListener('click', function() {
+      toggleOutput();
+      this.innerHTML = rightPanel.classList.contains('collapsed') ? '&#9654;' : '&#9664;';
+    });
+    // Add collapse button next to Clear
+    var clearBtn_el = document.getElementById('clear-btn');
+    if (clearBtn_el && clearBtn_el.parentNode) {
+      collapseBtn.style.marginLeft = '0.375rem';
+      clearBtn_el.parentNode.insertBefore(collapseBtn, clearBtn_el.nextSibling);
     }
 
     splitter.addEventListener('mousedown', function(e) {
+      if (rightPanel.classList.contains('collapsed')) return;
       e.preventDefault();
       document.body.classList.add('resizing');
       splitter.classList.add('active');
@@ -936,11 +995,8 @@
       function onMove(e2) {
         var dx = e2.clientX - startX;
         var newPct = leftPct + (dx / totalW) * 100;
-        newPct = Math.max(20, Math.min(80, newPct));
-        leftPanel.style.width = newPct + '%';
-        leftPanel.style.flex = 'none';
-        rightPanel.style.width = (100 - newPct) + '%';
-        rightPanel.style.flex = 'none';
+        newPct = Math.max(10, Math.min(95, newPct));
+        setSplit(newPct);
       }
 
       function onUp() {

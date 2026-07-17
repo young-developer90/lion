@@ -51,6 +51,80 @@
       }
     }
 
+    // === Sidebar Resize & Collapse ===
+    var sidebarGrip = document.getElementById('sidebar-grip');
+    var sidebarToggle = document.getElementById('sidebar-toggle');
+    var root = document.documentElement;
+
+    function getSidebarWidth() {
+      return parseInt(localStorage.getItem('zamin-sidebar-width')) || 280;
+    }
+
+    function setSidebarWidth(px) {
+      px = Math.max(160, Math.min(500, px));
+      root.style.setProperty('--sidebar-width', px + 'px');
+      localStorage.setItem('zamin-sidebar-width', String(px));
+    }
+
+    function isSidebarCollapsed() {
+      return localStorage.getItem('zamin-sidebar-collapsed') === 'true';
+    }
+
+    function setSidebarCollapsed(collapsed) {
+      sidebar.classList.toggle('collapsed', collapsed);
+      localStorage.setItem('zamin-sidebar-collapsed', String(collapsed));
+      if (sidebarToggle) {
+        sidebarToggle.title = collapsed ? 'Expand sidebar' : 'Collapse sidebar';
+      }
+    }
+
+    // Restore sidebar state
+    setSidebarWidth(getSidebarWidth());
+    setSidebarCollapsed(isSidebarCollapsed());
+
+    // Toggle collapse
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        setSidebarCollapsed(!sidebar.classList.contains('collapsed'));
+      });
+    }
+
+    // Drag resize
+    if (sidebarGrip) {
+      var startX, startW;
+
+      sidebarGrip.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        startX = e.clientX;
+        startW = parseInt(getComputedStyle(root).getPropertyValue('--sidebar-width')) || getSidebarWidth();
+        document.body.classList.add('sidebar-resizing');
+        sidebarGrip.classList.add('active');
+        sidebar.style.transition = 'none';
+        var c = document.querySelector('.content');
+        if (c) c.style.transition = 'none';
+        var m = document.querySelector('.main-layout');
+        if (m) m.style.transition = 'none';
+      });
+
+      document.addEventListener('mousemove', function(e) {
+        if (!sidebarGrip.classList.contains('active')) return;
+        var newW = startW + (e.clientX - startX);
+        setSidebarWidth(newW);
+      });
+
+      document.addEventListener('mouseup', function() {
+        if (!sidebarGrip.classList.contains('active')) return;
+        document.body.classList.remove('sidebar-resizing');
+        sidebarGrip.classList.remove('active');
+        sidebar.style.transition = '';
+        var c = document.querySelector('.content');
+        if (c) c.style.transition = '';
+        var m = document.querySelector('.main-layout');
+        if (m) m.style.transition = '';
+      });
+    }
+
     // === Copy Code ===
     document.querySelectorAll('.copy-btn').forEach(function(btn) {
       btn.addEventListener('click', function() {
