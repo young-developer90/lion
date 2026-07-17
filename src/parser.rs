@@ -515,6 +515,16 @@ impl Parser {
 
     fn parse_match(&mut self) -> Result<Stmt, ParseError> {
         self.advance();
+        let (value, arms) = self.parse_match_arms()?;
+        Ok(Stmt::Match { value, arms })
+    }
+
+    fn parse_match_expr(&mut self) -> Result<Expr, ParseError> {
+        let (value, arms) = self.parse_match_arms()?;
+        Ok(Expr::MatchExpr { value: Box::new(value), arms })
+    }
+
+    fn parse_match_arms(&mut self) -> Result<(Expr, Vec<(Expr, Vec<Stmt>)>), ParseError> {
         let value = self.parse_expr()?;
         self.skip_newlines();
 
@@ -539,7 +549,7 @@ impl Parser {
 
         self.expect(TokenKind::RBrace)?;
 
-        Ok(Stmt::Match { value, arms })
+        Ok((value, arms))
     }
 
     fn parse_return(&mut self) -> Result<Stmt, ParseError> {
@@ -1164,6 +1174,7 @@ impl Parser {
                     body,
                 })
             }
+            TokenKind::Match => self.parse_match_expr(),
             _ => Err(ParseError {
                 message: format!("unexpected token {:?}", tok.kind),
                 line: tok.line,

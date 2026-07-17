@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Playground - Zamin Programming Language</title>
+  <meta name="description" content="Write, run, and share Zamin code in your browser.">
+  <meta property="og:title" content="Playground - Zamin">
+  <meta property="og:description" content="Write, run, and share Zamin code in your browser.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    .playground-layout {
+      display: flex;
+      gap: 1.5rem;
+      height: calc(100vh - var(--header-height) - 2rem);
+      min-height: 500px;
+    }
+
+    .playground-left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .playground-right {
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .playground-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 0.75rem;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+    }
+
+    .playground-toolbar .btn {
+      padding: 0.5rem 1rem;
+      font-size: var(--font-size-sm);
+    }
+
+    .playground-toolbar .spacer {
+      flex: 1;
+    }
+
+    .examples-select {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-sidebar);
+      color: var(--text-primary);
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      transition: border-color var(--transition);
+      font-family: var(--font-sans);
+    }
+
+    .examples-select:hover,
+    .examples-select:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+
+    .editor-container {
+      flex: 1;
+      position: relative;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--bg-code);
+      min-height: 200px;
+    }
+
+    .editor-container:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 15px var(--accent-glow);
+    }
+
+    .editor-gutter {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 44px;
+      background: var(--bg-tertiary);
+      border-right: 1px solid var(--border);
+      padding: 12px 0 12px 9px;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      color: var(--text-tertiary);
+      text-align: right;
+      user-select: none;
+      overflow: hidden;
+      z-index: 2;
+    }
+
+    .editor-gutter .line {
+      display: block;
+      min-height: 1.6em;
+    }
+
+    .editor-highlight {
+      position: absolute;
+      left: 44px;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .editor-highlight .hl-kw { color: #7c3aed; font-weight: 500; }
+    .editor-highlight .hl-str { color: #059669; }
+    .editor-highlight .hl-num { color: #d97706; }
+    .editor-highlight .hl-fn { color: #6366f1; }
+    .editor-highlight .hl-cm { color: #94a3b8; font-style: italic; }
+    .editor-highlight .hl-op { color: #dc2626; }
+    .editor-highlight .hl-builtin { color: #0891b2; }
+
+    [data-theme="dark"] .editor-highlight .hl-kw { color: #c084fc; }
+    [data-theme="dark"] .editor-highlight .hl-str { color: #34d399; }
+    [data-theme="dark"] .editor-highlight .hl-num { color: #fbbf24; }
+    [data-theme="dark"] .editor-highlight .hl-fn { color: #818cf8; }
+    [data-theme="dark"] .editor-highlight .hl-cm { color: #6b7280; }
+    [data-theme="dark"] .editor-highlight .hl-op { color: #f87171; }
+    [data-theme="dark"] .editor-highlight .hl-builtin { color: #22d3ee; }
+
+    .editor-textarea {
+      position: absolute;
+      left: 44px;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: calc(100% - 44px);
+      padding: 12px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      color: transparent;
+      caret-color: var(--text-primary);
+      background: transparent;
+      border: none;
+      resize: none;
+      outline: none;
+      z-index: 3;
+      overflow: auto;
+      white-space: pre;
+      tab-size: 4;
+      -moz-tab-size: 4;
+    }
+
+    .editor-textarea::selection {
+      background: var(--accent-light);
+    }
+
+    .output-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: var(--bg-code);
+      min-height: 200px;
+    }
+
+    .output-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.5rem 1rem;
+      background: var(--bg-tertiary);
+      border-bottom: 1px solid var(--border);
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .output-header .output-status {
+      font-weight: 400;
+      font-size: 0.75rem;
+      color: var(--text-tertiary);
+    }
+
+    .output-content {
+      flex: 1;
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      overflow: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .output-content .out-error {
+      color: var(--danger);
+    }
+
+    .output-content .out-success {
+      color: var(--success);
+    }
+
+    .output-content .out-info {
+      color: var(--text-tertiary);
+    }
+
+    .output-content .out-muted {
+      color: var(--text-tertiary);
+      font-style: italic;
+    }
+
+    .output-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: var(--text-tertiary);
+      font-style: italic;
+      font-size: var(--font-size-sm);
+    }
+
+    .share-notification {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-sidebar);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1.5rem;
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-lg);
+      z-index: 2000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+
+    .share-notification.show {
+      opacity: 1;
+    }
+
+    .share-notification.success {
+      border-color: var(--success);
+    }
+
+    .share-notification.error {
+      border-color: var(--danger);
+    }
+
+    @media (max-width: 900px) {
+      .playground-layout {
+        flex-direction: column;
+        height: auto;
+      }
+
+      .playground-right {
+        width: 100%;
+        min-height: 250px;
+      }
+
+      .playground-left {
+        min-height: 350px;
+      }
+
+      .content-inner {
+        padding: 1rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .playground-toolbar .btn span {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-brand">
+      <button class="mobile-menu-btn" id="mobile-menu-btn">&#9776;</button>
+      <a href="index.html" class="header-brand"><div class="logo">Z</div> Zamin Docs</a>
+    </div>
+    <div class="header-search">
+      <span class="search-icon">&#128269;</span>
+      <input type="text" id="search-input" placeholder="Search docs... (Ctrl+K)" autocomplete="off">
+      <div class="search-results" id="search-results"></div>
+    </div>
+    <div class="header-actions">
+      <button id="theme-toggle" title="Toggle theme">&#9790;</button>
+    </div>
+  </header>
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <div class="main-layout">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Getting Started</div>
+        <a href="index.html" class="sidebar-link">Overview</a>
+        <a href="getting-started.html" class="sidebar-link">Installation</a>
+        <a href="playground.html" class="sidebar-link active">Playground</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Language</div>
+        <a href="language-guide.html" class="sidebar-link">Language Guide</a>
+        <a href="standard-library.html" class="sidebar-link">Standard Library</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Features</div>
+        <a href="gui-guide.html" class="sidebar-link">GUI Toolkit</a>
+        <a href="opencv-guide.html" class="sidebar-link">OpenCV</a>
+        <a href="advanced-guide.html" class="sidebar-link">Advanced</a>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">Reference</div>
+        <a href="project-management.html" class="sidebar-link">Project CLI</a>
+        <a href="performance.html" class="sidebar-link">Performance</a>
+        <a href="faq.html" class="sidebar-link">FAQ</a>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="content">
+      <div class="content-inner" style="padding-top:1rem;">
+
+        <!-- Breadcrumb -->
+        <nav class="breadcrumb">
+          <a href="index.html">Home</a> &gt; <span>Playground</span>
+        </nav>
+
+        <h1>Playground</h1>
+        <p class="subtitle">Write, run, and share Zamin code in your browser.</p>
+
+        <!-- Playground Layout -->
+        <div class="playground-layout">
+
+          <!-- Left: Editor -->
+          <div class="playground-left">
+            <div class="playground-toolbar">
+              <button class="btn btn-primary" id="run-btn">&#9654; <span>Run</span></button>
+              <select class="examples-select" id="examples-select">
+                <option value="">Load example...</option>
+                <option value="hello">Hello World</option>
+                <option value="random">Random Example</option>
+                <option value="http">HTTP Example</option>
+                <option value="json">JSON Example</option>
+                <option value="matrix">Matrix Example</option>
+              </select>
+              <span class="spacer"></span>
+              <button class="btn btn-secondary" id="share-btn">&#128279; <span>Copy Share Link</span></button>
+            </div>
+            <div class="editor-container" id="editor-container">
+              <div class="editor-gutter" id="editor-gutter"></div>
+              <div class="editor-highlight" id="editor-highlight"></div>
+              <textarea class="editor-textarea" id="editor-textarea" spellcheck="false"
+                placeholder="Write Zamin code here..." autofocus>println("Hello, World!");</textarea>
+            </div>
+          </div>
+
+          <!-- Right: Output -->
+          <div class="playground-right">
+            <div class="playground-toolbar" style="padding-bottom:0.75rem;">
+              <span style="font-weight:600;font-size:var(--font-size-sm);color:var(--text-secondary);">Output</span>
+              <span class="spacer"></span>
+              <button class="btn btn-secondary" id="clear-btn" style="padding:0.375rem 0.75rem;font-size:0.75rem;">Clear</button>
+            </div>
+            <div class="output-container" id="output-container">
+              <div class="output-header">
+                <span>Terminal</span>
+                <span class="output-status" id="output-status">Ready</span>
+              </div>
+              <div class="output-content" id="output-content">
+                <div class="output-empty">Press &#9654; Run or Ctrl+Enter to execute</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Page Meta -->
+        <div class="page-meta">
+          <a id="edit-link" href="https://github.com/young-developer90/zamin/edit/master/docs/playground.html" target="_blank">Edit this page on GitHub</a>
+          <span>Last updated: July 2026</span>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Share Notification -->
+  <div class="share-notification" id="share-notification"></div>
+
+  <script src="assets/script.js"></script>
+  <script>
+  (function() {
+    'use strict';
+
+    /* ============================================
+       Zamin Playground - Execution Layer
+       ============================================
+       To connect a WASM runtime in the future:
+       1. Replace the `executeZamin` function below.
+       2. The function receives `sourceCode` (string).
+       3. It must return a Promise that resolves with
+          { success: true, output: "..." } or
+          { success: false, output: "..." }.
+       ============================================ */
+
+    // --- Placeholder: Replace this function to connect a WASM runtime ---
+    async function executeZamin(sourceCode) {
+      // TODO: Connect Zamin WASM runtime here.
+      // Example:
+      //   const result = await wasmRuntime.run(sourceCode);
+      //   return { success: true, output: result };
+      await new Promise(function(r) { return setTimeout(r, 10); });
+      return {
+        success: false,
+        output: '[playground] No WASM runtime connected yet.\n' +
+                'To run this code, copy-paste it into a local Zamin binary or\n' +
+                'connect a Zamin WebAssembly runtime here.\n\n' +
+                '--- Source code ---\n' + sourceCode
+      };
+    }
+    // --- End placeholder ---
+
+    // DOM refs
+    var textarea = document.getElementById('editor-textarea');
+    var gutter = document.getElementById('editor-gutter');
+    var highlight = document.getElementById('editor-highlight');
+    var outputContent = document.getElementById('output-content');
+    var outputStatus = document.getElementById('output-status');
+    var runBtn = document.getElementById('run-btn');
+    var clearBtn = document.getElementById('clear-btn');
+    var shareBtn = document.getElementById('share-btn');
+    var examplesSelect = document.getElementById('examples-select');
+    var notification = document.getElementById('share-notification');
+
+    var ZAMIN_KEYWORDS = new Set([
+      'let', 'const', 'func', 'if', 'elif', 'else', 'while', 'for', 'in',
+      'match', 'return', 'throw', 'try', 'catch', 'struct', 'import', 'from',
+      'export', 'break', 'continue', 'true', 'false', 'nil', 'and', 'or', 'not',
+      'print', 'println', 'len'
+    ]);
+
+    var ZAMIN_BUILTINS = new Set([
+      'print', 'println', 'len', 'type', 'int', 'float', 'str', 'bool',
+      'range', 'input', 'assert', 'sleep', 'exit'
+    ]);
+
+    var EXAMPLES = {
+      hello: '// Hello World\n' +
+        'print("Hello from Zamin!");\n' +
+        '\n' +
+        'func greet(name) {\n' +
+        '  return "Hi, " + name;\n' +
+        '}\n' +
+        '\n' +
+        'println(greet("World"));\n' +
+        'println(greet("Zamin"));',
+      random: '// Random Number Examples\n' +
+        'import math;\n' +
+        'import random;\n' +
+        '\n' +
+        'println("Random integers:");\n' +
+        'for i in 0..5 {\n' +
+        '  print(random.int(1, 100) + " ");\n' +
+        '}\n' +
+        'println("");\n' +
+        '\n' +
+        'println("\\nRandom floats:");\n' +
+        'for i in 0..5 {\n' +
+        '  print(math.round(random.float() * 100, 2) + " ");\n' +
+        '}',
+      http: '// HTTP Request Example\n' +
+        'import http;\n' +
+        '\n' +
+        'let response = http.get("https://jsonplaceholder.typicode.com/todos/1");\n' +
+        'println("Status: " + response.status);\n' +
+        'println("Body: " + response.body);',
+      json: '// JSON Example\n' +
+        'import json;\n' +
+        '\n' +
+        'let person = {\n' +
+        '  "name": "Alice",\n' +
+        '  "age": 30,\n' +
+        '  "city": "Tehran"\n' +
+        '};\n' +
+        'println("Original:");\n' +
+        'println(json.stringify(person));\n' +
+        '\n' +
+        'let encoded = json.stringify(person);\n' +
+        'let decoded = json.parse(encoded);\n' +
+        'println("\\nDecoded name: " + decoded["name"]);',
+      matrix: '// Matrix Operations\n' +
+        'import math;\n' +
+        '\n' +
+        'func print_matrix(m) {\n' +
+        '  for row in m {\n' +
+        '    println(row);\n' +
+        '  }\n' +
+        '}\n' +
+        '\n' +
+        'let a = [[1, 2], [3, 4]];\n' +
+        'let b = [[5, 6], [7, 8]];\n' +
+        '\n' +
+        'println("Matrix A:");\n' +
+        'print_matrix(a);\n' +
+        '\n' +
+        'println("\\nMatrix B:");\n' +
+        'print_matrix(b);\n' +
+        '\n' +
+        'println("\\nA + B:");\n' +
+        'let c = math.matrix_add(a, b);\n' +
+        'print_matrix(c);\n' +
+        '\n' +
+        'println("\\nDeterminant of A: " + math.det(a));'
+    };
+
+    function setCode(code) {
+      textarea.value = code;
+      syncEditor();
+    }
+
+    function getCode() {
+      return textarea.value;
+    }
+
+    /* ---------- Syntax Highlighting ---------- */
+
+    function highlightZamin(code) {
+      var escaped = escapeHtml(code);
+      var html = '';
+
+      // Tokenize line by line for simplicity
+      var lines = code.split('\n');
+      for (var li = 0; li < lines.length; li++) {
+        var line = lines[li];
+        if (li > 0) html += '\n';
+        html += highlightLine(line);
+      }
+
+      return html;
+    }
+
+    function highlightLine(line) {
+      // Simple line-based tokenizer
+      var result = '';
+      var i = 0;
+
+      while (i < line.length) {
+        // Comments
+        if (line[i] === '/' && line[i + 1] === '/') {
+          result += '<span class="hl-cm">' + escapeHtml(line.slice(i)) + '</span>';
+          break;
+        }
+
+        // Strings
+        if (line[i] === '"') {
+          var j = i + 1;
+          while (j < line.length && line[j] !== '"') {
+            if (line[j] === '\\') j++;
+            j++;
+          }
+          if (j < line.length) j++;
+          result += '<span class="hl-str">' + escapeHtml(line.slice(i, j)) + '</span>';
+          i = j;
+          continue;
+        }
+
+        // Identifiers and keywords
+        if (/[a-zA-Z_]/.test(line[i])) {
+          var j = i;
+          while (j < line.length && /[a-zA-Z0-9_]/.test(line[j])) j++;
+          var word = line.slice(i, j);
+          if (ZAMIN_KEYWORDS.has(word)) {
+            result += '<span class="hl-kw">' + word + '</span>';
+          } else if (ZAMIN_BUILTINS.has(word)) {
+            result += '<span class="hl-builtin">' + word + '</span>';
+          } else if (j < line.length && line[j] === '(') {
+            result += '<span class="hl-fn">' + word + '</span>';
+          } else {
+            result += escapeHtml(word);
+          }
+          i = j;
+          continue;
+        }
+
+        // Numbers
+        if (/[0-9]/.test(line[i])) {
+          var j = i;
+          while (j < line.length && /[0-9.eE+-]/.test(line[j])) {
+            if ((line[j] === '+' || line[j] === '-') && j > i && line[j - 1] !== 'e' && line[j - 1] !== 'E') break;
+            j++;
+          }
+          result += '<span class="hl-num">' + escapeHtml(line.slice(i, j)) + '</span>';
+          i = j;
+          continue;
+        }
+
+        // Operators
+        if ('+-*/%=<>!&|^~'.includes(line[i])) {
+          result += '<span class="hl-op">' + escapeHtml(line[i]) + '</span>';
+          i++;
+          continue;
+        }
+
+        result += escapeHtml(line[i]);
+        i++;
+      }
+
+      return result || '&nbsp;';
+    }
+
+    function escapeHtml(s) {
+      return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    /* ---------- Editor Sync ---------- */
+
+    function syncEditor() {
+      var code = textarea.value;
+
+      // Syntax highlighting
+      highlight.innerHTML = highlightZamin(code);
+
+      // Line numbers
+      var lines = code.split('\n');
+      var lineCount = lines.length;
+
+      var gutterHtml = '';
+      for (var i = 1; i <= lineCount; i++) {
+        gutterHtml += '<span class="line">' + i + '</span>';
+      }
+      gutter.innerHTML = gutterHtml;
+    }
+
+    textarea.addEventListener('input', syncEditor);
+    textarea.addEventListener('scroll', function() {
+      gutter.scrollTop = textarea.scrollTop;
+      highlight.scrollTop = textarea.scrollTop;
+    });
+
+    // Tab key: insert 4 spaces
+    textarea.addEventListener('keydown', function(e) {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        var start = textarea.selectionStart;
+        var end = textarea.selectionEnd;
+        textarea.value = textarea.value.slice(0, start) + '    ' + textarea.value.slice(end);
+        textarea.selectionStart = textarea.selectionEnd = start + 4;
+        syncEditor();
+      }
+
+      // Auto-indent on Enter
+      if (e.key === 'Enter') {
+        var start = textarea.selectionStart;
+        var before = textarea.value.slice(0, start);
+        var lineStart = before.lastIndexOf('\n') + 1;
+        var currentLine = before.slice(lineStart);
+        var indent = currentLine.match(/^(\s*)/)[1];
+        var extra = '';
+        if (/[{:\[]\s*$/.test(currentLine.trim())) {
+          extra = '    ';
+        }
+        e.preventDefault();
+        var insertion = '\n' + indent + extra;
+        textarea.value = textarea.value.slice(0, start) + insertion + textarea.value.slice(textarea.selectionEnd);
+        textarea.selectionStart = textarea.selectionEnd = start + insertion.length;
+        syncEditor();
+      }
+
+      // Ctrl+Enter to run
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        runCode();
+      }
+    });
+
+    // Ctrl+K focus search
+    textarea.addEventListener('keydown', function(e) {
+      if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        var searchInput = document.getElementById('search-input');
+        if (searchInput) searchInput.focus();
+      }
+    });
+
+    /* ---------- Tab indentation button ---------- */
+    // Not needed since we handle Tab directly
+
+    /* ---------- Output ---------- */
+
+    function writeOutput(text, className) {
+      var div = outputContent.querySelector('.output-empty');
+      if (div) div.remove();
+      var span = document.createElement('span');
+      if (className) span.className = className;
+      span.textContent = text;
+      outputContent.appendChild(span);
+    }
+
+    function writeOutputHTML(html) {
+      var div = outputContent.querySelector('.output-empty');
+      if (div) div.remove();
+      var temp = document.createElement('div');
+      temp.innerHTML = html;
+      while (temp.firstChild) outputContent.appendChild(temp.firstChild);
+    }
+
+    function clearOutput() {
+      outputContent.innerHTML = '<div class="output-empty">Press &#9654; Run or Ctrl+Enter to execute</div>';
+      outputStatus.textContent = 'Ready';
+      outputStatus.style.color = '';
+    }
+
+    function setOutputBusy(busy) {
+      runBtn.disabled = busy;
+      if (busy) {
+        outputStatus.textContent = 'Running...';
+        outputStatus.style.color = 'var(--warning)';
+      }
+    }
+
+    /* ---------- Run ---------- */
+
+    async function runCode() {
+      var code = getCode().trim();
+      if (!code) return;
+
+      clearOutput();
+      setOutputBusy(true);
+
+      try {
+        var result = await executeZamin(code);
+        if (result.success) {
+          writeOutput(result.output, 'out-success');
+          outputStatus.textContent = 'Completed';
+          outputStatus.style.color = 'var(--success)';
+        } else {
+          writeOutput(result.output, 'out-error');
+          outputStatus.textContent = 'Error';
+          outputStatus.style.color = 'var(--danger)';
+        }
+      } catch (err) {
+        writeOutput(err.message || String(err), 'out-error');
+        outputStatus.textContent = 'Error';
+        outputStatus.style.color = 'var(--danger)';
+      }
+
+      setOutputBusy(false);
+    }
+
+    runBtn.addEventListener('click', runCode);
+
+    /* ---------- Clear ---------- */
+
+    clearBtn.addEventListener('click', clearOutput);
+
+    /* ---------- URL Query Param ---------- */
+
+    function loadFromURL() {
+      var params = new URLSearchParams(window.location.search);
+      var code = params.get('code');
+      if (code) {
+        try {
+          code = decodeURIComponent(code);
+          setCode(code);
+        } catch (e) {
+          // Fall back to default
+        }
+      }
+    }
+
+    loadFromURL();
+
+    /* ---------- Examples ---------- */
+
+    examplesSelect.addEventListener('change', function() {
+      var val = examplesSelect.value;
+      if (!val) return;
+      if (EXAMPLES[val]) {
+        setCode(EXAMPLES[val]);
+      }
+      examplesSelect.value = '';
+    });
+
+    /* ---------- Share Link ---------- */
+
+    function showNotification(msg, type) {
+      notification.textContent = msg;
+      notification.className = 'share-notification ' + (type || '') + ' show';
+      setTimeout(function() {
+        notification.classList.remove('show');
+      }, 2500);
+    }
+
+    shareBtn.addEventListener('click', function() {
+      var code = getCode().trim();
+      if (!code) {
+        showNotification('Nothing to share — editor is empty.', 'error');
+        return;
+      }
+      var url = window.location.origin + window.location.pathname +
+        '?code=' + encodeURIComponent(code);
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function() {
+          showNotification('Link copied to clipboard!', 'success');
+        }).catch(function() {
+          fallbackCopy(url);
+        });
+      } else {
+        fallbackCopy(url);
+      }
+    });
+
+    function fallbackCopy(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand('copy');
+        showNotification('Link copied to clipboard!', 'success');
+      } catch (e) {
+        showNotification('Could not copy. Select the URL manually.', 'error');
+      }
+      document.body.removeChild(ta);
+    }
+
+    /* ---------- Init ---------- */
+
+    syncEditor();
+
+    // If there's code in the URL, run it automatically
+    if (new URLSearchParams(window.location.search).has('code')) {
+      runCode();
+    }
+
+  })();
+  </script>
+</body>
+</html>

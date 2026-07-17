@@ -754,9 +754,9 @@ impl Vm {
                 }
                 60 => { // CheckMatch
                     self.ip += 2;
-                    let val = self.stack.pop().ok_or("stack empty")?;
                     let pattern = self.stack.pop().ok_or("stack empty")?;
-                    let matched = val.eq(&pattern, &self.heap)
+                    let val = self.stack.pop().ok_or("stack empty")?;
+                    let matched = pattern.eq(&val, &self.heap)
                         || matches!(&pattern, Value::String(r) if {
                             matches!(self.heap.get(*r), GcObj::String(s) if s == "_")
                         });
@@ -2445,9 +2445,9 @@ fn execute_chunk(chunk_idx: usize, args: &[Value], ctx: &mut VmContext) -> Resul
             }
             OpCode::CheckMatch => {
                 ip += 2;
-                let val = stack.pop().ok_or("stack empty")?;
                 let pattern = stack.pop().ok_or("stack empty")?;
-                let matched = val.eq(&pattern, ctx.heap) || matches!(&pattern, Value::String(r) if matches!(ctx.heap.get(*r), GcObj::String(s) if s == "_"));
+                let val = stack.pop().ok_or("stack empty")?;
+                let matched = pattern.eq(&val, ctx.heap) || matches!(&pattern, Value::String(r) if matches!(ctx.heap.get(*r), GcObj::String(s) if s == "_"));
                 stack.push(Value::Bool(matched));
             }
             OpCode::BuildRange => {
@@ -2737,6 +2737,13 @@ fn execute_closure_chunk(chunk_idx: usize, args: &[Value], upvalues: Vec<Upvalue
             OpCode::Nil => stack.push(Value::Nil),
             OpCode::True => stack.push(Value::Bool(true)),
             OpCode::False => stack.push(Value::Bool(false)),
+            OpCode::CheckMatch => {
+                ip += 2;
+                let val = stack.pop().ok_or("stack empty")?;
+                let pattern = stack.pop().ok_or("stack empty")?;
+                let matched = val.eq(&pattern, ctx.heap) || matches!(&pattern, Value::String(r) if matches!(ctx.heap.get(*r), GcObj::String(s) if s == "_"));
+                stack.push(Value::Bool(matched));
+            }
             OpCode::LoadConst => {
                 let idx = u16::from_le_bytes([chunk.code[ip], chunk.code[ip+1]]) as usize;
                 ip += 2;

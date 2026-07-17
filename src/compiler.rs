@@ -494,7 +494,7 @@ impl Compiler {
                 for (pattern, body) in arms {
                     self.chunk().emit(OpCode::LoadLocal);
                     self.chunk().emit_u16(match_val_idx);
-                    self.compile_expr(pattern)?;
+                    self.compile_match_pattern(pattern.clone())?;
                     self.chunk().emit(OpCode::CheckMatch);
                     self.chunk().emit_u16(0);
 
@@ -997,6 +997,84 @@ impl Compiler {
                 self.chunk().emit(OpCode::LoadConst);
                 self.chunk().emit_u16(name_const);
                 self.compile_expr(value)?;
+            }
+            Expr::MatchExpr { value, arms } => {
+                self.compile_expr(value)?;
+
+                let tmp_name = "__match_tmp__";
+                let tmp_idx = self.chunk().intern_string(tmp_name);
+                self.chunk().emit(OpCode::StoreGlobal);
+                self.chunk().emit_u16(tmp_idx);
+
+                let mut end_jumps = Vec::new();
+                let num_arms = arms.len();
+
+                for (i, (pattern, body)) in arms.iter().enumerate() {
+                    self.chunk().emit(OpCode::LoadGlobal);
+                    self.chunk().emit_u16(tmp_idx);
+                    self.compile_match_pattern(pattern.clone())?;
+                    self.chunk().emit(OpCode::CheckMatch);
+                    self.chunk().emit_u16(0);
+
+                    let jump_next = self.chunk().code.len();
+                    self.chunk().emit(OpCode::JumpIfFalse);
+                    self.chunk().emit_u16(0);
+                    self.chunk().emit(OpCode::Pop);
+
+                    let len = body.len();
+                    for (j, stmt) in body.iter().enumerate() {
+                        if j == len - 1 {
+                            self.compile_expr_body(stmt)?;
+                        } else {
+                            self.compile_stmt(stmt)?;
+                        }
+                    }
+
+                    let end_jump = self.chunk().code.len();
+                    self.chunk().emit(OpCode::Jump);
+                    self.chunk().emit_u16(0);
+                    end_jumps.push(end_jump);
+
+                    let next_pos = self.chunk().code.len() as u16;
+                    let jn_pos = jump_next + 1;
+                    self.chunk().code[jn_pos..jn_pos + 2]
+                        .copy_from_slice(&next_pos.to_le_bytes());
+                    self.chunk().emit(OpCode::Pop);
+                }
+
+                // If no arm matched, push the match value itself as result
+                self.chunk().emit(OpCode::LoadGlobal);
+                self.chunk().emit_u16(tmp_idx);
+
+                let end_pos = self.chunk().code.len() as u16;
+                for jump in &end_jumps {
+                    let pos = *jump + 1;
+                    self.chunk().code[pos..pos + 2]
+                        .copy_from_slice(&end_pos.to_le_bytes());
+                }
+            }
+        }
+        Ok(())
+    }
+
+    fn compile_match_pattern(&mut self, pattern: Expr) -> Result<(), String> {
+        match &pattern {
+            Expr::Identifier(name) if name == "_" => {
+                let idx = self.chunk().add_string_constant(Value::Nil, "_".to_string());
+                self.chunk().emit(OpCode::LoadConst);
+                self.chunk().emit_u16(idx);
+            }
+            _ => self.compile_expr(&pattern)?,
+        }
+        Ok(())
+    }
+
+    fn compile_expr_body(&mut self, stmt: &Stmt) -> Result<(), String> {
+        match stmt {
+            Stmt::Expr(expr) => self.compile_expr(expr)?,
+            _ => {
+                self.compile_stmt(stmt)?;
+                self.chunk().emit(OpCode::Nil);
             }
         }
         Ok(())

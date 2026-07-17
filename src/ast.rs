@@ -70,6 +70,10 @@ pub enum Expr {
         name: String,
         value: Box<Expr>,
     },
+    MatchExpr {
+        value: Box<Expr>,
+        arms: Vec<(Expr, Vec<Stmt>)>,
+    },
 }
 
 #[derive(Debug, Clone)]
