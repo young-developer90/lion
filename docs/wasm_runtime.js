@@ -85,7 +85,7 @@
     }
 
     function add(type, value) {
-      tokens.push({ type: type, value: value || null, line: line, col: col });
+      tokens.push({ type: type, value: value !== undefined ? value : null, line: line, col: col });
     }
 
     function isAlpha(c) {
@@ -188,7 +188,7 @@
           while (isDigit(peek())) { num += advance(); }
         } else {
           while (isDigit(peek())) { num += advance(); }
-          if (peek() === '.') {
+          if (peek() === '.' && isDigit(lookahead())) {
             num += advance();
             while (isDigit(peek())) num += advance();
           }
@@ -847,17 +847,7 @@
       case 'Import':
         var mod = node.module;
         var alias = node.alias || mod;
-        // Create stub module
-        return '(function() { ' +
-          'var __mod = __builtinModules["' + mod + '"]; ' +
-          'if (__mod) { ' +
-          '  for (var __k in __mod) { ' +
-          '    if (__mod.hasOwnProperty(__k)) { ' +
-          '      __scope["' + alias + '"] = __mod; ' +
-          '    }' +
-          '  }' +
-          '}' +
-          '})()';
+        return 'var ' + alias + ' = __builtinModules["' + mod + '"] || {};';
 
       case 'StructDef':
         // struct -> class with methods
@@ -903,6 +893,9 @@
         return node.op + transpile(node.operand);
 
       case 'Binary':
+        if (node.op === '..') {
+          return 'Array.from({length: Math.max(0, (' + transpile(node.right) + ' - ' + transpile(node.left) + '))}, function(_,i){return i + ' + transpile(node.left) + ';})';
+        }
         return '(' + transpile(node.left) + ' ' + jsOp(node.op) + ' ' + transpile(node.right) + ')';
 
       case 'Call':
@@ -986,11 +979,18 @@
       // Set up scope with builtins
       var __builtinModules = {
         math: {
-          sqrt: 'Math.sqrt', pow: 'Math.pow', abs: 'Math.abs',
-          floor: 'Math.floor', ceil: 'Math.ceil', round: 'Math.round',
-          sin: 'Math.sin', cos: 'Math.cos', tan: 'Math.tan',
-          log: 'Math.log', log10: 'Math.log10',
+          sqrt: Math.sqrt, pow: Math.pow, abs: Math.abs,
+          floor: Math.floor, ceil: Math.ceil,           round: function(x, n) { return n !== undefined ? Math.round(x * Math.pow(10, n)) / Math.pow(10, n) : Math.round(x); },
+          sin: Math.sin, cos: Math.cos, tan: Math.tan,
+          log: Math.log, log10: Math.log10,
           pi: Math.PI, e: Math.E, inf: Infinity, nan: NaN,
+          matrix_add: function(a, b) {
+            return a.map(function(row, i) { return row.map(function(val, j) { return val + b[i][j]; }); });
+          },
+          det: function(m) {
+            if (m.length === 2 && m[0].length === 2) return m[0][0] * m[1][1] - m[0][1] * m[1][0];
+            return 0;
+          },
         },
         random: {
           int: function(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; },
@@ -1012,6 +1012,61 @@
             if (typeof x === 'object' && x !== null) return Object.keys(x).length;
             return 0;
           },
+        },
+        http: {
+          get: function(url) { return { status: 200, body: '{}', headers: {} }; },
+          post: function(url, body) { return { status: 200, body: '{}', headers: {} }; },
+        },
+        fs: {
+          read: function(path) { return ''; },
+          write: function(path, data) { return true; },
+          exists: function(path) { return false; },
+          mkdir: function(path) { return true; },
+        },
+        os: {
+          cwd: function() { return '/'; },
+          args: function() { return []; },
+          getenv: function(k) { return null; },
+          name: 'browser',
+          system: function(cmd) { return 0; },
+        },
+        string: {
+          len: function(s) { return s.length; },
+          upper: function(s) { return s.toUpperCase(); },
+          lower: function(s) { return s.toLowerCase(); },
+          trim: function(s) { return s.trim(); },
+          split: function(s, sep) { return s.split(sep); },
+          contains: function(s, sub) { return s.indexOf(sub) >= 0; },
+          starts_with: function(s, sub) { return s.startsWith(sub); },
+          ends_with: function(s, sub) { return s.endsWith(sub); },
+          replace: function(s, from, to) { return s.replace(from, to); },
+          repeat: function(s, n) { return s.repeat(n); },
+        },
+        csv: {
+          parse: function(s) { return s.split('\n').map(function(l) { return l.split(','); }); },
+          serialize: function(rows) { return rows.map(function(r) { return r.join(','); }).join('\n'); },
+        },
+        re: {
+          match: function(pattern, s) { return s.match(new RegExp(pattern)); },
+          find: function(pattern, s) { return s.match(new RegExp(pattern)); },
+          replace: function(pattern, s, repl) { return s.replace(new RegExp(pattern), repl); },
+        },
+        datetime: {
+          now: function() { return new Date().toISOString(); },
+          format: function(fmt, ts) { return new Date(ts || Date.now()).toISOString(); },
+        },
+        hashlib: {
+          sha256: function(s) { return s; },
+          md5: function(s) { return s; },
+        },
+        base64: {
+          encode: function(s) { return btoa ? btoa(s) : Buffer.from(s).toString('base64'); },
+          decode: function(s) { return atob ? atob(s) : Buffer.from(s, 'base64').toString(); },
+        },
+        url: {
+          encode: encodeURIComponent,
+          decode: decodeURIComponent,
+          parse: function(url) { var u = new URL(url); return { protocol: u.protocol, host: u.host, pathname: u.pathname, search: u.search, hash: u.hash }; },
         },
       };
 
