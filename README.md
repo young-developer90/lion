@@ -6,6 +6,7 @@
 [![Crates.io](https://img.shields.io/crates/v/zamin?color=purple&logo=rust)](https://crates.io/crates/zamin)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)](https://github.com/young-developer90/zamin/actions)
 [![PRs](https://img.shields.io/badge/PRs-welcome-orange)](https://github.com/young-developer90/zamin/pulls)
+[![Docs](https://img.shields.io/badge/docs-gh--pages-purple?logo=github)](https://young-developer90.github.io/zamin/)
 
 Zamin is a simple, expressive scripting language with a Rust-based interpreter. It combines modern language features -- closures, pattern matching, string interpolation, and a module system -- with a lightweight bytecode VM, optional GPU acceleration, and a built-in project manager.
 
