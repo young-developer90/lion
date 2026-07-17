@@ -415,6 +415,7 @@
   <div class="share-notification" id="share-notification"></div>
 
   <script src="assets/script.js"></script>
+  <script src="wasm_runtime.js"></script>
   <script>
   (function() {
     'use strict';
@@ -430,44 +431,23 @@
           { success: false, output: "..." }.
        ============================================ */
 
-    // --- Zamin WASM Runtime ---
-    // The WASM module is loaded from docs/wasm/zamin_wasm.js when the page loads.
-    // If you haven't built the WASM runtime yet, run: ./build-wasm.sh
-
-    var zaminWasm = null;
-
-    async function initZaminWasm() {
-      try {
-        var mod = await import('./wasm/zamin_wasm.js');
-        await mod.default();
-        zaminWasm = mod;
-        console.log('Zamin WASM runtime loaded');
-        return true;
-      } catch (e) {
-        console.warn('Zamin WASM runtime not available:', e.message);
-        return false;
-      }
-    }
+    // --- Zamin Browser Runtime ---
+    // Uses the JS-based Zamin transpiler from wasm_runtime.js.
+    // When a WASM build is available in the future, replace
+    // wasm_runtime.js with the compiled WASM module.
 
     async function executeZamin(sourceCode) {
-      if (zaminWasm) {
-        try {
-          var result = zaminWasm.run_zamin(sourceCode);
-          return { success: true, output: result };
-        } catch (e) {
-          return { success: false, output: String(e) };
+      try {
+        var result = zaminWasm.run_zamin(sourceCode);
+        if (typeof result === 'object' && result.success !== undefined) {
+          return result;
         }
+        return { success: true, output: result };
+      } catch (e) {
+        return { success: false, output: String(e) };
       }
-      // Fallback when WASM is not loaded
-      await new Promise(function(r) { return setTimeout(r, 10); });
-      return {
-        success: false,
-        output: '[playground] No WASM runtime connected yet.\n' +
-                'Run ./build-wasm.sh to build the Zamin WebAssembly runtime.\n\n' +
-                '--- Source code ---\n' + sourceCode
-      };
     }
-    // --- End Zamin WASM Runtime ---
+    // --- End Zamin Browser Runtime ---
 
     // DOM refs
     var textarea = document.getElementById('editor-textarea');
@@ -879,7 +859,6 @@
     /* ---------- Init ---------- */
 
     syncEditor();
-    initZaminWasm();
 
     // If there's code in the URL, run it automatically
     if (new URLSearchParams(window.location.search).has('code')) {
