@@ -1,5 +1,5 @@
 /* ============================================
-   Lion Documentation - Interactive JavaScript
+   Zamin Documentation - Interactive JavaScript
    ============================================ */
 
 (function() {

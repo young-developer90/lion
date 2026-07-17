@@ -119,7 +119,7 @@ fn open_lib(path: &Path) -> Result<LibHandle, String> {
     let cpath = CString::new(path.to_str().ok_or("invalid path")?).map_err(|e| e.to_string())?;
     #[cfg(unix)]
     {
-        let handle = unsafe { dlopen(cpath.as_ptr(), RTLD_NOW) };
+        let handle = unsafe { dlopen(cpath.as_ptr() as *const u8, RTLD_NOW) };
         if handle.is_null() {
             return Err(format!("dlopen failed: {}", path.display()));
         }
@@ -140,7 +140,7 @@ fn find_sym(handle: &LibHandle, name: &str) -> Result<*mut std::ffi::c_void, Str
     let cname = CString::new(name).map_err(|e| e.to_string())?;
     #[cfg(unix)]
     {
-        let ptr = unsafe { dlsym(handle.ptr, cname.as_ptr()) };
+        let ptr = unsafe { dlsym(handle.ptr, cname.as_ptr() as *const u8) };
         if ptr.is_null() {
             return Err(format!("symbol '{}' not found", name));
         }
@@ -200,7 +200,7 @@ pub fn load_extension(path: &Path, _heap: &mut GcHeap) -> Result<Vec<(String, Va
             if entry.name.is_null() {
                 continue;
             }
-            let name = unsafe { std::ffi::CStr::from_ptr(entry.name).to_string_lossy().into_owned() };
+            let name = unsafe { std::ffi::CStr::from_ptr(entry.name as *const i8).to_string_lossy().into_owned() };
             if let Some(c_func) = entry.func {
                 let native_name = format!("<ext.{}>", name);
                 let func = Rc::new(move |args: &[Value], ctx: &mut VmContext| {

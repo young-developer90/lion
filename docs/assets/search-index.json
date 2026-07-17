@@ -1,5 +1,5 @@
 [
-  {"title":"Home","url":"index.html","section":"Overview","content":"Lion programming language fast readable expressive self-contained"},
+  {"title":"Home","url":"index.html","section":"Overview","content":"Zamin programming language fast readable expressive self-contained"},
   {"title":"Getting Started","url":"getting-started.html","section":"Installation","content":"install build cargo clone setup quick start first script REPL"},
   {"title":"Language Guide","url":"language-guide.html","section":"Language Reference","content":"variables types strings integers floats booleans nil lists dicts sets tuples functions closures pattern matching error handling structs modules imports"},
   {"title":"Variables and Types","url":"language-guide.html#variables-and-types","section":"Language Guide","content":"let const variable type int float bool string nil list dict set tuple"},

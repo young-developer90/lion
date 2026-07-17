@@ -73,11 +73,11 @@
             <tr><th>Constant</th><th>Description</th></tr>
           </thead>
           <tbody>
-            <tr><td><code>LION_NIL</code></td><td>Nil / null value</td></tr>
-            <tr><td><code>LION_INT</code></td><td>Integer (64-bit signed)</td></tr>
-            <tr><td><code>LION_FLOAT</code></td><td>Double-precision float</td></tr>
-            <tr><td><code>LION_BOOL</code></td><td>Boolean true/false</td></tr>
-            <tr><td><code>LION_STRING</code></td><td>Heap-allocated string</td></tr>
+            <tr><td><code>ZAMIN_NIL</code></td><td>Nil / null value</td></tr>
+            <tr><td><code>ZAMIN_INT</code></td><td>Integer (64-bit signed)</td></tr>
+            <tr><td><code>ZAMIN_FLOAT</code></td><td>Double-precision float</td></tr>
+            <tr><td><code>ZAMIN_BOOL</code></td><td>Boolean true/false</td></tr>
+            <tr><td><code>ZAMIN_STRING</code></td><td>Heap-allocated string</td></tr>
           </tbody>
         </table>
 
@@ -119,20 +119,20 @@
 
 static ZaminValue math_add(int argc, ZaminValue *argv) {
     if (argc != 2) {
-        return (ZaminValue){ LION_NIL, { .i = 0 } };
+        return (ZaminValue){ ZAMIN_NIL, { .i = 0 } };
     }
     int64_t a = argv[0].as.i;
     int64_t b = argv[1].as.i;
-    return (ZaminValue){ LION_INT, { .i = a + b } };
+    return (ZaminValue){ ZAMIN_INT, { .i = a + b } };
 }
 
 static ZaminValue math_multiply(int argc, ZaminValue *argv) {
     if (argc != 2) {
-        return (ZaminValue){ LION_NIL, { .i = 0 } };
+        return (ZaminValue){ ZAMIN_NIL, { .i = 0 } };
     }
     int64_t a = argv[0].as.i;
     int64_t b = argv[1].as.i;
-    return (ZaminValue){ LION_INT, { .i = a * b } };
+    return (ZaminValue){ ZAMIN_INT, { .i = a * b } };
 }
 
 ZaminModuleFunc *zamin_module_init(int *count) {
@@ -263,7 +263,7 @@ zamin = { path = "../zamin" }</code></pre>
         </ul>
 
         <h3>Full Rust Embedding Example</h3>
-        <pre><code>fn main() {
+        <pre><code>func main() {
     // Execute a Zamin source string
     zamin::execute_source(r#"
         let greeting = "Hello from Zamin!"

@@ -133,18 +133,22 @@ zamin&gt;</code></pre>
         <pre><code>$ zamin run hello.zamin
 Hello, Zamin!</code></pre>
         <p>Let's try something a bit more interesting. Replace the contents of <code>hello.zamin</code> with:</p>
-        <pre><code><span class="kw">fn</span> greet(name):
-    print(<span class="str">"Hello, </span>{name}<span class="str">!"</span>)
+        <pre><code><span class="kw">func</span> greet(name) {
+    print(<span class="str">"Hello, </span>{name}<span class="str">!"</span>);
+}
 
-<span class="kw">fn</span> fibonacci(n):
-    <span class="kw">if</span> n &lt;= <span class="num">1</span>:
-        <span class="kw">return</span> n
-    <span class="kw">return</span> fibonacci(n - <span class="num">1</span>) + fibonacci(n - <span class="num">2</span>)
+<span class="kw">func</span> fibonacci(n) {
+    <span class="kw">if</span> n &lt;= <span class="num">1</span> {
+        <span class="kw">return</span> n;
+    }
+    <span class="kw">return</span> fibonacci(n - <span class="num">1</span>) + fibonacci(n - <span class="num">2</span>);
+}
 
-greet(<span class="str">"World"</span>)
+greet(<span class="str">"World"</span>);
 
-<span class="kw">for</span> i <span class="kw">in</span> <span class="num">0</span>..<span class="num">10</span>:
-    print(<span class="str">"fib(</span>{i}<span class="str">) = </span>{fibonacci(i)}<span class="str">"</span>)</code></pre>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="num">0</span>..<span class="num">10</span> {
+    print(<span class="str">"fib(</span>{i}<span class="str">) = </span>{fibonacci(i)}<span class="str">"</span>);
+}</code></pre>
 
         <h2 id="using-the-repl">Using the REPL</h2>
         <p>The Zamin REPL is great for experimenting with language features and testing code snippets:</p>
@@ -155,10 +159,10 @@ zamin&gt; print("Hello!")
 Hello!
 zamin&gt; 2 + 2
 4
-zamin&gt; fn add(a, b): a + b
+zamin&gt; func add(a, b) { a + b }
 zamin&gt; add(10, 20)
 30
-zamin&gt; [1, 2, 3].map(fn(x): x * 2)
+zamin&gt; [1, 2, 3].map(func(x) { x * 2 })
 [2, 4, 6]
 zamin&gt; .exit</code></pre>
 

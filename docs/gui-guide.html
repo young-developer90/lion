@@ -179,8 +179,9 @@ gui.<span class="fn">pack</span>(lbl)</code></pre>
         <pre><code><span class="kw">let</span> gui = sol()
 <span class="kw">let</span> win = gui.<span class="fn">Leo</span>(<span class="str">"App"</span>, <span class="num">400</span>, <span class="num">300</span>)
 
-<span class="kw">fn</span> on_click():
-    print(<span class="str">"Button was clicked!"</span>)
+<span class="kw">func</span> on_click() {
+    print(<span class="str">"Button was clicked!"</span>);
+}
 
 <span class="kw">let</span> btn = gui.<span class="fn">Button</span>(win, <span class="str">"Click Me"</span>, on_click)
 gui.<span class="fn">pack</span>(btn)
@@ -299,37 +300,43 @@ gui.<span class="fn">pack</span>(display, <span class="str">"top"</span>, <span 
 
 <span class="kw">let</span> expression = <span class="str">""</span>
 
-<span class="kw">fn</span> on_digit(d):
-    expression = expression + d
-    gui.<span class="fn">config</span>(display, <span class="str">"text"</span>, expression)
+<span class="kw">func</span> on_digit(d) {
+    expression = expression + d;
+    gui.<span class="fn">config</span>(display, <span class="str">"text"</span>, expression);
+}
 
-<span class="kw">fn</span> on_operator(op):
-    expression = expression + <span class="str">" "</span> + op + <span class="str">" "</span>
-    gui.<span class="fn">config</span>(display, <span class="str">"text"</span>, expression)
+<span class="kw">func</span> on_operator(op) {
+    expression = expression + <span class="str">" "</span> + op + <span class="str">" "</span>;
+    gui.<span class="fn">config</span>(display, <span class="str">"text"</span>, expression);
+}
 
-<span class="kw">fn</span> on_clear():
-    expression = <span class="str">""</span>
-    gui.<span class="fn">config</span>(display, <span class="str">"text"</span>, <span class="str">""</span>)
+<span class="kw">func</span> on_clear() {
+    expression = <span class="str">""</span>;
+    gui.<span class="fn">config</span>(display, <span class="str">"text"</span>, <span class="str">""</span>);
+}
 
-<span class="kw">fn</span> on_equal():
-    <span class="kw">let</span> result = <span class="fn">eval</span>(expression)
-    gui.<span class="fn">config</span>(display, <span class="str">"text"</span>, <span class="fn">str</span>(result))
-    expression = <span class="fn">str</span>(result)
+<span class="kw">func</span> on_equal() {
+    <span class="kw">let</span> result = <span class="fn">eval</span>(expression);
+    gui.<span class="fn">config</span>(display, <span class="str">"text"</span>, <span class="fn">str</span>(result));
+    expression = <span class="fn">str</span>(result);
+}
 
 <span class="cm">// Build the button row for digits 1-9</span>
-<span class="kw">for</span> row <span class="kw">in</span> <span class="num">0</span>..<span class="num">3</span>:
-    <span class="kw">let</span> frame = gui.<span class="fn">Frame</span>(win)
-    gui.<span class="fn">pack</span>(frame, <span class="str">"top"</span>)
-    <span class="kw">for</span> col <span class="kw">in</span> <span class="num">0</span>..<span class="num">3</span>:
-        <span class="kw">let</span> digit = <span class="fn">str</span>(row * <span class="num">3</span> + col + <span class="num">1</span>)
-        <span class="kw">let</span> d = digit
-        <span class="kw">let</span> btn = gui.<span class="fn">Button</span>(frame, digit, <span class="kw">fn</span>(): on_digit(d))
-        gui.<span class="fn">pack</span>(btn, <span class="str">"left"</span>, <span class="num">2</span>, <span class="num">2</span>)
+<span class="kw">for</span> row <span class="kw">in</span> <span class="num">0</span>..<span class="num">3</span> {
+    <span class="kw">let</span> frame = gui.<span class="fn">Frame</span>(win);
+    gui.<span class="fn">pack</span>(frame, <span class="str">"top"</span>);
+    <span class="kw">for</span> col <span class="kw">in</span> <span class="num">0</span>..<span class="num">3</span> {
+        <span class="kw">let</span> digit = <span class="fn">str</span>(row * <span class="num">3</span> + col + <span class="num">1</span>);
+        <span class="kw">let</span> d = digit;
+        <span class="kw">let</span> btn = gui.<span class="fn">Button</span>(frame, digit, <span class="kw">func</span>() { on_digit(d) });
+        gui.<span class="fn">pack</span>(btn, <span class="str">"left"</span>, <span class="num">2</span>, <span class="num">2</span>);
+    }
+}
 
 <span class="cm">// Bottom row: 0, clear, equals</span>
 <span class="kw">let</span> bottom = gui.<span class="fn">Frame</span>(win)
 gui.<span class="fn">pack</span>(bottom, <span class="str">"top"</span>)
-<span class="kw">let</span> b0 = gui.<span class="fn">Button</span>(bottom, <span class="str">"0"</span>, <span class="kw">fn</span>(): on_digit(<span class="str">"0"</span>))
+<span class="kw">let</span> b0 = gui.<span class="fn">Button</span>(bottom, <span class="str">"0"</span>, <span class="kw">func</span>() { on_digit(<span class="str">"0"</span>) })
 gui.<span class="fn">pack</span>(b0, <span class="str">"left"</span>, <span class="num">2</span>, <span class="num">2</span>)
 <span class="kw">let</span> bc = gui.<span class="fn">Button</span>(bottom, <span class="str">"C"</span>, on_clear)
 gui.<span class="fn">pack</span>(bc, <span class="str">"left"</span>, <span class="num">2</span>, <span class="num">2</span>)
@@ -339,10 +346,11 @@ gui.<span class="fn">pack</span>(be, <span class="str">"left"</span>, <span clas
 <span class="cm">// Operator buttons</span>
 <span class="kw">let</span> ops = gui.<span class="fn">Frame</span>(win)
 gui.<span class="fn">pack</span>(ops, <span class="str">"top"</span>)
-<span class="kw">for</span> op <span class="kw">in</span> [<span class="str">"+"</span>, <span class="str">"-"</span>, <span class="str">"*"</span>, <span class="str">"/"</span>]:
-    <span class="kw">let</span> o = op
-    <span class="kw">let</span> b = gui.<span class="fn">Button</span>(ops, op, <span class="kw">fn</span>(): on_operator(o))
-    gui.<span class="fn">pack</span>(b, <span class="str">"left"</span>, <span class="num">2</span>, <span class="num">2</span>)
+<span class="kw">for</span> op <span class="kw">in</span> [<span class="str">"+"</span>, <span class="str">"-"</span>, <span class="str">"*"</span>, <span class="str">"/"</span>] {
+    <span class="kw">let</span> o = op;
+    <span class="kw">let</span> b = gui.<span class="fn">Button</span>(ops, op, <span class="kw">func</span>() { on_operator(o) });
+    gui.<span class="fn">pack</span>(b, <span class="str">"left"</span>, <span class="num">2</span>, <span class="num">2</span>);
+}
 
 gui.<span class="fn">mainloop</span>(win)</code></pre>
 
@@ -368,23 +376,27 @@ gui.<span class="fn">pack</span>(text_area, <span class="str">"top"</span>, <spa
 <span class="kw">let</span> btn_frame = gui.<span class="fn">Frame</span>(win)
 gui.<span class="fn">pack</span>(btn_frame, <span class="str">"top"</span>, <span class="num">5</span>, <span class="num">5</span>)
 
-<span class="kw">fn</span> on_open():
-    <span class="kw">let</span> path = gui.<span class="fn">get</span>(path_entry)
-    <span class="kw">if</span> path == <span class="str">""</span>:
-        gui.<span class="fn">messagebox</span>(<span class="str">"Enter a file path first."</span>, <span class="str">"Error"</span>)
-        <span class="kw">return</span>
-    <span class="kw">let</span> content = <span class="fn">read</span>(path)
-    gui.<span class="fn">config</span>(text_area, <span class="str">"text"</span>, content)
-    gui.<span class="fn">title</span>(win, <span class="str">"Text Editor - </span>{path}<span class="str">"</span>)
+<span class="kw">func</span> on_open() {
+    <span class="kw">let</span> path = gui.<span class="fn">get</span>(path_entry);
+    <span class="kw">if</span> path == <span class="str">""</span> {
+        gui.<span class="fn">messagebox</span>(<span class="str">"Enter a file path first."</span>, <span class="str">"Error"</span>);
+        <span class="kw">return</span>;
+    }
+    <span class="kw">let</span> content = <span class="fn">read</span>(path);
+    gui.<span class="fn">config</span>(text_area, <span class="str">"text"</span>, content);
+    gui.<span class="fn">title</span>(win, <span class="str">"Text Editor - </span>{path}<span class="str">"</span>);
+}
 
-<span class="kw">fn</span> on_save():
-    <span class="kw">let</span> path = gui.<span class="fn">get</span>(path_entry)
-    <span class="kw">if</span> path == <span class="str">""</span>:
-        gui.<span class="fn">messagebox</span>(<span class="str">"Enter a file path first."</span>, <span class="str">"Error"</span>)
-        <span class="kw">return</span>
-    <span class="kw">let</span> content = gui.<span class="fn">get</span>(text_area)
-    <span class="fn">write</span>(path, content)
-    gui.<span class="fn">messagebox</span>(<span class="str">"File saved!"</span>, <span class="str">"Success"</span>)
+<span class="kw">func</span> on_save() {
+    <span class="kw">let</span> path = gui.<span class="fn">get</span>(path_entry);
+    <span class="kw">if</span> path == <span class="str">""</span> {
+        gui.<span class="fn">messagebox</span>(<span class="str">"Enter a file path first."</span>, <span class="str">"Error"</span>);
+        <span class="kw">return</span>;
+    }
+    <span class="kw">let</span> content = gui.<span class="fn">get</span>(text_area);
+    <span class="fn">write</span>(path, content);
+    gui.<span class="fn">messagebox</span>(<span class="str">"File saved!"</span>, <span class="str">"Success"</span>);
+}
 
 <span class="kw">let</span> open_btn = gui.<span class="fn">Button</span>(btn_frame, <span class="str">"Open"</span>, on_open)
 gui.<span class="fn">pack</span>(open_btn, <span class="str">"left"</span>, <span class="num">5</span>, <span class="num">5</span>)

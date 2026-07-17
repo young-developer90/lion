@@ -296,14 +296,16 @@ opencv.<span class="fn">imwrite</span>(<span class="str">"copy.jpg"</span>, clon
 
 <span class="cm">// Haar cascade face detection</span>
 <span class="kw">let</span> faces = opencv.<span class="fn">detect_cascade</span>(img, <span class="str">"haarcascade_frontalface.xml"</span>)
-<span class="kw">for</span> face <span class="kw">in</span> faces:
-    opencv.<span class="fn">draw_rect</span>(img, face[<span class="num">0</span>], face[<span class="num">1</span>], face[<span class="num">2</span>], face[<span class="num">3</span>], <span class="num">0</span>, <span class="num">255</span>, <span class="num">0</span>, <span class="num">2</span>)
-    print(<span class="str">"Face at: </span>{face}<span class="str">"</span>)
+<span class="kw">for</span> face <span class="kw">in</span> faces {
+    opencv.<span class="fn">draw_rect</span>(img, face[<span class="num">0</span>], face[<span class="num">1</span>], face[<span class="num">2</span>], face[<span class="num">3</span>], <span class="num">0</span>, <span class="num">255</span>, <span class="num">0</span>, <span class="num">2</span>);
+    print(<span class="str">"Face at: </span>{face}<span class="str">"</span>);
+}
 
 <span class="cm">// HOG people detection</span>
 <span class="kw">let</span> people = opencv.<span class="fn">detect_people</span>(img)
-<span class="kw">for</span> p <span class="kw">in</span> people:
-    opencv.<span class="fn">draw_rect</span>(img, p[<span class="num">0</span>], p[<span class="num">1</span>], p[<span class="num">2</span>], p[<span class="num">3</span>], <span class="num">255</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">2</span>)
+<span class="kw">for</span> p <span class="kw">in</span> people {
+    opencv.<span class="fn">draw_rect</span>(img, p[<span class="num">0</span>], p[<span class="num">1</span>], p[<span class="num">2</span>], p[<span class="num">3</span>], <span class="num">255</span>, <span class="num">0</span>, <span class="num">0</span>, <span class="num">2</span>);
+}
 
 opencv.<span class="fn">imwrite</span>(<span class="str">"detected.jpg"</span>, img)</code></pre>
 
@@ -408,11 +410,13 @@ print(art2)</code></pre>
 <span class="cm">// Create a synthetic 400x300 image with color gradient</span>
 print(<span class="str">"Creating synthetic image..."</span>)
 <span class="kw">let</span> img = opencv.<span class="fn">zeros</span>(<span class="num">300</span>, <span class="num">400</span>, <span class="num">3</span>)
-<span class="kw">for</span> y <span class="kw">in</span> <span class="num">0</span>..<span class="num">300</span>:
-    <span class="kw">for</span> x <span class="kw">in</span> <span class="num">0</span>..<span class="num">400</span>:
-        <span class="kw">let</span> r = (<span class="fn">float</span>(x) / <span class="num">400.0</span> * <span class="num">255.0</span>).<span class="fn">int</span>()
-        <span class="kw">let</span> g = (<span class="fn">float</span>(y) / <span class="num">300.0</span> * <span class="num">255.0</span>).<span class="fn">int</span>()
-        img.<span class="fn">set</span>(y, x, [r, g, <span class="num">128</span>])
+<span class="kw">for</span> y <span class="kw">in</span> <span class="num">0</span>..<span class="num">300</span> {
+    <span class="kw">for</span> x <span class="kw">in</span> <span class="num">0</span>..<span class="num">400</span> {
+        <span class="kw">let</span> r = (<span class="fn">float</span>(x) / <span class="num">400.0</span> * <span class="num">255.0</span>).<span class="fn">int</span>();
+        <span class="kw">let</span> g = (<span class="fn">float</span>(y) / <span class="num">300.0</span> * <span class="num">255.0</span>).<span class="fn">int</span>();
+        img.<span class="fn">set</span>(y, x, [r, g, <span class="num">128</span>]);
+    }
+}
 
 opencv.<span class="fn">imwrite</span>(<span class="str">"gradient.png"</span>, img)
 print(<span class="str">"Saved gradient.png"</span>)

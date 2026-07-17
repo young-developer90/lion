@@ -68,13 +68,17 @@ cargo build --release</code></pre>
         <p>The binary will be at <code>target/release/zamin</code>. Add it to your <code>PATH</code>.</p>
 
         <h2 id="concat-strings">How do I concatenate strings?</h2>
-        <p>Use the <code>+</code> operator. Zamin does not use <code>..</code> for string concatenation.</p>
-        <pre><code>let greeting = "Hello" + " " + "World"
-print(greeting)  // "Hello World"
+        <p>Use the <code>+</code> operator (both operands must be strings) or the <code>..</code> operator (coerces non-strings).</p>
+        <pre><code>let greeting = "Hello" + " " + "World";
+print(greeting);  // "Hello World"
+
+// Use .. to coerce non-strings to strings
+let n = 42;
+print("The answer is " .. n);  // "The answer is 42"
 
 // f-strings are preferred for interpolation
-let name = "Alice"
-print("Hello {name}")</code></pre>
+let name = "Alice";
+print("Hello {name}");</code></pre>
 
         <h2 id="let-vs-const">What's the difference between let and const?</h2>
         <p><code>let</code> declares a mutable variable. <code>const</code> declares an immutable constant that must be assigned at compile time.</p>
@@ -123,14 +127,14 @@ try {
 }
 
 // Functions can return Result types
-fn divide(a, b) {
+func divide(a, b) {
     if b == 0 {
-        return error("Division by zero")
+        return error("Division by zero");
     }
-    return ok(a / b)
+    return ok(a / b);
 }
 
-let result = divide(10, 2)
+let result = divide(10, 2);
 match result {
     ok(value) => print("Result: {value}"),
     error(msg) => print("Failed: {msg}")
@@ -178,12 +182,12 @@ zamin run src/main.zamin</code></pre>
         <p>Write test functions using the <code>test</code> module, then run <code>zamin test</code>:</p>
         <pre><code>use test
 
-fn test_addition() {
-    test.assert_eq(1 + 1, 2)
+func test_addition() {
+    test.assert_eq(1 + 1, 2);
 }
 
-fn test_string_upper() {
-    test.assert_eq("hello".upper(), "HELLO")
+func test_string_upper() {
+    test.assert_eq("hello".upper(), "HELLO");
 }</code></pre>
         <pre><code>zamin test</code></pre>
         <p>Filter tests by name: <code>zamin test addition</code>.</p>
@@ -192,9 +196,9 @@ fn test_string_upper() {
         <p>Zamin uses a single-threaded VM with cooperative concurrency via fibers (lightweight coroutines). True OS-level multithreading is available through the <code>thread</code> module, which spawns independent VM instances on separate threads that communicate via message passing.</p>
         <pre><code>use thread
 
-let handle = thread.spawn(fn() {
-    print("Running on thread {thread.id()}")
-    return 42
+let handle = thread.spawn(func() {
+    print("Running on thread {thread.id()}");
+    return 42;
 })
 
 let result = handle.join()
@@ -245,9 +249,9 @@ print("Saved edges.jpg")</code></pre>
 [dependencies]
 zamin = { path = "../zamin" }</code></pre>
         <pre><code>// main.rs
-fn main() {
+func main() {
     zamin::execute_source(r#"
-        print("Hello from embedded Zamin!")
+        print("Hello from embedded Zamin!");
     "#).unwrap();
 
     zamin::execute_file("scripts/plugin.zamin").unwrap();

@@ -113,18 +113,22 @@
         <section class="quick-example">
           <h2>Quick Example</h2>
           <p>Here's a taste of what Zamin code looks like:</p>
-          <pre><code><span class="kw">fn</span> greet(name):
-    print(<span class="str">"Hello, </span>{name}<span class="str">!"</span>)
+          <pre><code><span class="kw">func</span> greet(name) {
+    print(<span class="str">"Hello, </span>{name}<span class="str">!"</span>);
+}
 
-<span class="kw">fn</span> fibonacci(n):
-    <span class="kw">if</span> n &lt;= <span class="num">1</span>:
-        <span class="kw">return</span> n
-    <span class="kw">return</span> fibonacci(n - <span class="num">1</span>) + fibonacci(n - <span class="num">2</span>)
+<span class="kw">func</span> fibonacci(n) {
+    <span class="kw">if</span> n &lt;= <span class="num">1</span> {
+        <span class="kw">return</span> n;
+    }
+    <span class="kw">return</span> fibonacci(n - <span class="num">1</span>) + fibonacci(n - <span class="num">2</span>);
+}
 
-greet(<span class="str">"World"</span>)
+greet(<span class="str">"World"</span>);
 
-<span class="kw">for</span> i <span class="kw">in</span> <span class="num">0</span>..<span class="num">10</span>:
-    print(<span class="str">"fib(</span>{i}<span class="str">) = </span>{fibonacci(i)}<span class="str">"</span>)</code></pre>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="num">0</span>..<span class="num">10</span> {
+    print(<span class="str">"fib(</span>{i}<span class="str">) = </span>{fibonacci(i)}<span class="str">"</span>);
+}</code></pre>
         </section>
 
         <!-- Performance -->
