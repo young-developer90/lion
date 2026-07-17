@@ -1,11 +1,11 @@
 // Basic Comet UI test
-// Run with: zamin run examples/comet_basic.lion
+// Run with: zamin run examples/comet_basic.zamin
 
 func main() {
     let ui = comet();
 
     // Simple element rendering
-    let el = ui.p("Hello Lion!").style("color: orange; font-size: 20px;");
+    let el = ui.p("Hello Zamin!").style("color: orange; font-size: 20px;");
     let html = ui.html(ui.body(el));
     print("HTML output:");
     print(html);

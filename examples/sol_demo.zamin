@@ -1,5 +1,5 @@
 // Sol GUI demo
-// Run with: zamin run examples/sol_demo.lion
+// Run with: zamin run  examples/sol_demo.zamin
 
 let root = sol.Leo("Sol Demo", 400, 300);
 

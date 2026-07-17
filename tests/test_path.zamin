@@ -23,7 +23,7 @@ print("testing path.is_dir...");
 if not path.is_dir(".") { print("FAIL: path.is_dir('.') should be true"); return; }
 
 print("testing path.is_file...");
-if not path.is_file("tests/test_path.lion") { print("FAIL: path.is_file should be true"); return; }
+if not path.is_file("tests/test_path.zamin") { print("FAIL: path.is_file should be true"); return; }
 
 print("testing path.abs...");
 let abs = path.abs(".");

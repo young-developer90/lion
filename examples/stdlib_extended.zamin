@@ -1,5 +1,5 @@
-// Lion Extended Standard Library Examples
-// Run with: zamin run examples/stdlib_extended.lion
+// Zamin Extended Standard Library Examples
+// Run with: zamin run examples/stdlib_extended.zamin
 
 // ============ re (regex) ============
 print("=== re module ===");
@@ -38,7 +38,7 @@ logging.debug("now you see this too");
 
 // ============ subprocess ============
 print("\n=== subprocess module ===");
-let r = subprocess.run_shell("echo Hello from Lion");
+let r = subprocess.run_shell("echo Hello from Zamin");
 print("exit code:", r.returncode);
 let out = subprocess.run_shell_output("echo subprocess works");
 print("captured output:", string.trim(out));

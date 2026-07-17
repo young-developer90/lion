@@ -1,11 +1,11 @@
-// Lion NotePad - a simple single-line text editor
+// Zamin NotePad - a simple single-line text editor
 //
 // Usage:
 //   Enter a file path, edit the text, use Load/Save buttons
 //   Note: single-line Entry widget (multi-line not yet supported)
 
-let root = luna.Leo("Lion NotePad", 720, 320);
-luna.pack(luna.Label(root, "Lion NotePad  —  single-line text editor"));
+let root = luna.Leo("Zamin NotePad", 720, 320);
+luna.pack(luna.Label(root, "Zamin NotePad  —  single-line text editor"));
 
 let file_frame = luna.Frame(root);
 luna.pack(luna.Label(file_frame, "File path"));
@@ -24,7 +24,7 @@ luna.pack(luna.Label(btn_frame, "Actions"));
 let new_btn = luna.Button(btn_frame, "New", func() {
     luna.config(file_path, "text", "untitled.txt");
     luna.config(body, "text", "");
-    luna.title(root, "Lion NotePad — untitled.txt");
+    luna.title(root, "Zamin NotePad — untitled.txt");
     luna.config(status, "Ready — new file");
 });
 luna.pack(new_btn);
@@ -33,7 +33,7 @@ let load_btn = luna.Button(btn_frame, "Load", func() {
     let fpath = luna.get(file_path);
     let text = fs.read(fpath);
     luna.config(body, "text", text);
-    luna.title(root, f"Lion NotePad — {path.basename(fpath)}");
+    luna.title(root, f"Zamin NotePad — {path.basename(fpath)}");
     luna.config(status, f"Loaded {path.basename(fpath)} ({string.len(text)} chars)");
 });
 luna.pack(load_btn);
@@ -50,7 +50,7 @@ let sa_btn = luna.Button(btn_frame, "Save As", func() {
     let fpath = luna.get(file_path);
     let text = luna.get(body);
     let _ = fs.write(fpath, text);
-    luna.title(root, f"Lion NotePad — {path.basename(fpath)}");
+    luna.title(root, f"Zamin NotePad — {path.basename(fpath)}");
     luna.config(status, f"Saved as {path.basename(fpath)}");
 });
 luna.pack(sa_btn);

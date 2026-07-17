@@ -1,4 +1,4 @@
-"""Python benchmark — equivalent to bench_lion.lion"""
+"""Python benchmark — equivalent to bench_zamin.zamin"""
 import re
 import time
 import datetime

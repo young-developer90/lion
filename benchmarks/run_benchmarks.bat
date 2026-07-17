@@ -7,7 +7,7 @@ echo.
 echo.
 echo --- Running Zamin benchmark ---
 echo.
-cargo run --bin zamin -- run benchmarks/bench_lion.lion 2>&1
+cargo run --bin zamin -- run benchmarks/bench_zamin.zamin 2>&1
 
 echo.
 echo.

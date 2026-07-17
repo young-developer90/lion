@@ -36,7 +36,7 @@ func main() {
 
     print("");
     print("=== JSON Module ===");
-    let data = json.parse("{\"name\": \"Lion\", \"version\": 1.0, \"tags\": [\"lang\", \"interpreter\"]}");
+    let data = json.parse("{\"name\": \"Zamin\", \"version\": 1.0, \"tags\": [\"lang\", \"interpreter\"]}");
     print("parsed name:", data.name);
     print("stringified:", json.stringify(data));
     print("pretty:", json.pretty(data));

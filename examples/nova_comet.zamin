@@ -1,5 +1,5 @@
 // Nova + Comet example
-// Run with: zamin run examples/nova_comet.lion
+// Run with: zamin run  examples/nova_comet.zamin
 
 func main() {
     let app = nova();
@@ -10,7 +10,7 @@ func main() {
     });
 
     app.get("/hello", func(req) {
-        return ui.html(ui.body(ui.p("Hello from Lion!").style("font-size: 24px; color: #1E1B4B; font-family: Arial; text-align: center; padding: 40px;")));
+        return ui.html(ui.body(ui.p("Hello from Zamin!").style("font-size: 24px; color: #1E1B4B; font-family: Arial; text-align: center; padding: 40px;")));
     });
 
     print("Nova app started!");

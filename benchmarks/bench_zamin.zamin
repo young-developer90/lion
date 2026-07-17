@@ -1,5 +1,5 @@
 // Zamin benchmark
-// Run with: zamin run benchmarks/bench_lion.lion
+// Run with: zamin run benchmarks/bench_zamin.zamin
 
 func bench(name, fn) {
     let start = time.now();
