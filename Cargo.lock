@@ -1953,7 +1953,7 @@ dependencies = [
 
 [[package]]
 name = "zamin"
-version = "1.7.0"
+version = "1.7.3"
 dependencies = [
  "base64",
  "gtk4",
