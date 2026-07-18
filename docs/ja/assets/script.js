@@ -268,22 +268,32 @@
     const langMenu = document.getElementById('lang-menu');
     const langOptions = document.querySelectorAll('.lang-option');
 
+    function getPathSegments() {
+      return window.location.pathname.split('/').filter(Boolean);
+    }
+
     function getCurrentLang() {
-      const path = window.location.pathname;
-      if (path.startsWith('/fa/') || path.startsWith('/fa')) return 'fa';
-      if (path.startsWith('/ja/') || path.startsWith('/ja')) return 'ja';
+      var segs = getPathSegments();
+      for (var i = 0; i < segs.length; i++) {
+        if (segs[i] === 'fa') return 'fa';
+        if (segs[i] === 'ja') return 'ja';
+      }
       return 'en';
     }
 
     function getCurrentPage() {
-      var path = window.location.pathname;
-      if (path.endsWith('/')) return 'index.html';
-      var parts = path.split('/');
-      return parts[parts.length - 1] || 'index.html';
+      var segs = getPathSegments();
+      return segs[segs.length - 1] || 'index.html';
+    }
+
+    function getBasePath() {
+      var segs = getPathSegments();
+      var lang = getCurrentLang();
+      var end = lang !== 'en' ? segs.indexOf(lang) : segs.length - 1;
+      return '/' + segs.slice(0, end).join('/') + '/';
     }
 
     if (langBtn && langMenu) {
-      // Mark current language active
       const currentLang = getCurrentLang();
       langOptions.forEach(function(o) {
         if (o.getAttribute('data-lang') === currentLang) {
@@ -306,15 +316,14 @@
       langOptions.forEach(function(opt) {
         opt.addEventListener('click', function(e) {
           e.preventDefault();
-          var lang = opt.getAttribute('data-lang');
+          var targetLang = opt.getAttribute('data-lang');
           var page = getCurrentPage();
-          var dest;
-          if (lang === 'en') {
-            dest = '/' + page;
+          var base = getBasePath();
+          if (targetLang === 'en') {
+            window.location.href = base + page;
           } else {
-            dest = '/' + lang + '/' + page;
+            window.location.href = base + targetLang + '/' + page;
           }
-          window.location.href = dest;
         });
       });
     }
@@ -322,8 +331,11 @@
     // === GitHub Link ===
     const editBtn = document.getElementById('edit-link');
     if (editBtn) {
-      const page = window.location.pathname.split('/').pop() || 'index.html';
-      editBtn.href = 'https://github.com/young-developer90/zamin/edit/master/docs/' + page;
+      var segs = getPathSegments();
+      var page = segs[segs.length - 1] || 'index.html';
+      var lang = getCurrentLang();
+      var localeDir = lang !== 'en' ? lang + '/' : '';
+      editBtn.href = 'https://github.com/young-developer90/zamin/edit/master/docs/' + localeDir + page;
     }
   });
 
